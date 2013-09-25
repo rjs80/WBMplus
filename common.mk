@@ -1,9 +1,21 @@
 UNIX=$(shell uname)
-ifndef GHAASDIR
-export GHAASDIR=/usr/local/share/ghaas
-endif
 
+ifeq ($(UNIX),Linux)
 export UNIXCC=gcc
 export UNIXCCOPS=-g -Wall -pthread -fsigned-char -D_GNU_SOURCE
 export UNIXLIBS=-pthread -lm
 export UNIXMAKE=make
+endif
+ifeq ($(UNIX),Darwin)
+export UNIXCC=gcc
+export UNIXCCOPS=-g -Wall -pthread -fsigned-char -D_GNU_SOURCE
+export UNIXLIBS=-pthread -lm
+export UNIXMAKE=make
+endif
+ifeq ($(UNIX),SunOS)
+export UNIXAR=ar -ru
+export UNIXCC=gcc
+export UNIXCCOPS=-g -Wall -pthread -fsigned-char -D_GNU_SOURCE
+export UNIXLIBS=-pthread -lm
+export UNIXMAKE=gmake
+endif

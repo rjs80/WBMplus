@@ -30,15 +30,18 @@ static int _MDInRelativeIceContent    = MFUnset;
 static int _MDInRunoffToPervID        = MFUnset;  // RJS 082812
 static int _MDInImpFractionID         = MFUnset;  // RJS 082812
 static int _MDInStormRunoffTotalID    = MFUnset;  // RJS 082812
+// static int _MDInImperviousSoilID	  = MFUnset;  // RJS 091213
 
 // Output
 static int _MDOutEvaptrsID            = MFUnset;
 static int _MDOutEvaptrsNotScaledID   = MFUnset;  // RJS 082812
-static int _MDOutSoilMoistCellID      = MFUnset;
+static int _MDOutSoilMoistNotScaledID = MFUnset;  // renamed from 'Cell' to 'not scaled'
 static int _MDOutSoilMoistID          = MFUnset;
 static int _MDOutSMoistChgID          = MFUnset;
 static int _MDOutLiquidSoilMoistureID = MFUnset;
-
+static int _MDOutExcessID			  = MFUnset;  // RJS 091813
+static int _MDOutExcessNotScaledID	  = MFUnset;
+static int _MDOutSMoistChgNotScaledID = MFUnset; // RJS 091913
 
 static void _MDRainSMoistChg (int itemID) {	
 // Input
@@ -61,7 +64,9 @@ static void _MDRainSMoistChg (int itemID) {
 	float awCap;
 	float gm;
 	float iceContent;
+//	float imperviousSoil;		  // 1.0 =  soil AWC layer takes into account impervious surfaces already, 2.0 = soil AWC layer does not take into account imp data
 
+//	imperviousSoil   = MFVarGetFloat (_MDInImperviousSoilID,    itemID, 0.0);	// RJS 091213
 	airT             = MFVarGetFloat (_MDInAirTMeanID,          itemID, 0.0);
 	precip           = MFVarGetFloat (_MDInPrecipID,            itemID, 0.0);
  	sPackChg         = MFVarGetFloat (_MDInSPackChgID,          itemID, 0.0);
@@ -70,7 +75,7 @@ static void _MDRainSMoistChg (int itemID) {
 	impAreaFrac      = MFVarGetFloat (_MDInImpFractionID,  	    itemID, 0.0);	// RJS 082812
 	runoffToPerv     = MFVarGetFloat (_MDInRunoffToPervID,      itemID, 0.0);	// RJS 082812
 	stormRunoffTotal = MFVarGetFloat (_MDInStormRunoffTotalID,  itemID, 0.0);	// RJS 082812
-	sMoist       	 = MFVarGetFloat (_MDOutSoilMoistCellID,    itemID, 0.0);
+	sMoist       	 = MFVarGetFloat (_MDOutSoilMoistNotScaledID,    itemID, 0.0);
 	iceContent   	 = _MDInRelativeIceContent != MFUnset ? MFVarGetFloat (_MDInRelativeIceContent,  itemID, 0.0) : 0.0;
 	intercept   	 = _MDInInterceptID        != MFUnset ? MFVarGetFloat (_MDInInterceptID,         itemID, 0.0) : 0.0;
 	irrAreaFrac  	 = _MDInIrrAreaFracID      != MFUnset ? MFVarGetFloat (_MDInIrrAreaFracID,       itemID, 0.0) : 0.0;
@@ -135,14 +140,14 @@ static void _MDRainSMoistChg (int itemID) {
 
 	float balance = waterIn - evapotrans - sMoistChg - excess;	// RJS 082812
 
-//if (itemID == 486) {
-	//	printf("**** itemID = %d, month = %d, day = %d, airT = %f, surplus = %f, stormRunoff = %f, intercept = %f\n", itemID, MFDateGetCurrentMonth (), MFDateGetCurrentDay (), airT, precip - sPackChg - evapotrans - sMoistChg - stormRunoffTotal, stormRunoffTotal, intercept);
-	//	printf("Alpha = %f, sMoist = %f, sMoistChg = %f, precip = %f, transp = %f, waterIn = %f\n", _MDSoilMoistALPHA, sMoist, sMoistChg, precip, evapotrans, waterIn);
-	//	printf("pet = %f, awCap = %f, precip = %f, sPackChg = %f, excess = %f, airT = %f\n", pet, awCap, precip, sPackChg, excess, airT);
-	//	printf("balance = %f, gm = %f, impAreaFrac = %f, runofftoPerv(basin) = %f, runofftoPerv(perv) = %f\n", balance, gm, impAreaFrac, runoffToPerv * (1.00 - impAreaFrac), runoffToPerv);
-	//}
+//if (itemID == 132) {
+//		printf("**** itemID = %d, month = %d, day = %d, airT = %f, surplus = %f, stormRunoff = %f, intercept = %f\n", itemID, MFDateGetCurrentMonth (), MFDateGetCurrentDay (), airT, precip - sPackChg - evapotrans - sMoistChg - stormRunoffTotal, stormRunoffTotal, intercept);
+//		printf("Alpha = %f, sMoist = %f, sMoistChg = %f, precip = %f, transp = %f, waterIn = %f\n", _MDSoilMoistALPHA, sMoist, sMoistChg, precip, evapotrans, waterIn);
+//		printf("pet = %f, awCap = %f, precip = %f, sPackChg = %f, excess = %f, airT = %f\n", pet, awCap, precip, sPackChg, excess, airT);
+//		printf("balance = %f, gm = %f, impAreaFrac = %f, runofftoPerv(basin) = %f, runofftoPerv(perv) = %f\n", balance, gm, impAreaFrac, runoffToPerv * (1.00 - impAreaFrac), runoffToPerv);
+//	}
 
-if (fabs(balance) > 0.001) {
+if (fabs(balance) > 0.00001) {
 	printf("**** itemID = %d, month = %d, day = %d, airT = %f, surplus = %f, stormRunoff = %f, intercept = %f\n", itemID, MFDateGetCurrentMonth (), MFDateGetCurrentDay (), airT, precip - sPackChg - evapotrans - sMoistChg - stormRunoffTotal, stormRunoffTotal, intercept);
 	printf("Alpha = %f, sMoist = %f, sMoistChg = %f, precip = %f, transp = %f, waterIn = %f\n", _MDSoilMoistALPHA, sMoist, sMoistChg, precip, evapotrans, waterIn);
 	printf("pet = %f, awCap = %f, precip = %f, sPackChg = %f, excess = %f, airT = %f\n", pet, awCap, precip, sPackChg, excess, airT);
@@ -151,8 +156,11 @@ if (fabs(balance) > 0.001) {
 	
 //if ((itemID == 486)) printf("y = %d, m = %d, d = %d, ******* precip = %f, transp = %f, sPackChg = %f, sMoist = %f, sMoistChg = %f, awCap = %f, excess = %f\n", MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), precip, evapotrans, sPackChg, sMoist, sMoistChg, awCap, excess);	//RJS 071511
 
+	MFVarSetFloat (_MDOutExcessNotScaledID,   itemID, excess);	//RJS 091813
 	MFVarSetFloat (_MDOutEvaptrsNotScaledID,  itemID, evapotrans);	// RJS 082812
-	MFVarSetFloat (_MDOutSoilMoistCellID,     itemID, sMoist);
+	MFVarSetFloat (_MDOutSoilMoistNotScaledID,     itemID, sMoist);
+	MFVarSetFloat (_MDOutSMoistChgNotScaledID, itemID, sMoistChg);
+	MFVarSetFloat (_MDOutExcessID,            itemID, excess     * (1.0 - irrAreaFrac - impAreaFrac));
 	MFVarSetFloat (_MDOutEvaptrsID,           itemID, evapotrans * (1.0 - irrAreaFrac - impAreaFrac)); 	//RJS 082812 "- impAreaFrac"
 	MFVarSetFloat (_MDOutSoilMoistID,         itemID, sMoist     * (1.0 - irrAreaFrac - impAreaFrac)); 	//RJS 082812 "- impAreaFrac"
 	MFVarSetFloat (_MDOutSMoistChgID,         itemID, sMoistChg  * (1.0 - irrAreaFrac - impAreaFrac)); 	//RJS 082812 "- impAreaFrac"
@@ -197,10 +205,13 @@ int MDRainSMoistChgDef () {
         ((_MDInStormRunoffTotalID  = MFVarGetID (MDVarStormRunoffTotal,           "mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||	// RJS 082812
 	    ((_MDInImpFractionID       = MFVarGetID (MDVarImpFracSpatial,             "mm",   MFInput,  MFState, MFBoundary)) == CMfailed) ||   // RJS 082812
  	    ((_MDOutEvaptrsID          = MFVarGetID (MDVarRainEvapotranspiration,     "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
+ 	    ((_MDOutExcessID           = MFVarGetID (MDVarExcess,                     "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||	// RJS 091813
+ 	    ((_MDOutExcessNotScaledID  = MFVarGetID (MDVarExcessNotScaled,            "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||	// RJS 091813
  	    ((_MDOutEvaptrsNotScaledID = MFVarGetID (MDVarRainETnotScaled,            "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||	// RJS 082812
-	    ((_MDOutSoilMoistCellID    = MFVarGetID (MDVarRainSoilMoistureCell,       "mm",   MFOutput, MFState, MFInitial))  == CMfailed) ||
+	    ((_MDOutSoilMoistNotScaledID    = MFVarGetID (MDVarRainSoilMoistureNotScaled,       "mm",   MFOutput, MFState, MFInitial))  == CMfailed) ||
 	    ((_MDOutSoilMoistID        = MFVarGetID (MDVarRainSoilMoisture,           "mm",   MFOutput, MFState, MFBoundary)) == CMfailed) ||
-        ((_MDOutSMoistChgID        = MFVarGetID (MDVarRainSoilMoistChange,        "mm",   MFOutput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDOutSMoistChgNotScaledID   = MFVarGetID (MDVarRainSoilMoistureChangeNotScaled,       "mm",   MFOutput, MFState, MFInitial))  == CMfailed) ||
+	    ((_MDOutSMoistChgID        = MFVarGetID (MDVarRainSoilMoistChange,        "mm",   MFOutput, MFState, MFBoundary)) == CMfailed) ||
         (MFModelAddFunction (_MDRainSMoistChg) == CMfailed)) return (CMfailed);
 	MFDefLeaving ("Rainfed Soil Moisture");
 	return (_MDOutSMoistChgID);

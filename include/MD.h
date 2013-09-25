@@ -121,6 +121,9 @@ extern "C" {
 #define MDVarEfficiency1					 "Efficiency1"			// RJS 062012
 #define MDVarEnergyDemand					 "EnergyDemand"			// RJS 062012
 
+#define MDVarExcess							 "Excess"				// RJS 091813
+#define MDVarExcessNotScaled				 "ExcessNotScaled"
+
 #define MDVarEvapotranspiration              "Evapotranspiration"
 #define MDVarFuelType1						 "FuelType1"			//RJS 013012
 #define MDVarFuelType2						 "FuelType2"			//RJS 013012
@@ -146,6 +149,8 @@ extern "C" {
 #define MDVarHeatToEvap						 "HeatToEvap"			// RJS 120212
 
 #define MDVarImpFracSpatial					 "ImpFracSpatial"		//RJS 082812
+#define MDVarH2OFracSpatial					 "H2OFracSpatial"		//RJS 091213
+#define MDVarImperviousSoil					 "ImperviousSoil"		// RJS 091213
 
 #define MDVarIrrAreaFraction                 "IrrigatedAreaFraction"
 
@@ -248,7 +253,9 @@ extern "C" {
 #define MDVarRainPotEvapotrans               "RainPET"
 #define MDVarRainSoilMoisture                "RainSoilMoisture"
 #define MDVarRainSoilMoistureCell            "RainSoilMoistureCell"
+#define MDVarRainSoilMoistureNotScaled		 "RainSoilMoistureNotScaled"	// this replaces "Cell", above.
 #define MDVarRainSoilMoistChange             "RainSoilMoistureChange"
+#define MDVarRainSoilMoistureChangeNotScaled "RainSoilMoistureChangeNotScaled"
 #define MDVarRainSurfRunoff                  "RainSurfRunoff"
 #define MDVarRainTranspiration               "RainTranspiration"
 #define MDVarRainWaterSurplus                "RainWaterSurplus"
@@ -369,6 +376,7 @@ extern "C" {
 #define MDVarSnowPack                        "SnowPack"
 #define MDVarSnowPackChange                  "SnowPackChange"
 #define MDVarSoilAvailWaterCap               "AvailableWaterCapacity"
+#define MDVarSoilAvailWaterCapInput			 "AvailableWaterCapacityInput"	// RJS 091713
 #define MDVarSoilFieldCapacity               "FieldCapacity"
 #define MDVarSoilRootingDepth                "RootingDepth"
 #define MDVarSoilMoisture                    "SoilMoisture"
@@ -380,6 +388,7 @@ extern "C" {
 
 #define MDVarState							 "State"				// RJS 062012
 #define MDVarStormRunoffImp					 "StormRunoffImp"		// RJS 082812
+#define MDVarStormRunoffH2O					 "StormRunoffH2O"		// RJS 091713
 #define MDVarStormRunoffTotal				 "StormRunoffTotal"		// RJS 082812
 
 #define MDVarTechnology1						 "Technology1"		// RJS 062012

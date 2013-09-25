@@ -367,22 +367,22 @@ int MDWTempRiverRouteDef () {
 
 	MFDefEntering ("Route river temperature");
 	
-	if (((optStr = MFOptionGet (MDOptReservoirs))  == (char *) NULL) ||
-       ((optID  = CMoptLookup ( options, optStr, true)) == CMfailed)) {
-      CMmsgPrint(CMmsgUsrError,"Reservoir Option not specified! Option none or calculate");
-		return CMfailed;
-   }
-   if (optID==1) {
-      if ((( waterBalanceID             = MDWaterBalanceDef  ()) == CMfailed) ||
-          ((_MDInResStorageChangeID     = MFVarGetID (MDVarReservoirStorageChange, "km3",     MFInput,  MFState, MFBoundary)) == CMfailed) ||	//RJS 071511
-          ((_MDInResStorageID           = MFVarGetID (MDVarReservoirStorage,       "km3",     MFInput,  MFState, MFInitial))  == CMfailed) ||	//RJS 121311 changed from MFBoundary to MFInitial
-          ((_MDInResCapacityID          = MFVarGetID (MDVarReservoirCapacity,      "km3",     MFInput,  MFState, MFBoundary)) == CMfailed))
-         return (CMfailed);
-    }
+//	if (((optStr = MFOptionGet (MDOptReservoirs))  == (char *) NULL) ||
+//       ((optID  = CMoptLookup ( options, optStr, true)) == CMfailed)) {
+//      CMmsgPrint(CMmsgUsrError,"Reservoir Option not specified! Option none or calculate");
+//		return CMfailed;
+//   }
+//   if (optID==1) {
+//      if ((( waterBalanceID             = MDWaterBalanceDef  ()) == CMfailed) ||
+//          ((_MDInResStorageChangeID     = MFVarGetID (MDVarReservoirStorageChange, "km3",     MFInput,  MFState, MFBoundary)) == CMfailed) ||	//RJS 071511
+//          ((_MDInResStorageID           = MFVarGetID (MDVarReservoirStorage,       "km3",     MFInput,  MFState, MFInitial))  == CMfailed) ||	//RJS 121311 changed from MFBoundary to MFInitial
+//          ((_MDInResCapacityID          = MFVarGetID (MDVarReservoirCapacity,      "km3",     MFInput,  MFState, MFBoundary)) == CMfailed))
+//         return (CMfailed);
+//    }
 	//input
 	if (
+	   (( waterBalanceID             = MDWaterBalanceDef  ()) == CMfailed) ||
 	   ((_MDInDischargeID            = MDDischargeDef     ()) == CMfailed) ||		//commented out 030113
-       (( waterBalanceID             = MDWaterBalanceDef  ()) == CMfailed) ||
        ((_MDInSolarRadID             = MDSolarRadDef      ()) == CMfailed) ||
        ((_MDInWTempRiverID           = MDWTempRiverDef    ()) == CMfailed) ||
        ((_MDInRiverWidthID           = MDRiverWidthDef    ()) == CMfailed) ||
