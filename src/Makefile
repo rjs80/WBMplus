@@ -98,7 +98,8 @@ OBJS = $(OBJ)/WBMMain.o\
        $(OBJ)/MDDO2.o\
        $(OBJ)/MDThermalInputs3.o\
        $(OBJ)/MDDIN.o\
-       $(OBJ)/MDNitrogenInputs.o
+       $(OBJ)/MDNitrogenInputs.o\
+       $(OBJ)/MDWWTP.o
        
 
 all: ${TARGET}

@@ -22,8 +22,11 @@ static int _MDInBaseFlowID  	    = MFUnset;
 static int _MDInRunoffCorrID	    = MFUnset;
 static int _MDInTotalSurfRunoffID   = MFUnset;	// RJS 082812
 // Output
-static int _MDOutRunoffID   	    = MFUnset;
-static int _MDOutTotalSurfRunoffID  = MFUnset;	// RJS 082812
+static int _MDOutRunoffID   	      = MFUnset;
+static int _MDOutTotalSurfRunoffID    = MFUnset;	// RJS 082812
+static int _MDOutPropROStormWaterID   = MFUnset;  // RJS 100313
+static int _MDOutPropROSurfaceWaterID = MFUnset;  // RJS 100313
+static int _MDOutPropROGroundWaterID  = MFUnset;  // RJS 100313
 
 static void _MDRunoff (int itemID) {
 // Input
@@ -33,20 +36,33 @@ static void _MDRunoff (int itemID) {
 	float runoffPoolRelease;	// RJS 082812
 	float surfaceRO;
 	float runoffCorr;
+        float propStW;                  // RJS 100313
+        float propSuW;                  // RJS 100313
+        float propGrW;                  // RJS 100313
+        float totalRO;                  // RJS 100313
 
 	baseFlow 	   = MFVarGetFloat (_MDInBaseFlowID,  itemID, 0.0);
 	runoffPoolRelease  = MFVarGetFloat (_MDInRunoffPoolReleaseID, itemID, 0.0);		// RJS 042712
 	stormRunoffTotal   = MFVarGetFloat (_MDInStormRunoffTotalID,  itemID, 0.0);		// RJS 082812
 	surfaceRO	   = runoffPoolRelease + stormRunoffTotal;							// RJS 082812
 	runoffCorr	   = _MDInRunoffCorrID == MFUnset ? 1.0 : MFVarGetFloat (_MDInRunoffCorrID, itemID, 1.0);
-
+        
+        totalRO = baseFlow + runoffPoolRelease + stormRunoffTotal;
+        propStW = totalRO > 0.0 ? stormRunoffTotal / totalRO : 0.33333;
+        propSuW = totalRO > 0.0 ? runoffPoolRelease / totalRO : 0.33333;
+        propGrW = totalRO > 0.0 ? baseFlow / totalRO : 0.33333;
+        
 //	if ((itemID == 293)) {
 //			printf("m = %d, d = %d --yes-- id = %d, area = %f,  baseFlow = %f, runoffPoolRelease = %f, stormRunoff = %f, surfaceRO = %f\n", MFDateGetCurrentMonth(), MFDateGetCurrentDay(), itemID, MFModelGetArea (itemID), baseFlow * MFModelGetArea (itemID) / (1000 * 86400), runoffPoolRelease * MFModelGetArea (itemID) / (1000 * 86400), stormRunoffTotal * MFModelGetArea (itemID) / (1000 * 86400),surfaceRO * MFModelGetArea (itemID) / (1000 * 86400));
 //			printf("m = %d, d = %d --yes-- id = %d, area = %f,  baseFlow = %f, runoffPoolRelease = %f, stormRunoff = %f, surfaceRO = %f\n", MFDateGetCurrentMonth(), MFDateGetCurrentDay(), itemID, MFModelGetArea (itemID), baseFlow, runoffPoolRelease, stormRunoffTotal,surfaceRO);
 //	}
 
 	MFVarSetFloat (_MDOutRunoffID,          itemID, (baseFlow + surfaceRO) * runoffCorr);
-	MFVarSetFloat (_MDOutTotalSurfRunoffID, itemID, surfaceRO);				// RJS 082812
+	MFVarSetFloat (_MDOutTotalSurfRunoffID, itemID, surfaceRO);                                     // RJS 082812
+        MFVarSetFloat (_MDOutPropROStormWaterID,  itemID, propStW);                                       // RJS 100313
+        MFVarSetFloat (_MDOutPropROSurfaceWaterID,   itemID, propSuW);                                       // RJS 100313
+        MFVarSetFloat (_MDOutPropROGroundWaterID, itemID, propGrW);                                       // RJS 100313
+        
 }
 
 
@@ -82,7 +98,7 @@ int MDRunoffDef () {
 			if (((_MDInBaseFlowID          = MFVarGetID (MDVarBaseFlow,          "mm",    MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	// RJS 061312
 //				((_MDInRunoffPoolReleaseID = MFVarGetID (MDVarRunoffPoolRelease, "mm",    MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	// RJS 061312, commented out 082812
 				((_MDInTotalSurfRunoffID   = MFVarGetID (MDVarTotalSurfRunoff,   "mm",    MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	// RJS 082812		
-				((_MDOutRunoffID           = MFVarGetID (MDVarRunoff,            "mm",    MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	// RJS 061312
+                                ((_MDOutRunoffID           = MFVarGetID (MDVarRunoff,            "mm",    MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	// RJS 061312
 				(MFModelAddFunction (_MDRunoffInput) == CMfailed)) return (CMfailed);														// RJS 061312
 			break;																															// RJS 061312
 		case MDcorrected:
@@ -95,6 +111,9 @@ int MDRunoffDef () {
 				((_MDInRunoffPoolReleaseID = MDSurfRunoffPoolDef ()) == CMfailed) ||		// RJS 042612
 //				((_MDInStormRunoffTotalID  = MDStormRunoffDef ()) == CMfailed) ||		// RJS 082812
 				((_MDInStormRunoffTotalID  = MFVarGetID (MDVarStormRunoffTotal, "mm",    MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
+                                ((_MDOutPropROStormWaterID   = MFVarGetID (MDVarPropROStormWater,    "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313
+                                ((_MDOutPropROSurfaceWaterID = MFVarGetID (MDVarPropROSurfaceWater,  "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313 
+                                ((_MDOutPropROGroundWaterID  = MFVarGetID (MDVarPropROGroundWater,   "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||  
 				((_MDOutRunoffID           = MFVarGetID (MDVarRunoff,          "mm",     MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
 				((_MDOutTotalSurfRunoffID  = MFVarGetID (MDVarTotalSurfRunoff, "mm",     MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
 				(MFModelAddFunction (_MDRunoff) == CMfailed)) return (CMfailed);

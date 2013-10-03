@@ -18,10 +18,10 @@ rob.stewart@unh.edu
 
 // Input
 static int _MDInImpFractionID       = MFUnset;
-static int _MDInH2OFractionID		= MFUnset;
+static int _MDInH2OFractionID       = MFUnset;
 static int _MDInPrecipID            = MFUnset;
 static int _MDInSPackChgID          = MFUnset;
-static int _MDInHCIAID				= MFUnset;
+static int _MDInHCIAID		    = MFUnset;
 
 // Output
 static int _MDOutStormRunoffH2OID 	= MFUnset;
@@ -29,6 +29,8 @@ static int _MDOutStormRunoffImpID 	= MFUnset;
 static int _MDOutStormRunoffTotalID = MFUnset;
 static int _MDOutRunofftoPervID 	= MFUnset;
 static int _MDOutPrecipPervID       = MFUnset;
+static int _MDOutImpFractionID          = MFUnset;
+static int _MDOutH2OFractionID          = MFUnset;
 
 static void _MDStormRunoff (int itemID) {
 
@@ -39,7 +41,7 @@ static void _MDStormRunoff (int itemID) {
 	float runoffTotal	= 0.0;
 	float runofftoPerv	= 0.0;
 	float hcia			= 0.0;
-    float h2oAreaFrac 	= 0.0;
+        float h2oAreaFrac 	= 0.0;
 	float impAreaFrac 	= 0.0;
 	float snowpackChg	= 0.0;
 	float precipPerv	= 0.0;
@@ -47,7 +49,7 @@ static void _MDStormRunoff (int itemID) {
 
 	snowpackChg = MFVarGetFloat (_MDInSPackChgID, 	 itemID, 0.0);
 	precip      = MFVarGetFloat (_MDInPrecipID,  	 itemID, 0.0);
-	hcia		= MFVarGetFloat (_MDInHCIAID,     	 itemID, 0.0);
+	hcia        = MFVarGetFloat (_MDInHCIAID,     	 itemID, 0.0);
 	impAreaFrac = MFVarGetFloat (_MDInImpFractionID, itemID, 0.0);
 	h2oAreaFrac = MFVarGetFloat (_MDInH2OFractionID, itemID, 0.0);
 
@@ -80,6 +82,8 @@ static void _MDStormRunoff (int itemID) {
 	MFVarSetFloat (_MDOutStormRunoffTotalID, itemID, runoffTotal);
 	MFVarSetFloat (_MDOutRunofftoPervID,     itemID, runofftoPerv);
 	MFVarSetFloat (_MDOutPrecipPervID,       itemID, precipPerv);
+        MFVarSetFloat (_MDOutImpFractionID,      itemID, impAreaFrac);  // 10/01/13
+        MFVarSetFloat (_MDOutH2OFractionID,      itemID, h2oAreaFrac);  // 10/01/13
 
 	float balance = precip - runoffTotal - runofftoPerv - precipPerv;
 
@@ -109,8 +113,9 @@ int MDStormRunoffDef () {
 	    ((_MDOutStormRunoffH2OID    = MFVarGetID (MDVarStormRunoffH2O,  "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||		//commented out 082812
 	    ((_MDOutPrecipPervID        = MFVarGetID (MDVarPrecipPerv,      "mm",   MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
 	    ((_MDOutStormRunoffTotalID  = MFVarGetID (MDVarStormRunoffTotal,"mm",   MFOutput, MFFlux, MFBoundary))  == CMfailed) ||
-        ((_MDOutRunofftoPervID      = MFVarGetID (MDVarRunofftoPerv,    "mm",   MFOutput, MFFlux, MFBoundary))  == CMfailed) ||
-
+            ((_MDOutH2OFractionID        = MFVarGetID (MDVarH2OFracSpatial,  "-",   MFOutput,  MFState, MFBoundary)) == CMfailed) ||		// RJS 100113
+	    ((_MDOutImpFractionID        = MFVarGetID (MDVarImpFracSpatial,  "-",    MFOutput,  MFState, MFBoundary)) == CMfailed) ||           // RJS 100113
+            ((_MDOutRunofftoPervID      = MFVarGetID (MDVarRunofftoPerv,    "mm",   MFOutput, MFFlux, MFBoundary))  == CMfailed) ||
 	    (MFModelAddFunction (_MDStormRunoff) == CMfailed)) return (CMfailed);
 
 	MFDefLeaving ("Storm Runoff");

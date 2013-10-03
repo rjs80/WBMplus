@@ -115,7 +115,7 @@ extern "C" {
 #define MDVarDischarge1                      "Discharge1"
 #define MDVarDischObserved                   "DischargeObserved"
 #define MDVarDischMean                       "DischargeMean"
-
+#define MDVarDischRJS                        "DischargeRJS"
 #define MDVarDingmanOnOff					 "DingmanOnOff"			// RJS 073012
 
 #define MDVarEfficiency1					 "Efficiency1"			// RJS 062012
@@ -238,11 +238,31 @@ extern "C" {
 
 #define MDVarPrecipPerv						 "PrecipPerv"			// RJS 082812
 
+#define MDVarPropROStormWater                                     "PropROStormWater"                // RJS 100313    
+#define MDVarPropROSurfaceWater                                   "PropROSurfaceWater"              // RJS 100313   
+#define MDVarPropROGroundWater                                    "PropROGroundWater"               // RJS 100313    
+#define MDVarQStormWater                                          "QStW"                // RJS 100313    
+#define MDVarQSurfaceWater                                        "QSuW"              // RJS 100313   
+#define MDVarQGroundWater                                         "QGrW"               // RJS 100313  
+#define MDVarPropRSStormWater                                     "PropRSStormWater"                // RJS 100313    
+#define MDVarPropRSSurfaceWater                                   "PropRSSurfaceWater"              // RJS 100313   
+#define MDVarPropRSGroundWater                                    "PropRSGroundWater"               // RJS 100313  
+#define MDVarPropQinStormWater                                    "PropQinStormWater"                // RJS 100313    
+#define MDVarPropQinSurfaceWater                                  "PropQinSurfaceWater"              // RJS 100313   
+#define MDVarPropQinGroundWater                                   "PropQinGroundWater"               // RJS 100313  
+#define MDVarPropRSinStormWater                                   "PropRSinStormWater"                // RJS 100313    
+#define MDVarPropRSinSurfaceWater                                 "PropRSinSurfaceWater"              // RJS 100313   
+#define MDVarPropRSinGroundWater                                  "PropRSinGroundWater"               // RJS 100313  
+    
 #define MDVarLakeOcean						 "LakeOcean"			// RJS 062012
 
 #define MDVarWetlandEvapotranspiration		 "WetlandEvapotranspiration"
 #define MDVarWetlandAreaFraction			 "WetlandAreaFraction"
 
+#define MDVarQPre                            "QPre"     // RJS 100213
+#define MDVarQOut                            "QOut"     // RJS 100213
+#define MDVarQCur                            "QCur"     // RJS 100213
+    
 #define MDVarQpp1							 "Qpp1"			//RJS 071112
 #define MDVarOptQO1							 "OptQO1"		//RJS 071112
 
@@ -260,6 +280,7 @@ extern "C" {
 #define MDVarRainTranspiration               "RainTranspiration"
 #define MDVarRainWaterSurplus                "RainWaterSurplus"
 
+#define MDVarRemovalOrder                    "RemovalOrder"                     // RJS 100213    
 #define MDVarReservoirCapacity               "ReservoirCapacity"
 #define MDVarReservoirRelease                "ReservoirRelease"
 #define MDVarReservoirStorage                "ReservoirStorage" 
@@ -498,6 +519,11 @@ extern "C" {
 
 #define MDVarWithdrawal_QxT					 "Withdrawal_QxT"	//081311
 
+#define MDVarWWTPInKgPerDay                  "WWTPInKgPerDay"           // 100113
+#define MDVarWWTPPopServed                   "WWTPPopServed"            // 100113
+#define MDVarWWTPTreatment                   "WWTPTreatment"            // 100113
+#define MDVarWWTPOutKgPerDay                 "WWTPOutKgPerDay"          // 100113
+    
 #define MDVarFluxMixing_QxT                  "QxT_FluxMixing"
 #define MDVarStorageMixing_QxT               "QxT_StorageMixing"
 #define MDVarDeltaStorageMixing_QxT          "QxT_DeltaStorageMixing"
@@ -704,6 +730,7 @@ int MDWaterBalanceDef();
 int MDPrecipitationDef();
 int MDWetDaysDef();
 int MDWetlandAreaDef();
+int MDPointSourceDef();                 // RJS 100113
 int MDPermafrostDef();
 int MDWTempGrdWaterDef();
 int MDWTempRiverDef();

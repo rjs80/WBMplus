@@ -18,36 +18,32 @@ rob.stewart@unh.edu
 
 // Inputs
 static int _MDInDischLevel3ID       = MFUnset;		//
-static int _MDInPetID				= MFUnset;		//
-static int _MDInEvaptrsID			= MFUnset;		//
-//static int _MDInWetlandAetID		= MFUnset;		//
-static int _MDInH2OFractionID		= MFUnset;		//
-static int _MDInRiverWidthID		= MFUnset;		//
-static int _MDInRiverOrderID		= MFUnset;		//
-static int _MDInLakeYesNoID			= MFUnset;		//
-static int _MDInLakePointAreaID 	= MFUnset;		//
+static int _MDInPetID		    = MFUnset;		//
+static int _MDInEvaptrsID	    = MFUnset;		//
+static int _MDInH2OFractionID       = MFUnset;		//
+static int _MDInRiverWidthID        = MFUnset;		//
+static int _MDInLakeYesNoID	    = MFUnset;		//
+static int _MDInLakePointAreaID     = MFUnset;		//
 
 // Outputs
-static int _MDOutRiverAetID			= MFUnset;		//
-static int _MDOutTotalAetID			= MFUnset;		//
-static int _MDOutLakeAetID			= MFUnset;		//
+static int _MDOutRiverAetID	    = MFUnset;		//
+static int _MDOutTotalAetID	    = MFUnset;		//
+static int _MDOutLakeAetID	    = MFUnset;		//
 
 
 static void _MDRiverLakeAet (int itemID) {
 // Inputs
-	float discharge;       			// Discharge [m3/s]
-	float pet = 0.0;	   		    // pet [mm]
-	float aet = 0.0;				// aet [mm]
-	float wetlandAet = 0.0;			// wetland aet [mm]
-	float dischargeDepthPre  = 0.0;	// discharge in mm BEFORE riverAet
-	float H2OAreaFrac		 = 0.0;	// h2o area fraction
-	float riverAreaFrac      = 0.0; // river surface area fraction
-	float combinedFrac		 = 0.0;	// combined river and h2o area frac
-	float width				 = 0.0;	// river width
-	float dL				 = 0.0; // river length
-	float riverOrder		 = 0.0;	// river order
-	float lakeyesno			 = 0.0;	//
-	float lakearea			 = 0.0; //
+	float dischargePre  = 0.0;       			// Discharge [m3/s]
+        float dischargePost = 0.0;
+	float pet           = 0.0;	   		    // pet [mm]
+	float aet           = 0.0;				// aet [mm]
+	float H2OAreaFrac   = 0.0;	// h2o area fraction
+	float riverAreaFrac = 0.0; // river surface area fraction
+	float combinedFrac  = 0.0;	// combined river and h2o area frac
+	float width	    = 0.0;	// river width
+	float dL	    = 0.0; // river length
+	float lakeyesno	    = 0.0;	//
+	float lakearea      = 0.0; //
 
 // Outputs
 
@@ -56,16 +52,13 @@ static void _MDRiverLakeAet (int itemID) {
 	float lakeAet  = 0.0;	// lake aet [mm]
 
 
-	discharge   = MFVarGetFloat (_MDInDischLevel3ID, itemID, 0.0);
-	pet			= MFVarGetFloat (_MDInPetID,         itemID, 0.0);			 //
-	aet			= MFVarGetFloat (_MDInEvaptrsID,     itemID, 0.0);			 //
-//	wetlandAet	= MFVarGetFloat (_MDInWetlandAetID,  itemID, 0.0);			 //
-	H2OAreaFrac = MFVarGetFloat (_MDInH2OFractionID, itemID, 0.0);			 //
-	width		= MFVarGetFloat (_MDInRiverWidthID,  itemID, 0.0);			 //
-	riverOrder  = MFVarGetFloat (_MDInRiverOrderID,  itemID, 0.0);			 //
-
-	lakeyesno   = MFVarGetFloat (_MDInLakeYesNoID,             itemID, 0.0); //
-	lakearea    = MFVarGetFloat (_MDInLakePointAreaID,         itemID, 0.0); //
+	dischargePre   = MFVarGetFloat (_MDInDischLevel3ID,   itemID, 0.0);
+	pet	       = MFVarGetFloat (_MDInPetID,           itemID, 0.0);			 //
+	aet	       = MFVarGetFloat (_MDInEvaptrsID,       itemID, 0.0);			 //
+	H2OAreaFrac    = MFVarGetFloat (_MDInH2OFractionID,   itemID, 0.0);			 //
+	width	       = MFVarGetFloat (_MDInRiverWidthID,    itemID, 0.0);			 //
+	lakeyesno      = MFVarGetFloat (_MDInLakeYesNoID,     itemID, 0.0); //
+	lakearea       = MFVarGetFloat (_MDInLakePointAreaID, itemID, 0.0); //
 
 	dL          = MFModelGetLength (itemID) / 1000;						 	 // km converted to m
 

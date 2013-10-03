@@ -19,26 +19,26 @@ m.m.mineau@unh.edu
 
 // Inputs
 
-static int _MDInWWTF_KgPerPersonID = MFUnset;
-static int _MDInWWTF_PopServedID   = MFUnset;
-static int _MDInWWTF_RemovalID	   = MFUnset;
-static int _MDInWWTF_TreatmentID   = MFUnset;
+static int _MDInWWTP_InKgPerDayID = MFUnset;
+static int _MDInWWTP_PopServedID   = MFUnset;
+static int _MDInWWTP_RemovalID	   = MFUnset;
+static int _MDInWWTP_TreatmentID   = MFUnset;
 
 // Outputs
 
-static int _MDOutWWTF_TotalKgOut   = MFUnset;
+static int _MDOutWWTP_OutKgPerDayID   = MFUnset;
 
 static void _MDPointSource (int itemID) {
 
-	float WWTP_InKgPerPerson  = 0.0;	// Total daily DIN input per person
+	float WWTP_InKgPerDay   = 0.0;	// Total daily DIN input 
 	float WWTP_PopServed	= 0.0;	// Total population served
 	float WWTP_Treatment	= 0.0;	// Type of treatment
 	float WWTP_Removal	= 0.0;	// Proportion removal at WWTP
-	float WWTP_TotalOut	= 0.0;	// Total Kg effluent at WWTP
+	float WWTP_OutKgPerDay	= 0.0;	// Total Kg effluent at WWTP
 
 	int day, month, year;
 
-	WWTP_InKgPerPerson    	   = MFVarGetFloat (_MDInWWTP_KgPerPersonID,   itemID, 0.0);
+	WWTP_InKgPerDay    	   = MFVarGetFloat (_MDInWWTP_InKgPerDayID,    itemID, 0.0);
 	WWTP_PopServed		   = MFVarGetFloat (_MDInWWTP_PopServedID,     itemID, 0.0);
 	WWTP_Treatment		   = MFVarGetFloat (_MDInWWTP_TreatmentID,     itemID, 0.0);
 
@@ -47,15 +47,15 @@ static void _MDPointSource (int itemID) {
 	WWTP_Removal = WWTP_Treatment == 3.0 ? 0.808088 : WWTP_Removal;		// Advanced treatment I
 	WWTP_Removal = WWTP_Treatment == 4.0 ? 0.845588 : WWTP_Removal;		// Advanced treatment II
 
-	WWTP_TotalOut	= WWTP_InKgPerPerson * WWTP_PopServed * WWTP_Removal;
+	WWTP_OutKgPerDay = WWTP_InKgPerDay * WWTP_Removal;
 
 	day   = MFDateGetCurrentDay ();
 	month = MFDateGetCurrentMonth ();
 	year  = MFDateGetCurrentYear ();
 
-	if ((WWTP_InKgPerPerson > 0.0) && (WWTP_Treatment == 0.0)) printf("itemID = %f, %d-%d-%d, WWTP_InKgPerPerson = %f, WWTP_PopServed = %f, WWTP_Treatment = %f, WWTP_Removal = %f\n", itemID, year, month, day, WWTP_InKgPerPerson, WWTP_PopServed, WWTP_Treatment, WWTP_Removal);
+	if ((WWTP_InKgPerDay > 0.0) && (WWTP_Treatment == 0.0)) printf("itemID = %f, %d-%d-%d, WWTP_InKgPerDay = %f, WWTP_PopServed = %f, WWTP_Treatment = %f, WWTP_Removal = %f\n", itemID, year, month, day, WWTP_InKgPerDay, WWTP_PopServed, WWTP_Treatment, WWTP_Removal);
 
-	MFVarSetFloat (_MDOutWWTF_TotalKgOut,   itemID, WWTP_TotalOut);
+	MFVarSetFloat (_MDOutWWTP_OutKgPerDayID,   itemID, WWTP_OutKgPerDay);
 
 }
 
@@ -65,12 +65,14 @@ int MDPointSourceDef() {
 
 	MFDefEntering ("WWTP Point Souce");
 
-//	 if (((_MDInWWTFID		        = MFVarGetID (MDVarWWTF,		       "kg/y",  MFInput,   MFFlux, MFBoundary)) == CMfailed) ||
-//		 ((_MDOutPointSourceID	    = MFVarGetID (MDVarPointSource,        "kg/d",  MFOutput,  MFFlux, MFInitial)) == CMfailed) ||
-		 (MFModelAddFunction(_MDPointSource) == CMfailed)) return (CMfailed);
+	 if (((_MDInWWTP_InKgPerDayID	    = MFVarGetID (MDVarWWTPInKgPerDay,	      "kg/d",  MFInput,   MFFlux, MFBoundary)) == CMfailed) ||
+	     ((_MDInWWTP_PopServedID	    = MFVarGetID (MDVarWWTPPopServed,         "-",     MFInput,  MFFlux, MFInitial)) == CMfailed) ||
+             ((_MDInWWTP_TreatmentID	    = MFVarGetID (MDVarWWTPTreatment,         "-",     MFInput,  MFFlux, MFInitial)) == CMfailed) || 
+             ((_MDOutWWTP_OutKgPerDayID	    = MFVarGetID (MDVarWWTPOutKgPerDay,       "kg/d",     MFInput,  MFFlux, MFInitial)) == CMfailed) ||
+             (MFModelAddFunction(_MDPointSource) == CMfailed)) return (CMfailed);
 
 	MFDefLeaving ("WWTP Point Source");
-	return (_MDOutPointSourceID);
+	return (_MDOutWWTP_OutKgPerDayID);
 
 }
 

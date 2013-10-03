@@ -37,6 +37,7 @@ static int _MDInRiverOrderID			= MFUnset;		// RJS 112211
 static int _MDWTemp_QxTID				=MFUnset;
 static int _MDInPlaceHolderID			= MFUnset;		//RJS 042913
 static int _MDInVfAdjustID				= MFUnset;		//RJS 050213
+static int _MDInRemovalOrderID                  = MFUnset;              // RJS 100213
 
 // output
 
@@ -136,6 +137,7 @@ float removalDZ			= 0.0;		// probability that a molecule in channel removed in D
 float removalHZ			= 0.0;		// probability that a molecule in channel removed in HZ
 float removalMC			= 0.0;		// probability that a molecule in channel removed in MC
 float riverOrder		= 0.0;		// river order
+float removalOrder              = 0.0;          // river order where removal begins (i.e. 'real river', not terrestrial grid cell)
 float R				= 0.0;		// proportional removal
 float totalMassRemovedDZ_DIN	= 0.0;		// total mass removed in DZ (kg/day)
 float totalMassRemovedHZ_DIN 	= 0.0;		// total mass removed in HZ (kg/day)
@@ -168,18 +170,19 @@ float VfAdjust			= 1.0;					//RJS 050213
 float cell_1      		= 1293;  //255,138
 float cell_2			= 999999;
 
-	riverOrder       = MFVarGetFloat (_MDInRiverOrderID,      itemID, 0.0);	//RJS 112211
+	riverOrder           = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);	//RJS 112211
+        removalOrder         = MFVarGetFloat (_MDInRemovalOrderID,       itemID, 0.0);  // RJS 100213
 	localLoad_DIN  	     = MFVarGetFloat (_MDInLocalLoad_DINID,      itemID, 0.0);	 // kg/day RJS 091108
 	preFlux_DIN	     = MFVarGetFloat (_MDFlux_DINID,             itemID, 0.0);	 // kg/day RJS 091108
 	storeWater_DIN	     = MFVarGetFloat (_MDStoreWater_DINID,       itemID, 0.0);	 // kg/day RJS 091108
 	preFluxMixing_DIN    = MFVarGetFloat (_MDFluxMixing_DINID,       itemID, 0.0);	 // kg/day RJS 091108 changed from MDInFluxMixing 091408
 	storeWaterMixing_DIN = MFVarGetFloat (_MDStoreWaterMixing_DINID, itemID, 0.0);	 // kg/day RJS 091108
 	runoffVol            = MFVarGetFloat (_MDInRunoffVolID,          itemID, 0.0); 	 // m3/sec
-	waterStorage	     = MFVarGetFloat (_MDInRiverStorageID,       itemID, 0.0);	 // m3/day	RJS 01-06-09
-	waterStorageChg	     = MFVarGetFloat (_MDInRiverStorageChgID,    itemID, 0.0);	 // m3/day  RJS 01-06-09
-	waterStoragePrev     = waterStorage - waterStorageChg;				 // m3/day	RJS 01-06-09
-	discharge            = MFVarGetFloat (_MDInDischargeID,          itemID, 0.0);	 // m3/sec
-	dischargePre	     = MFVarGetFloat (_MDInDischarge0ID,         itemID, 0.0);	 // m3/sec
+	waterStorage	     = MFVarGetFloat (_MDInRiverStorageID,       itemID, 0.0);	 // m3/sec!!! RJS 100213
+	waterStorageChg	     = MFVarGetFloat (_MDInRiverStorageChgID,    itemID, 0.0);	 // m3/sec!!! RJS 100213
+	waterStoragePrev     = waterStorage - waterStorageChg;				 // m3/sec!!! RJS 100213
+	discharge            = MFVarGetFloat (_MDInDischargeID,          itemID, 0.0);	 // m3/sec, discharge leaving the grid cell, after routing!
+	dischargePre	     = MFVarGetFloat (_MDInDischarge0ID,         itemID, 0.0);	 // m3/sec, discharge from upstream PLUS local runoff, before routing!
 	dL                   = MFModelGetLength (itemID);			 // km converted to m
 //	placeHolder			 = MFVarGetFloat (_MDInPlaceHolderID,        itemID, 0.0);		// run ThermalInputs
 
@@ -199,8 +202,9 @@ float cell_2			= 999999;
 	width	          = MFVarGetFloat (_MDInRiverWidthID,    		itemID, 0.0);	// m			// moved here 031209
 	aA		      	  = width * depth;	// m2														// moved here 031209
 //	waterTotalVolume  = (waterStoragePrev) + (dischargePre * MDConst_m3PerSecTOm3PerDay);	// DOES NOT INCLUDE WDLS m3/day RJS 01-06-09: using water storage from previous time step
-	waterTotalVolume  = (waterStoragePrev) + (discharge * MDConst_m3PerSecTOm3PerDay);	// DOES NOT INCLUDE WDLS m3/day RJS 01-06-09: using water storage from previous time step
-
+//	waterTotalVolume  = (waterStoragePrev) + (discharge * 86400);	// DOES NOT INCLUDE WDLS m3/day RJS 01-06-09: using water storage from previous time step
+        waterTotalVolume  = (waterStoragePrev + dischargePre) * 86400;     // RJS 100213 waterStorage is in m3/s
+        
 	VfAdjust		   = MFVarGetFloat (_MDInVfAdjustID,            itemID, 1.0);			// RJS 112211, adjusts loads, keep at 1 if nodata
 
 
@@ -333,7 +337,7 @@ else {
 massBalance_DIN 	  = ((localLoad_DIN + preFlux_DIN + storeWater_DIN) - (totalMassRemovedTS_DIN + totalMassRemovedMC_DIN + postFluxDIN + postStoreWater_DIN + flowPathRemoval)) / (localLoad_DIN + storeWater_DIN + preFlux_DIN);		// RJS 111411
 massBalanceMixing_DIN	  = ((localLoad_DIN + preFluxMixing_DIN) - (DINDeltaStorageMixing + flowPathRemovalMixing + postFluxDINMixing)) / (localLoad_DIN + storeWaterMixing_DIN + preFluxMixing_DIN);
 
-if (massBalance_DIN > 0.0003 && localLoad_DIN + storeWater_DIN + preFlux_DIN > 0.000001) printf("******\nmassBalance_DIN = %f, itemID = %d, postConcDIN = %f, waterStorage = %f, localLoad_DIN = %f, preFlux_DIN = %f, storeWater_DIN = %f\n totalMassRemovedTS_DIN = %f, totalMassRemovedMC_DIN = %f, postFluxDIN = %f, postStoreWater_DIN = %f, flowPathRemoval = %f", massBalance_DIN, itemID, postConcDIN, waterStorage, localLoad_DIN, preFlux_DIN, storeWater_DIN, totalMassRemovedTS_DIN, totalMassRemovedMC_DIN, postFluxDIN, postStoreWater_DIN, flowPathRemoval);
+//if (massBalance_DIN > 0.0003 && localLoad_DIN + storeWater_DIN + preFlux_DIN > 0.000001) printf("******\nmassBalance_DIN = %f, itemID = %d, postConcDIN = %f, waterStorage = %f, localLoad_DIN = %f, preFlux_DIN = %f, storeWater_DIN = %f\n totalMassRemovedTS_DIN = %f, totalMassRemovedMC_DIN = %f, postFluxDIN = %f, postStoreWater_DIN = %f, flowPathRemoval = %f", massBalance_DIN, itemID, postConcDIN, waterStorage, localLoad_DIN, preFlux_DIN, storeWater_DIN, totalMassRemovedTS_DIN, totalMassRemovedMC_DIN, postFluxDIN, postStoreWater_DIN, flowPathRemoval);
 
 //if (itemID==809) printf ("***** itemID=%d, month=%d, day=%d, year=%d, Q=%f, hydLoad=%f, waterT=%f, localLoad_DIN = %f \n",itemID,MFDateGetCurrentMonth(),MFDateGetCurrentDay(),MFDateGetCurrentYear(),discharge,hydLoad,waterT,localLoad_DIN);
 //if (itemID==809) printf ("preConcDIN=%f, postConcDIN=%f, preConcMixingDIN=%f, postConcMixingDIN=%f \n",preConcDIN,postConcDIN,preConcMixingDIN,postConcDINMixing);
@@ -345,6 +349,14 @@ if (massBalance_DIN > 0.0003 && localLoad_DIN + storeWater_DIN + preFlux_DIN > 0
 //if (itemID == cell_1 || itemID == cell_2) printf("DIN_Vf = %f, DIN_Kt = %f, hydLoad = %f, vf = %f, uptakeMC = %f, uptakeDZ = %f, uptakeHZ = %f, removalMC = %f, removalDZ = %f, removalHZ = %f\n", DIN_Vf, DIN_Kt, hydLoad, vf, uptakeMC, uptakeDZ, uptakeHZ, removalMC, removalDZ, removalHZ);
 //if (itemID == cell_1 || itemID == cell_2) printf("totalMassRemovedDZ_DIN = %f, totalMassRemovedHZ_DIN = %f, totalMassRemovedMC_DIN = %f, postConcDIN = %f, postFluxDIN = %f\n", totalMassRemovedDZ_DIN, totalMassRemovedHZ_DIN, totalMassRemovedMC_DIN, postConcDIN, postFluxDIN);
 //if (itemID == cell_1 || itemID == cell_2) printf("waterT = %f, postConcDINMixing = %f, tnTref = %f, DIN_Vf_ref = %f, DIN_Kt_ref = %f\n", waterT, postConcDINMixing, tnTref, DIN_Vf_ref, DIN_Kt_ref);
+
+//if ((itemID == 522) && (MFDateGetCurrentYear >= 2000)) {
+if ((itemID == 574) || (itemID == 248)) {
+   printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), discharge, dischargePre, waterStoragePrev, waterStorage, waterStorageChg, waterTotalVolume, runoffVol, depth, width, aA, dL);
+   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", localLoad_DIN, runoffConc, storeWater_DIN, storeWaterMixing_DIN, preFlux_DIN, preFluxMixing_DIN, DINTotalIn, DINTotalInMixing, preConcDIN, preConcMixingDIN);
+   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", waterT, denit_int_vf, denit_slope, tnQ10, tnTref, VfAdjust, DIN_Vf_ref, DIN_Vf, hydLoad, uptakeMC, removalMC, removalTotal, totalMassRemovedMC_DIN, flowPathRemoval);
+   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", postFluxDIN, postFluxDINMixing, postConcDIN, postConcDINMixing, postStoreWater_DIN, postStoreWaterMixing_DIN, DINDeltaStorage, DINDeltaStorageMixing, massBalance_DIN, massBalanceMixing_DIN);
+}
 
 MFVarSetFloat (_MDOutPreFlux_DINID,              itemID, preFlux_DIN);				// RJS 050911
 MFVarSetFloat (_MDOutTotalMassRemoved_DINID,     itemID, totalMassRemoved_DIN);		// RJS 032509
@@ -419,7 +431,8 @@ int MDDINDef () {
 	    ((_MDInRiverStorageID           = MFVarGetID (MDVarRiverStorage,           "m3/day",   MFInput,  MFState,  MFInitial)) == CMfailed)  ||		// RJS 01-06-09		m3/day instead of m3/s
 	    ((_MDInRiverStorageChgID        = MFVarGetID (MDVarRiverStorageChg,        "m3/day",   MFInput,  MFState,  MFBoundary)) == CMfailed)  ||     // RJS 01-06-09
 	    ((_MDInRiverOrderID          = MFVarGetID (MDVarRiverOrder,               "-",   MFInput,  MFState, MFBoundary)) == CMfailed)  ||			//RJS 112211
-	    ((_MDInRiverWidthID             = MDRiverWidthDef ())   == CMfailed) ||
+	    ((_MDInRemovalOrderID        = MFVarGetID (MDVarRemovalOrder,             "-",   MFInput,  MFState, MFBoundary)) == CMfailed)  ||
+            ((_MDInRiverWidthID             = MDRiverWidthDef ())   == CMfailed) ||
 	    ((_MDInRiverDepthID		    = MFVarGetID (MDVarRiverDepth,   	   	    "m",   MFInput,  MFState, MFBoundary)) == CMfailed)  ||
 	    ((_MDInLocalLoad_DINID	    = MDNitrogenInputsDef()) == CMfailed) ||	// RJS 091108
 	    ((_MDInVfAdjustID           = MFVarGetID (MDVfAdjust,   "-",   MFInput, MFState, MFBoundary)) == CMfailed) ||
