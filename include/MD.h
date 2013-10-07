@@ -67,6 +67,8 @@ extern "C" {
 #define MDVarAvgEfficiency					 "AvgEfficiency"		// RJS 062012
 #define MDVarAvgDeltaTemp					 "AvgDeltaTemp"			// RJS 062012
 
+#define MDVarBackCalcVf                      "BackCalcVf"
+#define MDVarBackCalcR                       "BackCalcR"
 #define MDVarBaseFlow                        "BaseFlow"
 #define MDVarBGCNonPoint_NO3                 "NinputsNO3_nonpoint"
 #define MDVarBGCPointSources_NO3             "NinputsNO3_point" //TODO unused!
@@ -255,7 +257,9 @@ extern "C" {
 #define MDVarPropRSinGroundWater                                  "PropRSinGroundWater"               // RJS 100313  
     
 #define MDVarLakeOcean						 "LakeOcean"			// RJS 062012
-
+#define MDVarLakePointArea                                       "LakePointArea"                // RJS 100413
+#define MDVarLakeYesNo                                           "LakeYesNo"                    // RJS 100413
+    
 #define MDVarWetlandEvapotranspiration		 "WetlandEvapotranspiration"
 #define MDVarWetlandAreaFraction			 "WetlandAreaFraction"
 
@@ -307,6 +311,7 @@ extern "C" {
 #define MDVarTotalMassRemovedDZDIN			 "TotalMassRemovedDZDIN"
 #define MDVarTotalMassRemovedHZDIN			 "TotalMassRemovedHZDIN"
 #define MDVarTotalMassRemovedMCDIN			 "TotalMassRemovedMCDIN"
+#define MDVarTotalMassRemovedLKDIN                       "TotalMassRemovedLKDIN"
 #define MDVarTotalMassRemovedDIN			 "TotalMassRemovedDIN"
 #define MDVarTimeOfStorageDZ				 "TimeOfStorageDZ"
 #define MDVarTimeOfStorageHZ				 "TimeOfStorageHZ"
@@ -326,6 +331,7 @@ extern "C" {
 #define MDVarRemovalDZ						 "RemovalDZ"
 #define MDVarRemovalHZ						 "RemovalHZ"
 #define MDVarRemovalMC						 "RemovalMC"
+#define MDVarRemovalLK                                           "RemovalLK"
 #define MDVarRemovalTotal					 "RemovalTotal"
 #define MDVarAsDZ							 "AsDZ"
 #define MDVarAsHZ							 "AsHZ"
@@ -397,7 +403,7 @@ extern "C" {
 #define MDVarSnowPack                        "SnowPack"
 #define MDVarSnowPackChange                  "SnowPackChange"
 #define MDVarSoilAvailWaterCap               "AvailableWaterCapacity"
-#define MDVarSoilAvailWaterCapInput			 "AvailableWaterCapacityInput"	// RJS 091713
+#define MDVarSoilAvailWaterCapInput	     "AWCInput"                         // RJS 091713
 #define MDVarSoilFieldCapacity               "FieldCapacity"
 #define MDVarSoilRootingDepth                "RootingDepth"
 #define MDVarSoilMoisture                    "SoilMoisture"

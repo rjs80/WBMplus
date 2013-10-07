@@ -38,7 +38,7 @@ static void _MDPointSource (int itemID) {
 
 	int day, month, year;
 
-	WWTP_InKgPerDay    	   = MFVarGetFloat (_MDInWWTP_InKgPerDayID,    itemID, 0.0);
+	WWTP_InKgPerDay    	   = MFVarGetFloat (_MDInWWTP_InKgPerDayID,    itemID, 0.0) * 365;
 	WWTP_PopServed		   = MFVarGetFloat (_MDInWWTP_PopServedID,     itemID, 0.0);
 	WWTP_Treatment		   = MFVarGetFloat (_MDInWWTP_TreatmentID,     itemID, 0.0);
 
@@ -47,7 +47,7 @@ static void _MDPointSource (int itemID) {
 	WWTP_Removal = WWTP_Treatment == 3.0 ? 0.808088 : WWTP_Removal;		// Advanced treatment I
 	WWTP_Removal = WWTP_Treatment == 4.0 ? 0.845588 : WWTP_Removal;		// Advanced treatment II
 
-	WWTP_OutKgPerDay = WWTP_InKgPerDay * WWTP_Removal;
+	WWTP_OutKgPerDay = WWTP_InKgPerDay * (1.0 - WWTP_Removal);
 
 	day   = MFDateGetCurrentDay ();
 	month = MFDateGetCurrentMonth ();
@@ -65,10 +65,10 @@ int MDPointSourceDef() {
 
 	MFDefEntering ("WWTP Point Souce");
 
-	 if (((_MDInWWTP_InKgPerDayID	    = MFVarGetID (MDVarWWTPInKgPerDay,	      "kg/d",  MFInput,   MFFlux, MFBoundary)) == CMfailed) ||
-	     ((_MDInWWTP_PopServedID	    = MFVarGetID (MDVarWWTPPopServed,         "-",     MFInput,  MFFlux, MFInitial)) == CMfailed) ||
-             ((_MDInWWTP_TreatmentID	    = MFVarGetID (MDVarWWTPTreatment,         "-",     MFInput,  MFFlux, MFInitial)) == CMfailed) || 
-             ((_MDOutWWTP_OutKgPerDayID	    = MFVarGetID (MDVarWWTPOutKgPerDay,       "kg/d",     MFInput,  MFFlux, MFInitial)) == CMfailed) ||
+	 if (((_MDInWWTP_InKgPerDayID	    = MFVarGetID (MDVarWWTPInKgPerDay,	      "kg/d",  MFInput,   MFFlux,  MFBoundary)) == CMfailed) ||
+	     ((_MDInWWTP_PopServedID	    = MFVarGetID (MDVarWWTPPopServed,         "-",     MFInput,   MFFlux,  MFBoundary)) == CMfailed) ||
+             ((_MDInWWTP_TreatmentID	    = MFVarGetID (MDVarWWTPTreatment,         "-",     MFInput,   MFState, MFBoundary)) == CMfailed) || 
+             ((_MDOutWWTP_OutKgPerDayID	    = MFVarGetID (MDVarWWTPOutKgPerDay,       "kg/d",  MFOutput,  MFFlux,  MFBoundary)) == CMfailed) ||
              (MFModelAddFunction(_MDPointSource) == CMfailed)) return (CMfailed);
 
 	MFDefLeaving ("WWTP Point Source");

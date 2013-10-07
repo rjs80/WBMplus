@@ -99,14 +99,14 @@ static void _MDNitrogenInputsCalc (int itemID) {
 	float asym;
 	float xMid;
 
-	float LocalConc_DIN;
-	float LocalLoad_DIN;
+	float LocalConc_DIN      = 0.0;
+	float LocalLoad_DIN      = 0.0;
 
-	float LocalConc_Sub_DIN;		//KAW 2013 05 08 Suburban Loading Concentration
-	float LocalLoad_Sub_DIN;		//KAW 2013 05 08 Suburban Loading
+	float LocalConc_Sub_DIN  = 0.0;		//KAW 2013 05 08 Suburban Loading Concentration
+	float LocalLoad_Sub_DIN  = 0.0;		//KAW 2013 05 08 Suburban Loading
 
-	float LocalConc_Ag_DIN;			//KAW 2013 05 08 Agricultural Loading Concentration
-	float LocalLoad_Ag_DIN;			//KAW 2013 05 08 Agricultural Loading
+	float LocalConc_Ag_DIN   = 0.0;		//KAW 2013 05 08 Agricultural Loading Concentration
+	float LocalLoad_Ag_DIN   = 0.0;		//KAW 2013 05 08 Agricultural Loading
 
 	float riverOrder;
 	float loadAdjust = 0.0;			// RJS 112211
@@ -114,20 +114,16 @@ static void _MDNitrogenInputsCalc (int itemID) {
 
 // test
 
-	if (_MDInRiverOrderID != MFUnset) riverOrder = MFVarGetFloat (_MDInRiverOrderID, itemID, 0.0);	// RJS 090508
-
-//	if (_MDInLandUseID != MFUnset)	luSub = MFVarGetFloat (_MDInLandUseID, itemID, 0.0);
-//	if (_MDInTotalPointID != MFUnset) Total_point = MFVarGetFloat (_MDInTotalPointID, itemID, 0.0);
-	if (_MDInLandUseSubID != MFUnset)	luSub = MFVarGetFloat (_MDInLandUseSubID, itemID, 0.0);		//KAW 2013 05 08 Suburban Land Use
-	if (_MDInLandUseAgID  != MFUnset)	luAg  = MFVarGetFloat (_MDInLandUseAgID, itemID, 0.0);		//KAW 2013 05 08 Agricultural Land Use
+	if (_MDInRiverOrderID != MFUnset)  riverOrder = MFVarGetFloat (_MDInRiverOrderID, itemID, 0.0);	// RJS 090508
+//	if (_MDInLandUseID    != MFUnset)	luSub = MFVarGetFloat (_MDInLandUseID,    itemID, 0.0);
+	if (_MDInLandUseSubID != MFUnset)	luSub = MFVarGetFloat (_MDInLandUseSubID, itemID, 0.0);	//KAW 2013 05 08 Suburban Land Use
+	if (_MDInLandUseAgID  != MFUnset)	luAg  = MFVarGetFloat (_MDInLandUseAgID,  itemID, 0.0);	//KAW 2013 05 08 Agricultural Land Use
 
 	luSub = luSub + luAg;
-//	luSub = 2 * (luSub + luAg) > 100.0 ? 99.9 : 2 * (luSub + luAg);
 
-
-	runoff             = MFVarGetFloat (_MDInRunoffID,         		  itemID, 0.0); 		// mm / d
-	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,             itemID, 0.0); 		// m3/sec
-	loadAdjust		   = MFVarGetFloat (_MDInLoadAdjustID,            itemID, 1.0);			// RJS 112211, adjusts loads, keep at 1 if nodata
+	runoff             = MFVarGetFloat (_MDInRunoffID,         itemID, 0.0); 	// mm / d
+	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,      itemID, 0.0); 	// m3/sec
+	loadAdjust	   = MFVarGetFloat (_MDInLoadAdjustID,     itemID, 1.0);	// RJS 112211, adjusts loads, keep at 1 if nodata
 
 	scale          = 12.2;
 	asym           = 1.4;
@@ -154,21 +150,17 @@ static void _MDNitrogenInputsCalc (int itemID) {
 	if (loadAdjust > 0.0) LocalLoad_DIN =  LocalLoad_DIN * loadAdjust; 	// RJS 112211
 
 
-//	if(LocalConc_Sub_DIN > 1.4 || LocalConc_Ag_DIN > 4.9) printf("runoff = %f, luSub = %f, luAg = %f, xMid = %f, Sub_conc = %f, Ag_conc = %f\n", runoff, luSub, luAg, xMid, LocalConc_Sub_DIN, LocalConc_Ag_DIN);
-
-//if (itemID == 809) printf("**** itemID = %d, y=%d, m=%d, d=%d, runoff=%f, luSub=%f, luAg=%f, xMid=%f, Sub_conc=%f, Ag_conc=%f, Subload=%f, Agload=%f, total=%f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), runoff, luSub, luAg, xMid, LocalConc_Sub_DIN, LocalConc_Ag_DIN, LocalLoad_Sub_DIN, LocalLoad_Ag_DIN, LocalLoad_DIN);
-
+        //if(LocalConc_Sub_DIN > 1.4 || LocalConc_Ag_DIN > 4.9) printf("runoff = %f, luSub = %f, luAg = %f, xMid = %f, Sub_conc = %f, Ag_conc = %f\n", runoff, luSub, luAg, xMid, LocalConc_Sub_DIN, LocalConc_Ag_DIN);
+        //if (itemID == 809) printf("**** itemID = %d, y=%d, m=%d, d=%d, runoff=%f, luSub=%f, luAg=%f, xMid=%f, Sub_conc=%f, Ag_conc=%f, Subload=%f, Agload=%f, total=%f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), runoff, luSub, luAg, xMid, LocalConc_Sub_DIN, LocalConc_Ag_DIN, LocalLoad_Sub_DIN, LocalLoad_Ag_DIN, LocalLoad_DIN);
 	//if (itemID == 31) printf("***** itemID = %d, year = %d, month = %d, day = %d, xMid = %f, luSub = %f, scale = %f, asym = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), xMid, luSub, scale, asym);
 	//if (itemID == 31) printf("runoffVol = %f, runoff = %f, LocalLoad_DIN = %f, LocalConc_DIN = %f, Total_point= %f, loadAdjust = %f\n", runoffVol, runoff, LocalLoad_DIN, LocalConc_DIN, Total_point, loadAdjust);  //mmm commented out 2013-3-13
 
 
-	MFVarSetFloat (_MDOutLocalLoad_DINID,        itemID, LocalLoad_DIN);	  	// RJS 090308
-
-	MFVarSetFloat (_MDOutLocalLoad_Sub_DINID,    itemID, LocalLoad_DIN);	  	// RJS 090308
-	MFVarSetFloat (_MDOutDINSubLoadConcID, 		 itemID, LocalConc_Sub_DIN);  	// KAW 2013/03/15
-
-	MFVarSetFloat (_MDOutLocalLoad_Ag_DINID,     itemID, LocalLoad_Ag_DIN);	  	// RJS 090308
-	MFVarSetFloat (_MDOutDINAgLoadConcID, 		 itemID, LocalConc_Ag_DIN);		// KAW 2013/03/15
+	MFVarSetFloat (_MDOutLocalLoad_DINID,       itemID, LocalLoad_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalLoad_Sub_DINID,   itemID, LocalLoad_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutDINSubLoadConcID, 	    itemID, LocalConc_Sub_DIN);  	// KAW 2013/03/15
+	MFVarSetFloat (_MDOutLocalLoad_Ag_DINID,    itemID, LocalLoad_Ag_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutDINAgLoadConcID, 	    itemID, LocalConc_Ag_DIN);		// KAW 2013/03/15
 }
 
 enum {MDcalculate, MDinput, MDnone};
@@ -187,7 +179,7 @@ int MDNitrogenInputsDef () {
 
 	case MDnone:
 	if (((_MDInLandUseID             = MFVarGetID (MDVarLandUseSpatial,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
-	    ((_MDInRunoffID   			 = MFVarGetID (MDVarRunoff,              "mm",  MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
+	    ((_MDInRunoffID   		 = MFVarGetID (MDVarRunoff,              "mm",  MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
 	    ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||
 	    ((_MDInLawnFractionID        = MFVarGetID (MDVarLawnFraction,      "-", MFInput, MFState, MFBoundary)) == CMfailed) ||		//RJS 051111
 	    ((_MDInRiverOrderID          = MFVarGetID (MDVarRiverOrder,  	  	  "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||	// RJS 090308

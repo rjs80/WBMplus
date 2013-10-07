@@ -32,12 +32,15 @@ static int _MDStoreWater_DINID		    	= MFUnset;		// RJS 091108
 static int _MDFluxMixing_DINID	 	    	= MFUnset;		// RJS 091108			changed from MDInFluxMixing_DINID 091408
 static int _MDStoreWaterMixing_DINID		= MFUnset;		// RJS 091108
 static int _MDInRunoffVolID			= MFUnset;		// RJS 091108
-static int _MDInTnQ10ID				= MFUnset;      // RJS 102410
+static int _MDInTnQ10ID				= MFUnset;              // RJS 102410
 static int _MDInRiverOrderID			= MFUnset;		// RJS 112211
-static int _MDWTemp_QxTID				=MFUnset;
+static int _MDWTemp_QxTID			= MFUnset;
 static int _MDInPlaceHolderID			= MFUnset;		//RJS 042913
-static int _MDInVfAdjustID				= MFUnset;		//RJS 050213
+static int _MDInVfAdjustID			= MFUnset;		//RJS 050213
 static int _MDInRemovalOrderID                  = MFUnset;              // RJS 100213
+static int _MDInWWTPpointSrcID                  = MFUnset;              // RJS 100413
+static int _MDInLakeYesNoID                     = MFUnset;              // RJS 100413
+static int _MDInLakePointAreaID                 = MFUnset;              // RJS 100413
 
 // output
 
@@ -46,6 +49,7 @@ static int _MDOutPostConc_DINID		    = MFUnset;
 static int _MDOutTotalMassRemovedDZ_DINID   = MFUnset;
 static int _MDOutTotalMassRemovedHZ_DINID   = MFUnset;
 static int _MDOutTotalMassRemovedMC_DINID   = MFUnset;
+static int _MDOutTotalMassRemovedLK_DINID   = MFUnset;
 static int _MDOutTimeOfStorageMCID	    = MFUnset;	// RJS 120608
 static int _MDOutTimeOfStorageDZID	    = MFUnset;
 static int _MDOutTimeOfStorageHZID	    = MFUnset;
@@ -61,6 +65,7 @@ static int _MDOutMassBalanceMixing_DINID    = MFUnset;	// RJS 112008
 static int _MDOutRemovalDZID		    = MFUnset;	// RJS 110708
 static int _MDOutRemovalHZID		    = MFUnset;	// RJS 110708
 static int _MDOutRemovalMCID		    = MFUnset;	// RJS 110708
+static int _MDOutRemovalLKID                = MFUnset;  // RJS 100413
 static int _MDOutRemovalTotalID		    = MFUnset;	// RJS 03-01-09
 static int _MDOutAaID			    = MFUnset;	// RJS 110708
 static int _MDOutAsDZID			    = MFUnset;	// RJS 110708
@@ -76,6 +81,8 @@ static int _MDOutTotalMassRemoved_DINID	    = MFUnset;	// RJS 032509
 static int _MDOutDINVfID		     = MFUnset;	// RJS 112210
 static int _MDOutDINKtID		     = MFUnset; // RJS 112210
 static int _MDOutPreFlux_DINID		     = MFUnset; // RJS 050911
+static int _MDOutBackCalcRID                 = MFUnset; // RJS 100413
+static int _MDOutBackCalcVfID                = MFUnset; // RJS 100413
 
 static float _MDUptakeKtMC   = 0.60;		// RJS 033009
 static float _MDUptakeKtSTS  = 0.60;		// RJS 033009
@@ -136,12 +143,14 @@ float uptakeMC			= 0.0;		// probability of N uptake in MC
 float removalDZ			= 0.0;		// probability that a molecule in channel removed in DZ
 float removalHZ			= 0.0;		// probability that a molecule in channel removed in HZ
 float removalMC			= 0.0;		// probability that a molecule in channel removed in MC
+float removalLK                 = 0.0;          // probability that a molecule in lake is removed by lake
 float riverOrder		= 0.0;		// river order
 float removalOrder              = 0.0;          // river order where removal begins (i.e. 'real river', not terrestrial grid cell)
 float R				= 0.0;		// proportional removal
 float totalMassRemovedDZ_DIN	= 0.0;		// total mass removed in DZ (kg/day)
 float totalMassRemovedHZ_DIN 	= 0.0;		// total mass removed in HZ (kg/day)
 float totalMassRemovedMC_DIN 	= 0.0;		// total mass removed in MC (kg/day)
+float totalMassRemovedLK_DIN    = 0.0;          // total mass removed in LK (kg/day)
 float totalMassRemoved_DIN	= 0.0;		// total mass removed (LK, DZ, MC, HZ)	032509
 float waterDZ			= 0.0;  	// water entering DZ
 float waterHZ			= 0.0;		// water entering HZ
@@ -154,25 +163,30 @@ float runoffConc		= 0.0;		// RJS 120208
 float ktMC			= 0.0;		// MC volumetric uptake rate (1 / day)
 float ktSTS			= 0.0;		// STS volumetric uptake rate (1 / day)
 float ktHTS			= 0.0;		// HTS volumetric uptake rate (1 / day)
-float tnQ10   			= 2.0;					//RJS 102410
-float denit_int_vf		= -2.975;				//RJS 051011	calculated from avg vf = 0.137 m/day (LINX2), and average [] of 529 ug/L in LINX experiments, log(vf) = -m * log(C in ug/L) + e.
-float denit_slope 		= -0.493;				//RJS 110110
-float denit_int_kt		= 0.2319;				//MMM March 2013 New value calculated RJS 110110	calculated from kt = 0.64, and average [] of 529 ug/L in LINX experiments, log(kt) = -m * log(C in ug/L) + e
-float DIN_Vf			= 0.0;					//RJS 110110
-float DIN_Vf_ref		= 0.0;					//RJS 110110
-float DIN_Kt			= 0.0;					//RJS 110110
-float DIN_Kt_ref		= 0.0;					//RJS 110110
-float waterT			= 0.0;					//RJS 051211
+float tnQ10   			= 2.0;		//RJS 102410
+float denit_int_vf		= -2.975;	//RJS 051011	calculated from avg vf = 0.137 m/day (LINX2), and average [] of 529 ug/L in LINX experiments, log(vf) = -m * log(C in ug/L) + e.
+float denit_slope 		= -0.493;	//RJS 110110
+float denit_int_kt		= 0.2319;	//MMM March 2013 New value calculated RJS 110110	calculated from kt = 0.64, and average [] of 529 ug/L in LINX experiments, log(kt) = -m * log(C in ug/L) + e
+float DIN_Vf			= 0.0;		//RJS 110110
+float DIN_Vf_ref		= 0.0;		//RJS 110110
+float DIN_Kt			= 0.0;		//RJS 110110
+float DIN_Kt_ref		= 0.0;		//RJS 110110
+float waterT			= 0.0;		//RJS 051211
 float tnTref			= 20.0;
-float placeHolder		= 0.0;					//RJS 042913
-float VfAdjust			= 1.0;					//RJS 050213
+float placeHolder		= 0.0;		//RJS 042913
+float VfAdjust			= 1.0;		//RJS 050213
+float WWTPpointSrc              = 0.0;          //RJS 100413
 
-float cell_1      		= 1293;  //255,138
+float cell_1      		= 1293;         //255,138
 float cell_2			= 999999;
+float lakeYesNo                 = 0.0;
+float lakeArea                  = 0.0;
+float lake_HL                   = 0.0;
 
-	riverOrder           = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);	//RJS 112211
-        removalOrder         = MFVarGetFloat (_MDInRemovalOrderID,       itemID, 0.0);  // RJS 100213
+	riverOrder           = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);	 //RJS 112211
+        removalOrder         = MFVarGetFloat (_MDInRemovalOrderID,       itemID, 0.0);   // RJS 100213
 	localLoad_DIN  	     = MFVarGetFloat (_MDInLocalLoad_DINID,      itemID, 0.0);	 // kg/day RJS 091108
+        WWTPpointSrc         = MFVarGetFloat (_MDInWWTPpointSrcID,       itemID, 0.0);   // kg/day RJS 100413
 	preFlux_DIN	     = MFVarGetFloat (_MDFlux_DINID,             itemID, 0.0);	 // kg/day RJS 091108
 	storeWater_DIN	     = MFVarGetFloat (_MDStoreWater_DINID,       itemID, 0.0);	 // kg/day RJS 091108
 	preFluxMixing_DIN    = MFVarGetFloat (_MDFluxMixing_DINID,       itemID, 0.0);	 // kg/day RJS 091108 changed from MDInFluxMixing 091408
@@ -180,35 +194,29 @@ float cell_2			= 999999;
 	runoffVol            = MFVarGetFloat (_MDInRunoffVolID,          itemID, 0.0); 	 // m3/sec
 	waterStorage	     = MFVarGetFloat (_MDInRiverStorageID,       itemID, 0.0);	 // m3/sec!!! RJS 100213
 	waterStorageChg	     = MFVarGetFloat (_MDInRiverStorageChgID,    itemID, 0.0);	 // m3/sec!!! RJS 100213
-	waterStoragePrev     = waterStorage - waterStorageChg;				 // m3/sec!!! RJS 100213
 	discharge            = MFVarGetFloat (_MDInDischargeID,          itemID, 0.0);	 // m3/sec, discharge leaving the grid cell, after routing!
 	dischargePre	     = MFVarGetFloat (_MDInDischarge0ID,         itemID, 0.0);	 // m3/sec, discharge from upstream PLUS local runoff, before routing!
-	dL                   = MFModelGetLength (itemID);			 // km converted to m
-//	placeHolder			 = MFVarGetFloat (_MDInPlaceHolderID,        itemID, 0.0);		// run ThermalInputs
-
 	tnQ10                = MFVarGetFloat (_MDInTnQ10ID,              itemID, 0.0);	 // RJS 102410
-	waterT			 = MFVarGetFloat (_MDWTemp_QxTID,			 itemID, 0.0);
-
-	DINTotalIn           = localLoad_DIN + preFlux_DIN + storeWater_DIN; 				 // kg/day		RJS 110308
-	DINTotalInMixing     = localLoad_DIN + preFluxMixing_DIN + storeWaterMixing_DIN; 		 // kg/day
-
+	waterT		     = MFVarGetFloat (_MDWTemp_QxTID,		 itemID, 0.0);
+   	lakeYesNo            = MFVarGetFloat (_MDInLakeYesNoID,          itemID, 0.0); 	 // 1 = lake, 0 = no lake
+	lakeArea             = MFVarGetFloat (_MDInLakePointAreaID,      itemID, 0.0); 	 // lake area at outlet, km2
+    	VfAdjust	     = MFVarGetFloat (_MDInVfAdjustID,           itemID, 1.0);	 // RJS 112211, adjusts loads, keep at 1 if nodata
+    	depth		     = MFVarGetFloat (_MDInRiverDepthID, 	 itemID, 0.0);	// m			// moved here 031209
+	width	             = MFVarGetFloat (_MDInRiverWidthID,    	 itemID, 0.0);	// m			// moved here 031209
+       
+        dL                   = MFModelGetLength (itemID);               // km converted to m
+	waterStoragePrev     = waterStorage - waterStorageChg;		// m3/sec!!! RJS 100213
+	aA		     = width * depth;                           // m2	
 	ktMC		     = _MDUptakeKtMC;			 	// RJS 033009
 	ktSTS		     = _MDUptakeKtSTS;				// RJS 033009
 	ktHTS		     = _MDUptakeKtHTS;				// RJS 033009
-
-	runoffConc	     = runoffVol > 0.0 ? (localLoad_DIN * 1000000) / (runoffVol * 86400 * 1000) : 0.0;
-
-	depth		      = MFVarGetFloat (_MDInRiverDepthID, 			itemID, 0.0);	// m			// moved here 031209
-	width	          = MFVarGetFloat (_MDInRiverWidthID,    		itemID, 0.0);	// m			// moved here 031209
-	aA		      	  = width * depth;	// m2														// moved here 031209
-//	waterTotalVolume  = (waterStoragePrev) + (dischargePre * MDConst_m3PerSecTOm3PerDay);	// DOES NOT INCLUDE WDLS m3/day RJS 01-06-09: using water storage from previous time step
-//	waterTotalVolume  = (waterStoragePrev) + (discharge * 86400);	// DOES NOT INCLUDE WDLS m3/day RJS 01-06-09: using water storage from previous time step
-        waterTotalVolume  = (waterStoragePrev + dischargePre) * 86400;     // RJS 100213 waterStorage is in m3/s
         
-	VfAdjust		   = MFVarGetFloat (_MDInVfAdjustID,            itemID, 1.0);			// RJS 112211, adjusts loads, keep at 1 if nodata
+	DINTotalIn           = localLoad_DIN + preFlux_DIN + storeWater_DIN + WWTPpointSrc;              // kg/day  RJS 100413
+	DINTotalInMixing     = localLoad_DIN + preFluxMixing_DIN + storeWaterMixing_DIN + WWTPpointSrc;  // kg/day  RJS 100413
 
-
-	//waterT = 0.8 + ((26.2 - 0.8) / (1 + exp(0.18 * (13.3 - airT))));
+	runoffConc	     = runoffVol > 0.0 ? (localLoad_DIN * 1000000) / (runoffVol * 86400 * 1000) : 0.0;												
+        waterTotalVolume     = (waterStoragePrev + dischargePre) * 86400;     // RJS 100213 waterStorage is in m3/s
+        
 
 
 // processing code
@@ -219,9 +227,31 @@ float cell_2			= 999999;
 		preConcDIN	     = DINTotalIn / (waterTotalVolume) * 1000;     	// mg/L
 		preConcMixingDIN     = DINTotalInMixing / (waterTotalVolume) * 1000; 	// mg/L
 		velocity	     = discharge / (depth * width); 			// m/s
+                DIN_Vf               = 0.0;                                             // m/d
+                DIN_Kt               = 0.0;                                             // 1/d
+                
+                if (preConcDIN > 0.0) {
+                   
+//                      DIN_Vf_ref   = pow(10,(0.4328 + (log10(preConcDIN * 1000) * -0.479)));	// based on Wollheim 2008
+//			DIN_Vf	     = DIN_Vf_ref * pow(tnQ10, (((waterT) - tnTref) / 10)); 			//m/d	RJS 051211
+//			DIN_Kt_ref   = pow(10,(denit_int_kt + (log10(preConcDIN * 1000) * denit_slope)));	//ConcPre must be in ug/L
+//			DIN_Kt	     = DIN_Kt_ref * pow(tnQ10, (((waterT) - tnTref) / 10));			//m/d	RJS 051211
+
+			DIN_Vf_ref   = pow(10,(denit_int_vf + (log10(preConcDIN * 1000) * denit_slope)))*86400/100;	// no conversion to m/d neccesary - already in m/d
+			DIN_Vf_ref   = DIN_Vf_ref * VfAdjust;                                                           // m/d RJS 050213
+			DIN_Vf	     = DIN_Vf_ref * pow(tnQ10, (((waterT) - tnTref) / 10));                             // m/d	RJS 051211
+			DIN_Kt_ref   = pow(10,(denit_int_kt + (log10(preConcDIN * 1000) * denit_slope)))*86400;         // ConcPre must be in ug/L
+			DIN_Kt	     = DIN_Kt_ref * pow(tnQ10, (((waterT) - tnTref) / 10));                             // m/d	RJS 051211
+		}
 
 
-		if (aA > 0.0) {			// if aA < 0.0, then no TS should be executed.  RJS 03-14-09		KYLE
+                
+                if (lakeArea > 0.0) {
+                    lake_HL   = discharge / (lakeArea * 1000 * 1000) * 86400;     // m/day
+                    removalLK = 1.0 - pow(2.718281828, -1.0 * DIN_Vf / lake_HL);  // proportional removal
+                }
+
+		if ((aA > 0.0) && (lakeYesNo < 1.0)) {			// if aA < 0.0, then no TS should be executed.  RJS 03-14-09		KYLE
 
 				asDZ = aA * 0.204;			// single value MEAN Scenario 061609    - ln transformed mean
 				asHZ = aA * 0.348;			// single value MEAN Scenario 061609	- ln transformed mean
@@ -229,41 +259,18 @@ float cell_2			= 999999;
 		//		alphaDZ = 0.00013;			// single value MEAN Scenario 061609 - ln transformed mean
 		//		alphaHZ = 0.00000953;			// single value MEAN Scenario 061609 - ln transformed mean
 
-				alphaDZ = 0.0;			// transient storage is off
-				alphaHZ = 0.0;			// transient storage is off
+				alphaDZ = 0.0;                          // transient storage is off
+				alphaHZ = 0.0;                          // transient storage is off
 
 				ktMC  = _MDUptakeKtMC;   		// single value MEAN Scenario 061609 - ln transformed mean
 		 		ktSTS = _MDUptakeKtSTS;   		// single value MEAN Scenario 061609 - ln transformed mean
 				ktHTS = _MDUptakeKtHTS;   		// single value MEAN Scenario 061609 - ln transformed mean
 
-				tStorDZ    = (asDZ / (alphaDZ * aA)) / 86400; // days
-				if (alphaDZ == 0.0) tStorDZ = 0.0;
-												// RJS 111710
-				tStorHZ    = (asHZ / (alphaHZ * aA)) / 86400; // days
-				if (alphaHZ == 0.0) tStorHZ = 0.0;												// RJS 111710
+				tStorDZ    = alphaDZ == 0.0 ? 0.0 : (asDZ / (alphaDZ * aA)) / 86400; // days											// RJS 111710
+				tStorHZ    = alphaHZ == 0.0 ? 0.0 : (asHZ / (alphaHZ * aA)) / 86400; // days
 
 				transferDZ = alphaDZ * aA * dL / discharge;		//RJS 072909
 				transferHZ = alphaHZ * aA * dL / discharge;		//RJS 072909
-
-
-				if (preConcDIN > 0.0) {
-
-//					DIN_Vf_ref   = pow(10,(0.4328 + (log10(preConcDIN * 1000) * -0.479)));	// based on Wollheim 2008
-//					DIN_Vf	     = DIN_Vf_ref * pow(tnQ10, (((waterT) - tnTref) / 10)); 			//m/d	RJS 051211
-//					DIN_Kt_ref   = pow(10,(denit_int_kt + (log10(preConcDIN * 1000) * denit_slope)));	//ConcPre must be in ug/L
-//					DIN_Kt	     = DIN_Kt_ref * pow(tnQ10, (((waterT) - tnTref) / 10));			//m/d	RJS 051211
-
-					DIN_Vf_ref   = pow(10,(denit_int_vf + (log10(preConcDIN * 1000) * denit_slope)))*86400/100;	//no conversion to m/d neccesary - already in m/d
-					DIN_Vf_ref	 = DIN_Vf_ref * VfAdjust;				// m/d RJS 050213
-					DIN_Vf	     = DIN_Vf_ref * pow(tnQ10, (((waterT) - tnTref) / 10)); 			//m/d	RJS 051211
-					DIN_Kt_ref   = pow(10,(denit_int_kt + (log10(preConcDIN * 1000) * denit_slope)))*86400;	//ConcPre must be in ug/L
-					DIN_Kt	     = DIN_Kt_ref * pow(tnQ10, (((waterT) - tnTref) / 10));			//m/d	RJS 051211
-				}
-
-				else {
-					DIN_Vf		     = 0.0;		// m/d
-					DIN_Kt		     = 0.0;		// 1/d
-				}
 
 				waterHZ    = discharge * transferHZ; 		// m3/s
 				waterDZ    = discharge * transferDZ; 		// m3/s
@@ -278,64 +285,49 @@ float cell_2			= 999999;
 
 				removalDZ = transferDZ * uptakeDZ;  // reach scale proportional nutrient removal
 				removalHZ = transferHZ * uptakeHZ;  // reach scale proportional nutrient removal
-				removalMC = uptakeMC;				// reach scale proportional nutrient removal  // **** RJS 032309
-
-				removalTotal = removalDZ + removalHZ + removalMC;
-
-				totalMassRemovedDZ_DIN = (removalDZ) * DINTotalIn; 						// kg/day RJS 110308
-				totalMassRemovedHZ_DIN = (removalHZ) * DINTotalIn; 						// kg/day RJS 110308
-				totalMassRemovedMC_DIN = (removalMC) * DINTotalIn; 						// kg/day RJS 110308
-
-				totalMassRemovedTS_DIN   = totalMassRemovedDZ_DIN + totalMassRemovedHZ_DIN; // kg/dayf
+				removalMC = uptakeMC;		    // reach scale proportional nutrient removal  // **** RJS 032309				
 
 		}
+                
+                removalTotal           = removalDZ + removalHZ + removalMC + removalLK;
+		totalMassRemovedDZ_DIN = (removalDZ) * DINTotalIn;                          // kg/day RJS 110308
+		totalMassRemovedHZ_DIN = (removalHZ) * DINTotalIn;                          // kg/day RJS 110308
+		totalMassRemovedMC_DIN = (removalMC) * DINTotalIn;                          // kg/day RJS 110308
+                totalMassRemovedLK_DIN = (removalLK) * DINTotalIn;                          // kg/day RJS 100413
+                totalMassRemovedTS_DIN = totalMassRemovedDZ_DIN + totalMassRemovedHZ_DIN;   // kg/day
+                
+             	postConcDIN            = (DINTotalIn - totalMassRemovedTS_DIN - totalMassRemovedMC_DIN - totalMassRemovedLK_DIN - flowPathRemoval) / waterTotalVolume * 1000;  // mg/L
+                postConcDINMixing      = (DINTotalInMixing - flowPathRemovalMixing) / waterTotalVolume * 1000;					      // mg/L
+   
+                R  = preConcDIN > 0.0 ? 1.0 - (postConcDIN / preConcDIN) : 0.0;                         // back-calculated removal
+                vf = lake_HL > 0.0 ? -1.0 * lake_HL * log(1.0 - R) : -1.0 * hydLoad * log(1.0 - R);	// back-calculated vf
+                vf = R == 1.0 ? -9999 : vf;                                                             // back-calculated vf
+                
 		}
+        
 	else {
 
-		flowPathRemoval       = DINTotalIn;
-		flowPathRemovalMixing = DINTotalInMixing;
+		flowPathRemoval       = DINTotalIn;             // kg/day
+		flowPathRemovalMixing = DINTotalInMixing;       // kg/day
+                postConcDIN 	      = 0.0;                    // mg/L
+                postConcDINMixing     = 0.0;                    // mg/L
+                R                     = 0.0;                    // back-calculated removal
+                vf                    = 0.0;                    // back-calculated Vf
 
 	}
 
 
-	if (discharge > 0.000001) {		//
-	postConcDIN 	  		= (DINTotalIn - totalMassRemovedTS_DIN - totalMassRemovedMC_DIN - flowPathRemoval) / waterTotalVolume * 1000;  // mg/L
-	postConcDINMixing 		= (DINTotalInMixing - flowPathRemovalMixing) / waterTotalVolume * 1000;					    // mg/L
 
-	}
-
-	else {
-
-	postConcDIN 	  = 0.0;	// mg/L
-	postConcDINMixing = 0.0;	// mg/L
-
-	}
-
-postFluxDIN 	  		 = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcDIN / 1000;  		// kg/day
-postFluxDINMixing 		 = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcDINMixing / 1000;		// kg/day
-
-postStoreWater_DIN 		 =  (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcDIN / 1000;					// kg/day
-postStoreWaterMixing_DIN =  (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcDINMixing / 1000;					// kg/day
-
-DINDeltaStorage       		 = postStoreWater_DIN - storeWater_DIN;						// kg/day
-DINDeltaStorageMixing 		 = postStoreWaterMixing_DIN - storeWaterMixing_DIN;				// kg/day
+        postFluxDIN 	         = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcDIN / 1000;  		// kg/day
+        postFluxDINMixing 	 = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcDINMixing / 1000;		// kg/day
+        postStoreWater_DIN 	 = (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcDIN / 1000;		// kg/day
+        postStoreWaterMixing_DIN = (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcDINMixing / 1000;	// kg/day
+        DINDeltaStorage       	 = postStoreWater_DIN - storeWater_DIN;						// kg/day
+        DINDeltaStorageMixing 	 = postStoreWaterMixing_DIN - storeWaterMixing_DIN;				// kg/day
 
 
-if (discharge > 0.000001 && preConcDIN > 0.0) {		//
-	R  = 1.0 - (postConcDIN / preConcDIN);		// RJS 032409
-	vf = -1.0 * hydLoad * log(1.0 - R);		// RJS 032409
-
-	if (R == 1.0) vf = -9999;
-}
-
-else {
-	R  = 0.0;
-	vf = 0.0;
-
-}
-
-massBalance_DIN 	  = ((localLoad_DIN + preFlux_DIN + storeWater_DIN) - (totalMassRemovedTS_DIN + totalMassRemovedMC_DIN + postFluxDIN + postStoreWater_DIN + flowPathRemoval)) / (localLoad_DIN + storeWater_DIN + preFlux_DIN);		// RJS 111411
-massBalanceMixing_DIN	  = ((localLoad_DIN + preFluxMixing_DIN) - (DINDeltaStorageMixing + flowPathRemovalMixing + postFluxDINMixing)) / (localLoad_DIN + storeWaterMixing_DIN + preFluxMixing_DIN);
+        massBalance_DIN 	 = ((localLoad_DIN + WWTPpointSrc + preFlux_DIN + storeWater_DIN) - (totalMassRemovedTS_DIN + totalMassRemovedMC_DIN + totalMassRemovedLK_DIN + postFluxDIN + postStoreWater_DIN + flowPathRemoval)) / (localLoad_DIN + WWTPpointSrc+ storeWater_DIN + preFlux_DIN);		// RJS 111411
+        massBalanceMixing_DIN	 = ((localLoad_DIN + WWTPpointSrc + preFluxMixing_DIN) - (DINDeltaStorageMixing + flowPathRemovalMixing + postFluxDINMixing)) / (localLoad_DIN + WWTPpointSrc + storeWaterMixing_DIN + preFluxMixing_DIN);
 
 //if (massBalance_DIN > 0.0003 && localLoad_DIN + storeWater_DIN + preFlux_DIN > 0.000001) printf("******\nmassBalance_DIN = %f, itemID = %d, postConcDIN = %f, waterStorage = %f, localLoad_DIN = %f, preFlux_DIN = %f, storeWater_DIN = %f\n totalMassRemovedTS_DIN = %f, totalMassRemovedMC_DIN = %f, postFluxDIN = %f, postStoreWater_DIN = %f, flowPathRemoval = %f", massBalance_DIN, itemID, postConcDIN, waterStorage, localLoad_DIN, preFlux_DIN, storeWater_DIN, totalMassRemovedTS_DIN, totalMassRemovedMC_DIN, postFluxDIN, postStoreWater_DIN, flowPathRemoval);
 
@@ -351,12 +343,12 @@ massBalanceMixing_DIN	  = ((localLoad_DIN + preFluxMixing_DIN) - (DINDeltaStorag
 //if (itemID == cell_1 || itemID == cell_2) printf("waterT = %f, postConcDINMixing = %f, tnTref = %f, DIN_Vf_ref = %f, DIN_Kt_ref = %f\n", waterT, postConcDINMixing, tnTref, DIN_Vf_ref, DIN_Kt_ref);
 
 //if ((itemID == 522) && (MFDateGetCurrentYear >= 2000)) {
-if ((itemID == 574) || (itemID == 248)) {
-   printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), discharge, dischargePre, waterStoragePrev, waterStorage, waterStorageChg, waterTotalVolume, runoffVol, depth, width, aA, dL);
-   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", localLoad_DIN, runoffConc, storeWater_DIN, storeWaterMixing_DIN, preFlux_DIN, preFluxMixing_DIN, DINTotalIn, DINTotalInMixing, preConcDIN, preConcMixingDIN);
-   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", waterT, denit_int_vf, denit_slope, tnQ10, tnTref, VfAdjust, DIN_Vf_ref, DIN_Vf, hydLoad, uptakeMC, removalMC, removalTotal, totalMassRemovedMC_DIN, flowPathRemoval);
-   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", postFluxDIN, postFluxDINMixing, postConcDIN, postConcDINMixing, postStoreWater_DIN, postStoreWaterMixing_DIN, DINDeltaStorage, DINDeltaStorageMixing, massBalance_DIN, massBalanceMixing_DIN);
-}
+//if ((itemID == 574) || (itemID == 248)) {
+//   printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), discharge, dischargePre, waterStoragePrev, waterStorage, waterStorageChg, waterTotalVolume, runoffVol, depth, width, aA, dL);
+//   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", localLoad_DIN, runoffConc, storeWater_DIN, storeWaterMixing_DIN, preFlux_DIN, preFluxMixing_DIN, DINTotalIn, DINTotalInMixing, preConcDIN, preConcMixingDIN);
+//   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", waterT, denit_int_vf, denit_slope, tnQ10, tnTref, VfAdjust, DIN_Vf_ref, DIN_Vf, hydLoad, uptakeMC, removalMC, removalTotal, totalMassRemovedMC_DIN, flowPathRemoval);
+//   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", postFluxDIN, postFluxDINMixing, postConcDIN, postConcDINMixing, postStoreWater_DIN, postStoreWaterMixing_DIN, DINDeltaStorage, DINDeltaStorageMixing, massBalance_DIN, massBalanceMixing_DIN);
+//}
 
 MFVarSetFloat (_MDOutPreFlux_DINID,              itemID, preFlux_DIN);				// RJS 050911
 MFVarSetFloat (_MDOutTotalMassRemoved_DINID,     itemID, totalMassRemoved_DIN);		// RJS 032509
@@ -368,6 +360,7 @@ MFVarSetFloat (_MDOutPreConc_DINID,              itemID, preConcDIN);		// RJS 12
 MFVarSetFloat (_MDOutTotalMassRemovedDZ_DINID,   itemID, totalMassRemovedDZ_DIN);
 MFVarSetFloat (_MDOutTotalMassRemovedHZ_DINID,   itemID, totalMassRemovedHZ_DIN);
 MFVarSetFloat (_MDOutTotalMassRemovedMC_DINID,   itemID, totalMassRemovedMC_DIN);
+MFVarSetFloat (_MDOutTotalMassRemovedLK_DINID,   itemID, totalMassRemovedLK_DIN);
 MFVarSetFloat (_MDOutTimeOfStorageDZID, 	 itemID, tStorDZ);
 MFVarSetFloat (_MDOutTimeOfStorageHZID, 	 itemID, tStorHZ);
 MFVarSetFloat (_MDOutTimeOfStorageMCID,          itemID, tStorMC);		// RJS 120608
@@ -385,6 +378,7 @@ MFVarSetFloat (_MDOutMassBalanceMixing_DINID,    itemID, massBalanceMixing_DIN);
 MFVarSetFloat (_MDOutRemovalDZID,                itemID, removalDZ);		//RJS 110708
 MFVarSetFloat (_MDOutRemovalHZID, 		 itemID, removalHZ);		//RJS 110708
 MFVarSetFloat (_MDOutRemovalMCID, 		 itemID, removalMC);
+MFVarSetFloat (_MDOutRemovalLKID,                itemID, removalLK);            // RJS 100413
 MFVarSetFloat (_MDOutRemovalTotalID,             itemID, removalTotal);		// RJS 03-01-09
 MFVarSetFloat (_MDOutAaID,                       itemID, aA);		//RJS 110808
 MFVarSetFloat (_MDOutAsDZID,                     itemID, asDZ);		//RJS 110808
@@ -393,6 +387,8 @@ MFVarSetFloat (_MDDeltaStoreWater_DINID,         itemID, DINDeltaStorage);
 MFVarSetFloat (_MDDeltaStoreWaterMixing_DINID,   itemID, DINDeltaStorageMixing);
 MFVarSetFloat (_MDFlowPathRemoval_DINID,         itemID, flowPathRemoval);
 MFVarSetFloat (_MDFlowPathRemovalMixing_DINID,   itemID, flowPathRemovalMixing);
+MFVarSetFloat (_MDOutBackCalcRID,                   itemID, R);
+MFVarSetFloat (_MDOutBackCalcVfID,                  itemID, vf);
 
 }
 
@@ -424,61 +420,67 @@ int MDDINDef () {
 
    // Input
 	if (
-		((_MDWTemp_QxTID 			= MDThermalInputs3Def ()) == CMfailed) ||		// comment out for no plants
-//		((_MDWTemp_QxTID 				= MDWTempRiverRouteDef()) == CMfailed) ||
-		((_MDInDischarge0ID             = MFVarGetID (MDVarDischarge0,    "m3/s",  MFRoute,  MFState, MFBoundary)) == CMfailed) ||					// RJS 01-06-09     includes local cells runoff
-	    ((_MDInDischargeID              = MFVarGetID (MDVarDischarge,     "m3/s",  MFRoute,  MFState, MFBoundary)) == CMfailed) ||
-	    ((_MDInRiverStorageID           = MFVarGetID (MDVarRiverStorage,           "m3/day",   MFInput,  MFState,  MFInitial)) == CMfailed)  ||		// RJS 01-06-09		m3/day instead of m3/s
-	    ((_MDInRiverStorageChgID        = MFVarGetID (MDVarRiverStorageChg,        "m3/day",   MFInput,  MFState,  MFBoundary)) == CMfailed)  ||     // RJS 01-06-09
-	    ((_MDInRiverOrderID          = MFVarGetID (MDVarRiverOrder,               "-",   MFInput,  MFState, MFBoundary)) == CMfailed)  ||			//RJS 112211
-	    ((_MDInRemovalOrderID        = MFVarGetID (MDVarRemovalOrder,             "-",   MFInput,  MFState, MFBoundary)) == CMfailed)  ||
-            ((_MDInRiverWidthID             = MDRiverWidthDef ())   == CMfailed) ||
-	    ((_MDInRiverDepthID		    = MFVarGetID (MDVarRiverDepth,   	   	    "m",   MFInput,  MFState, MFBoundary)) == CMfailed)  ||
-	    ((_MDInLocalLoad_DINID	    = MDNitrogenInputsDef()) == CMfailed) ||	// RJS 091108
-	    ((_MDInVfAdjustID           = MFVarGetID (MDVfAdjust,   "-",   MFInput, MFState, MFBoundary)) == CMfailed) ||
-	    ((_MDFlux_DINID                 = MFVarGetID (MDVarFluxDIN,                "kg/day",   MFRoute,  MFFlux,  MFBoundary)) == CMfailed)  ||		// RJS 091408
-	    ((_MDStoreWater_DINID           = MFVarGetID (MDVarStoreWaterDIN,          "kg/day",   MFOutput,  MFState,  MFInitial)) == CMfailed)  ||		// RJS 091108
-	    ((_MDInRunoffVolID              = MFVarGetID (MDVarRunoffVolume, 		 "m3/s",   MFInput, MFState,  MFBoundary)) == CMfailed)  ||		// RJS 091108
-	    ((_MDInTnQ10ID		    = MFVarGetID (MDVarTnQ10,               "-",     MFInput, MFState,  MFBoundary)) == CMfailed)  || 	//RJS 102410
-
+	    ((_MDWTemp_QxTID 		    = MDThermalInputs3Def ()) == CMfailed) ||		// comment out for no plants
+//          ((_MDWTemp_QxTID 		    = MDWTempRiverRouteDef()) == CMfailed) ||
+            ((_MDInRiverWidthID             = MDRiverWidthDef ())     == CMfailed) ||
+            ((_MDInLocalLoad_DINID	    = MDNitrogenInputsDef())  == CMfailed) ||	// RJS 091108
+            ((_MDInWWTPpointSrcID           = MDPointSourceDef())     == CMfailed) ||   // RJS 100413
+            ((_MDInDischarge0ID             = MFVarGetID (MDVarDischarge0,                      "m3/s",    MFRoute,  MFState, MFBoundary))   == CMfailed) ||					// RJS 01-06-09     includes local cells runoff
+	    ((_MDInDischargeID              = MFVarGetID (MDVarDischarge,                       "m3/s",    MFRoute,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDInRiverStorageID           = MFVarGetID (MDVarRiverStorage,                  "m3/day",    MFInput,  MFState, MFInitial))    == CMfailed) ||		// RJS 01-06-09		m3/day instead of m3/s
+	    ((_MDInRiverStorageChgID        = MFVarGetID (MDVarRiverStorageChg,               "m3/day",    MFInput,  MFState, MFBoundary))   == CMfailed) ||     // RJS 01-06-09
+	    ((_MDInRiverOrderID             = MFVarGetID (MDVarRiverOrder,                         "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||			//RJS 112211
+	    ((_MDInRemovalOrderID           = MFVarGetID (MDVarRemovalOrder,                       "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDInRiverDepthID		    = MFVarGetID (MDVarRiverDepth,   	   	           "m",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDInVfAdjustID               = MFVarGetID (MDVfAdjust,                              "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDFlux_DINID                 = MFVarGetID (MDVarFluxDIN,                       "kg/day",    MFRoute,   MFFlux, MFBoundary))   == CMfailed) ||		// RJS 091408
+	    ((_MDStoreWater_DINID           = MFVarGetID (MDVarStoreWaterDIN,                 "kg/day",   MFOutput,  MFState, MFInitial))    == CMfailed) ||		// RJS 091108
+	    ((_MDInRunoffVolID              = MFVarGetID (MDVarRunoffVolume, 		        "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||		// RJS 091108
+	    ((_MDInTnQ10ID		    = MFVarGetID (MDVarTnQ10,                              "-",    MFInput,  MFState, MFBoundary))   == CMfailed) || 	//RJS 102410
+	    ((_MDInLakeYesNoID              = MFVarGetID (MDVarLakeYesNo, 		           "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||		// RJS 091108
+	    ((_MDInLakePointAreaID          = MFVarGetID (MDVarLakePointArea, 		         "km2",    MFInput,  MFState, MFBoundary))   == CMfailed) ||		// RJS 091108
 
    // Output
-	    ((_MDOutPostConc_DINID		= MFVarGetID (MDVarPostConcDIN,	       "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
-	    ((_MDOutPreConc_DINID		= MFVarGetID (MDVarPreConcDIN,	       "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
-	    ((_MDOutTotalMassRemovedTS_DINID   	= MFVarGetID (MDVarTotalMassRemovedTSDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))   == CMfailed) ||
-	    ((_MDOutTotalMassRemovedDZ_DINID 	= MFVarGetID (MDVarTotalMassRemovedDZDIN,  "kg/day",   MFOutput, MFFlux, MFBoundary))   == CMfailed) ||
-	    ((_MDOutTotalMassRemovedHZ_DINID 	= MFVarGetID (MDVarTotalMassRemovedHZDIN,  "kg/day",   MFOutput, MFFlux, MFBoundary))   == CMfailed) ||
-	    ((_MDOutTotalMassRemovedMC_DINID 	= MFVarGetID (MDVarTotalMassRemovedMCDIN,  "kg/day",   MFOutput, MFFlux, MFBoundary))   == CMfailed) ||
-	    ((_MDOutTotalMassRemoved_DINID      = MFVarGetID (MDVarTotalMassRemovedDIN,    "kg/day",   MFOutput, MFFlux, MFBoundary))   == CMfailed) ||		// RJS 032509
-	    ((_MDOutTimeOfStorageDZID		= MFVarGetID (MDVarTimeOfStorageDZ,          "days",   MFOutput, MFState, MFBoundary))   == CMfailed) ||
-	    ((_MDOutTimeOfStorageHZID		= MFVarGetID (MDVarTimeOfStorageHZ,          "days",   MFOutput, MFState, MFBoundary))   == CMfailed) ||
-	    ((_MDOutTimeOfStorageMCID		= MFVarGetID (MDVarTimeOfStorageMC,          "days",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 120608
-	    ((_MDOutTransferDZID		= MFVarGetID (MDVarTransferDZ,               "m3/s",   MFOutput, MFState, MFBoundary))   == CMfailed) ||
-	    ((_MDOutTransferHZID		= MFVarGetID (MDVarTransferHZ,               "m3/s",   MFOutput, MFState, MFBoundary))   == CMfailed) ||
-	    ((_MDOutPreFlux_DINID               = MFVarGetID (MDVarPreFluxDIN,               "kg/day", MFOutput, MFState, MFBoundary))   == CMfailed) || 	//RJS 050911
-	    ((_MDOutWaterDZID			= MFVarGetID (MDVarWaterDZ, 				    "m3",   MFOutput, MFState, MFBoundary))   == CMfailed) ||
-	    ((_MDOutWaterHZID			= MFVarGetID (MDVarWaterHZ, 				    "m3",   MFOutput, MFState, MFBoundary))   == CMfailed) ||
-	    ((_MDOutUptakeVfID               	= MFVarGetID (MDVarUptakeVf,                 "m/day",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 090508
-	    ((_MDFluxMixing_DINID		= MFVarGetID (MDVarFluxMixingDIN,  		"	kg/day",    MFRoute,  MFFlux, MFBoundary))   == CMfailed) ||	// RJS 091108
-	    ((_MDStoreWaterMixing_DINID      	= MFVarGetID (MDVarStoreWaterMixingDIN,    "kg/day",   MFOutput, MFState, MFInitial))   == CMfailed) ||	// RJS 091108
-	    ((_MDOutTotalMassPre_DINID       	= MFVarGetID (MDVarTotalMassPreDIN,        "kg/day",   MFOutput, MFFlux, MFBoundary))   == CMfailed) ||	// RJS 091408
-	    ((_MDOutConcMixing_DINID         	= MFVarGetID (MDVarConcMixing,    		      "mg/L",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 091108
-	    ((_MDOutMassBalance_DINID		= MFVarGetID (MDVarMassBalanceDIN,          "kg/kg",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 110308
-	    ((_MDOutMassBalanceMixing_DINID	= MFVarGetID (MDVarMassBalanceMixingDIN,    "kg/kg",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 110308
-	    ((_MDOutRemovalDZID              	= MFVarGetID (MDVarRemovalDZ,               "kg/kg",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 110708
-	    ((_MDOutRemovalHZID              	= MFVarGetID (MDVarRemovalHZ,               "kg/kg",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 110708
-	    ((_MDOutRemovalMCID              	= MFVarGetID (MDVarRemovalMC,               "kg/kg",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 110708
-	    ((_MDOutRemovalTotalID              = MFVarGetID (MDVarRemovalTotal,            "kg/kg",   MFOutput, MFState, MFBoundary))   == CMfailed) || 	// RJS 030109
-	    ((_MDOutAsDZID                   	= MFVarGetID (MDVarAsDZ,                       "m2",   MFOutput, MFState, MFBoundary))   == CMfailed) ||   // RJS 110808
-	    ((_MDOutAsHZID                   	= MFVarGetID (MDVarAsHZ,                       "m2",   MFOutput, MFState, MFBoundary))   == CMfailed) ||   // RJS 110808
-	    ((_MDOutAaID                     	= MFVarGetID (MDVarAa,                         "m2",   MFOutput, MFState, MFBoundary))   == CMfailed) ||   // RJS 110808
-	    ((_MDOutVelocityID                  = MFVarGetID (MDVarVelocity,                  "m/s",   MFOutput, MFState, MFBoundary))   == CMfailed) ||   // RJS 112108
-	    ((_MDOutDINVfID                     = MFVarGetID (MDVarDINVf,                       "-",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 112210
-	    ((_MDOutDINKtID                     = MFVarGetID (MDVarDINKt,                       "-",   MFOutput, MFState, MFBoundary))   == CMfailed) ||	// RJS 112210
-  	    ((_MDDeltaStoreWater_DINID       	= MFVarGetID (MDVarDeltaStoreWaterDIN,    	 "kg/day", MFOutput, MFState, MFBoundary)) == CMfailed) ||   // RJS 112008
-	    ((_MDDeltaStoreWaterMixing_DINID    = MFVarGetID (MDVarDeltaStoreWaterMixingDIN,  "kg/day", MFOutput, MFState, MFBoundary)) == CMfailed) ||   // RJS 112008
-	    ((_MDFlowPathRemoval_DINID       	= MFVarGetID (MDVarFlowPathRemovalDIN,      	"kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||   // RJS 112008
-	    ((_MDFlowPathRemovalMixing_DINID    = MFVarGetID (MDVarFlowPathRemovalMixingDIN,  "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||   // RJS 112008
+	    ((_MDOutPostConc_DINID		= MFVarGetID (MDVarPostConcDIN,	                "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDOutPreConc_DINID		= MFVarGetID (MDVarPreConcDIN,	                "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDOutTotalMassRemovedTS_DINID   	= MFVarGetID (MDVarTotalMassRemovedTSDIN,     "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||
+	    ((_MDOutTotalMassRemovedDZ_DINID 	= MFVarGetID (MDVarTotalMassRemovedDZDIN,     "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||
+	    ((_MDOutTotalMassRemovedHZ_DINID 	= MFVarGetID (MDVarTotalMassRemovedHZDIN,     "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||
+	    ((_MDOutTotalMassRemovedMC_DINID 	= MFVarGetID (MDVarTotalMassRemovedMCDIN,     "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||
+	    ((_MDOutTotalMassRemovedLK_DINID    = MFVarGetID (MDVarTotalMassRemovedLKDIN,     "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDOutTotalMassRemoved_DINID      = MFVarGetID (MDVarTotalMassRemovedDIN,       "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||		// RJS 032509
+	    ((_MDOutTimeOfStorageDZID		= MFVarGetID (MDVarTimeOfStorageDZ,             "days",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDOutTimeOfStorageHZID		= MFVarGetID (MDVarTimeOfStorageHZ,             "days",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDOutTimeOfStorageMCID		= MFVarGetID (MDVarTimeOfStorageMC,             "days",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 120608
+	    ((_MDOutTransferDZID		= MFVarGetID (MDVarTransferDZ,                  "m3/s",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDOutTransferHZID		= MFVarGetID (MDVarTransferHZ,                  "m3/s",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDOutPreFlux_DINID               = MFVarGetID (MDVarPreFluxDIN,                "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) || 	//RJS 050911
+	    ((_MDOutWaterDZID			= MFVarGetID (MDVarWaterDZ, 		          "m3",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDOutWaterHZID			= MFVarGetID (MDVarWaterHZ, 		          "m3",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDOutUptakeVfID               	= MFVarGetID (MDVarUptakeVf,                   "m/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 090508
+	    ((_MDFluxMixing_DINID		= MFVarGetID (MDVarFluxMixingDIN,  	      "kg/day",    MFRoute,   MFFlux, MFBoundary))   == CMfailed) ||	// RJS 091108
+	    ((_MDStoreWaterMixing_DINID      	= MFVarGetID (MDVarStoreWaterMixingDIN,       "kg/day",   MFOutput,  MFState, MFInitial))    == CMfailed) ||	// RJS 091108
+	    ((_MDOutTotalMassPre_DINID       	= MFVarGetID (MDVarTotalMassPreDIN,           "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||	// RJS 091408
+	    ((_MDOutConcMixing_DINID         	= MFVarGetID (MDVarConcMixing,    	        "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 091108
+	    ((_MDOutMassBalance_DINID		= MFVarGetID (MDVarMassBalanceDIN,             "kg/kg",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 110308
+	    ((_MDOutMassBalanceMixing_DINID	= MFVarGetID (MDVarMassBalanceMixingDIN,       "kg/kg",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 110308
+	    ((_MDOutRemovalDZID              	= MFVarGetID (MDVarRemovalDZ,                  "kg/kg",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 110708
+	    ((_MDOutRemovalHZID              	= MFVarGetID (MDVarRemovalHZ,                  "kg/kg",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 110708
+	    ((_MDOutRemovalMCID              	= MFVarGetID (MDVarRemovalMC,                  "kg/kg",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 110708
+	    ((_MDOutRemovalLKID                 = MFVarGetID (MDVarRemovalLK,                  "kg/kg",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDOutRemovalTotalID              = MFVarGetID (MDVarRemovalTotal,               "kg/kg",   MFOutput,  MFState, MFBoundary))   == CMfailed) || 	// RJS 030109
+	    ((_MDOutAsDZID                   	= MFVarGetID (MDVarAsDZ,                          "m2",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 110808
+	    ((_MDOutAsHZID                   	= MFVarGetID (MDVarAsHZ,                          "m2",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 110808
+	    ((_MDOutAaID                     	= MFVarGetID (MDVarAa,                            "m2",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 110808
+	    ((_MDOutVelocityID                  = MFVarGetID (MDVarVelocity,                     "m/s",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112108
+	    ((_MDOutDINVfID                     = MFVarGetID (MDVarDINVf,                          "-",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 112210
+	    ((_MDOutDINKtID                     = MFVarGetID (MDVarDINKt,                          "-",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	// RJS 112210
+  	    ((_MDOutBackCalcRID                 = MFVarGetID (MDVarBackCalcR,                      "-",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDOutBackCalcVfID                = MFVarGetID (MDVarBackCalcVf,                     "-",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDDeltaStoreWater_DINID       	= MFVarGetID (MDVarDeltaStoreWaterDIN,        "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
+	    ((_MDDeltaStoreWaterMixing_DINID    = MFVarGetID (MDVarDeltaStoreWaterMixingDIN,  "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
+	    ((_MDFlowPathRemoval_DINID       	= MFVarGetID (MDVarFlowPathRemovalDIN,        "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||   // RJS 112008
+	    ((_MDFlowPathRemovalMixing_DINID    = MFVarGetID (MDVarFlowPathRemovalMixingDIN,  "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||   // RJS 112008
 
 
 	(MFModelAddFunction (_MDNProcessing) == CMfailed)) return (CMfailed);
