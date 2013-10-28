@@ -296,6 +296,8 @@ float lake_HL                   = 0.0;
                 totalMassRemovedLK_DIN = (removalLK) * DINTotalIn;                          // kg/day RJS 100413
                 totalMassRemovedTS_DIN = totalMassRemovedDZ_DIN + totalMassRemovedHZ_DIN;   // kg/day
                 
+                totalMassRemoved_DIN = totalMassRemovedTS_DIN + totalMassRemovedMC_DIN + totalMassRemovedLK_DIN;
+                
              	postConcDIN            = (DINTotalIn - totalMassRemovedTS_DIN - totalMassRemovedMC_DIN - totalMassRemovedLK_DIN - flowPathRemoval) / waterTotalVolume * 1000;  // mg/L
                 postConcDINMixing      = (DINTotalInMixing - flowPathRemovalMixing) / waterTotalVolume * 1000;					      // mg/L
    
@@ -349,6 +351,7 @@ float lake_HL                   = 0.0;
 //   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", waterT, denit_int_vf, denit_slope, tnQ10, tnTref, VfAdjust, DIN_Vf_ref, DIN_Vf, hydLoad, uptakeMC, removalMC, removalTotal, totalMassRemovedMC_DIN, flowPathRemoval);
 //   printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", postFluxDIN, postFluxDINMixing, postConcDIN, postConcDINMixing, postStoreWater_DIN, postStoreWaterMixing_DIN, DINDeltaStorage, DINDeltaStorageMixing, massBalance_DIN, massBalanceMixing_DIN);
 //}
+
 
 MFVarSetFloat (_MDOutPreFlux_DINID,              itemID, preFlux_DIN);				// RJS 050911
 MFVarSetFloat (_MDOutTotalMassRemoved_DINID,     itemID, totalMassRemoved_DIN);		// RJS 032509

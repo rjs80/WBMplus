@@ -119,7 +119,7 @@ static void _MDNitrogenInputsCalc (int itemID) {
 	if (_MDInLandUseSubID != MFUnset)	luSub = MFVarGetFloat (_MDInLandUseSubID, itemID, 0.0);	//KAW 2013 05 08 Suburban Land Use
 	if (_MDInLandUseAgID  != MFUnset)	luAg  = MFVarGetFloat (_MDInLandUseAgID,  itemID, 0.0);	//KAW 2013 05 08 Agricultural Land Use
 
-	luSub = luSub + luAg;
+	luSub = luSub + luAg > 100 ? 100 : luSub + luAg;
 
 	runoff             = MFVarGetFloat (_MDInRunoffID,         itemID, 0.0); 	// mm / d
 	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,      itemID, 0.0); 	// m3/sec

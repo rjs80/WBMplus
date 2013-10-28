@@ -347,6 +347,7 @@ extern "C" {
 
 #define MDVarLandUseSpatial					 "LandUseSpatial"
 #define MDVarLawnFraction					 "LawnFraction"
+#define MDVarLawnAWC                                             "LawnAWC"
 #define MDVarLoadAdjust						 "LoadAdjust"
 #define MDVarLocalLoadDIN					 "LocalLoadDIN"
 #define MDVarLocalLoadDINnew				 "LocalLoadDINnew"
