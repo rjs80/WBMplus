@@ -19,6 +19,11 @@ balazs.fekete@unh.edu
 // Input
 static int _MDInDischMeanID              = MFUnset;
 static int _MDInRiverbedSlopeID          = MFUnset;
+static int _MDInEtaID                    = MFUnset;
+static int _MDInNuID                     = MFUnset;
+static int _MDInTauID                    = MFUnset;
+static int _MDInPhiID                    = MFUnset;
+
 // Output
 static int _MDOutRiverbedAvgDepthMeanID  = MFUnset;
 static int _MDOutRiverbedWidthMeanID     = MFUnset;
@@ -29,6 +34,10 @@ static void _MDRiverbedShapeExponent (int itemID) {
 // Input
 	float slope;     // Riverbed slope [m/km]
 	float discharge; // Mean annual discharge [m3/s]
+        float eta = 0.0;
+        float nu  = 0.0;
+        float tau = 0.0;
+        float phi = 0.0;
 // Output
 	float yMean;     // River average depth at mean discharge [m]
 	float wMean;     // River width at mean discharge [m]
@@ -36,8 +45,13 @@ static void _MDRiverbedShapeExponent (int itemID) {
 	float dL;        // Reach length [m]
 //	float eta = 0.25, nu = 0.4, tau = 8.0, phi = 0.58;		//old
 //	float eta = 0.36, nu = 0.37, tau = 3.55, phi = 0.51;	//new based on Knighton (avg)
-	float eta = 0.33, nu = 0.35, tau = 3.67, phi = 0.45;	// Hey and Thorn (1986)
+//	float eta = 0.33, nu = 0.35, tau = 3.67, phi = 0.45;	// Hey and Thorn (1986) (used for ERL 2013)
 
+        eta = MFVarGetFloat (_MDInEtaID,   itemID, 0.0);
+        nu  = MFVarGetFloat (_MDInNuID,    itemID, 0.0);
+        tau = MFVarGetFloat (_MDInTauID,   itemID, 0.0);
+        phi = MFVarGetFloat (_MDInPhiID,   itemID, 0.0);
+        
 	if (MFVarTestMissingVal (_MDInDischMeanID, itemID)) {
 		MFVarSetFloat (_MDOutRiverbedAvgDepthMeanID,  itemID, 0.0);
 		MFVarSetFloat (_MDOutRiverbedWidthMeanID,     itemID, 0.0);
@@ -65,6 +79,8 @@ static void _MDRiverbedShapeExponent (int itemID) {
 	yMean = eta * pow (discharge, nu);
 	wMean = tau * pow (discharge, phi);
 
+ //       printf("eta = %f, nu = %f, tau = %f, phi = %f\n", eta, nu, tau, phi);
+        
 	MFVarSetFloat (_MDOutRiverbedAvgDepthMeanID,      itemID, yMean);
 	MFVarSetFloat (_MDOutRiverbedWidthMeanID,         itemID, wMean);
 	MFVarSetFloat (_MDOutRiverbedVelocityMeanID,      itemID, discharge / (yMean * wMean));
@@ -96,7 +112,11 @@ int MDRiverbedShapeExponentDef () {
 				return (CMfailed);
 		case MDindependent:
 			if (((_MDInDischMeanID = MDDischMeanDef ()) == CMfailed) ||
-			    ((_MDOutRiverbedAvgDepthMeanID  = MFVarGetID (MDVarRiverbedAvgDepthMean,  "m",      MFOutput, MFState, MFBoundary)) == CMfailed) ||
+			    ((_MDInEtaID                    = MFVarGetID (MDVarEta,                   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
+                            ((_MDInNuID                     = MFVarGetID (MDVarNu,                    "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
+			    ((_MDInTauID                    = MFVarGetID (MDVarTau,                   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
+			    ((_MDInPhiID                    = MFVarGetID (MDVarPhi,                   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||  
+                            ((_MDOutRiverbedAvgDepthMeanID  = MFVarGetID (MDVarRiverbedAvgDepthMean,  "m",      MFOutput, MFState, MFBoundary)) == CMfailed) ||
 			    ((_MDOutRiverbedWidthMeanID     = MFVarGetID (MDVarRiverbedWidthMean,     "m",      MFOutput, MFState, MFBoundary)) == CMfailed) ||
 			    ((_MDOutRiverbedVelocityMeanID  = MFVarGetID (MDVarRiverbedVelocityMean,  "m/s",    MFOutput, MFState, MFBoundary)) == CMfailed) ||
 			    ((_MDOutRiverbedShapeExponentID = MFVarGetID (MDVarRiverbedShapeExponent, MFNoUnit, MFOutput, MFState, MFBoundary)) == CMfailed) ||

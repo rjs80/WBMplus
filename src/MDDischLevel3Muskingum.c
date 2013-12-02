@@ -145,13 +145,15 @@ static void _MDDischLevel3Muskingum (int itemID) {
         GrW_Qout = propGrW_out * outDisch;
         
         balance2 = (StW_Qout + SuW_Qout + GrW_Qout) - outDisch;
-        
-        
-//        if ((itemID == 574) || (itemID == 248)) {
-//            printf("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,",inDischCurrent, runoff, storage, StW_RO, SuW_RO, GrW_RO, StW_Qin, SuW_Qin, GrW_Qin, StW_RSin, SuW_RSin, GrW_RSin);
-//            printf("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", StW_Qin, SuW_Qin, GrW_Qin, propStW_RSin, propSuW_RSin, propGrW_RSin, propStW_out, propSuW_out, propGrW_out, balance1, StW_Qout, SuW_Qout, GrW_Qout, outDisch, balance2);
-//        }
-        
+/*        
+if (MFDateGetCurrentYear() >= 2000) {        
+        if (itemID == 36) {
+            printf("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,",inDischCurrent, runoff, storage, StW_RO, SuW_RO, GrW_RO, StW_Qin, SuW_Qin, GrW_Qin, StW_RSin, SuW_RSin, GrW_RSin);
+            printf("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", StW_Qin, SuW_Qin, GrW_Qin, propStW_RSin, propSuW_RSin, propGrW_RSin, propStW_out, propSuW_out, propGrW_out, balance1, StW_Qout, SuW_Qout, GrW_Qout, outDisch, balance2);
+        }
+}
+*/  
+       
 //	if (itemID == 33 || itemID == 32) printf("**Discharge Musk** itemID=%d, day = %d, outDisch = %f, inDischCurrent = %f, inDischPrevious = %f\n", itemID, MFDateGetCurrentDay(), outDisch, inDischCurrent, inDischPrevious);
 //	if (itemID == 33 || itemID == 32) printf("C0 = %f, C1 = %f, C2 = %f, storage = %f, storChg = %f\n", C0, C1, C2, storage, storChg);
 
