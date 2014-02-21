@@ -51,6 +51,8 @@ static int _MDInSTSKsID                         = MFUnset;              // RJS 1
 static int _MDInContributingAreaID              = MFUnset;              // RJS 120213
 static int _MDInBankFullID                      = MFUnset;              // RJS 120213
 static int _MDInFloodplainSwitchID              = MFUnset;              // RJS 120213
+static int _MDInScaleAlphaID                    = MFUnset;              // RJS 120413
+static int _MDInTotalEvaporationID              = MFUnset;              // RJS 022413
 
 // output
 
@@ -261,6 +263,8 @@ float STS_Ks                    = 0.0;
 float contributingArea          = 0.0;
 float bankfull_mm               = 0.0;
 float floodplain_switch         = 0.0;
+float scaleAlpha                = 0.0;
+float totalEvap                 = 0.0;
 
 	riverOrder           = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);	 //RJS 112211
         removalOrder         = MFVarGetFloat (_MDInRemovalOrderID,       itemID, 0.0);   // RJS 100213
@@ -291,6 +295,9 @@ float floodplain_switch         = 0.0;
         contributingArea     = MFVarGetFloat (_MDInContributingAreaID,   itemID, 0.0);   // km2
         bankfull_mm          = MFVarGetFloat (_MDInBankFullID,           itemID, 0.0);   // mm/d (1.2 yr = 5.0 mm/d or 18.7 m3/s, 1.5 yr = 6.5 mm/d or 24.4 m3/s)
         floodplain_switch    = MFVarGetFloat (_MDInFloodplainSwitchID,   itemID, 0.0);   // 1 = on, 0 = off
+        scaleAlpha           = MFVarGetFloat (_MDInScaleAlphaID,         itemID, 0.0);   // 0 = off, value indicates: alpha = X * Discharge
+        totalEvap            = MFVarGetFloat (_MDInTotalEvaporationID,   itemID, 0.0);   // m3/day  RJS 022114
+
         
         dL                   = MFModelGetLength (itemID);               // km converted to m
 	waterStoragePrev     = waterStorage - waterStorageChg;		// m3/sec!!! RJS 100213
@@ -300,6 +307,10 @@ float floodplain_switch         = 0.0;
 	ktHTS		     = _MDUptakeKtHTS;				// RJS 033009
         alphaDZ              = _MDAlphaSTS;                          
 	alphaHZ              = _MDAlphaHTS; 
+        
+        if (scaleAlpha > 0.0) {
+            alphaDZ          = scaleAlpha * discharge > alphaDZ ? alphaDZ : scaleAlpha * discharge;
+        }
         
 	DINTotalIn_denit     = localLoad_DIN + preFlux_DIN_denit + storeWater_DIN_denit + WWTPpointSrc;  // kg/day  RJS 100413
         DINTotalIn_assim     = localLoad_DIN + preFlux_DIN_assim + storeWater_DIN_assim + WWTPpointSrc;  // kg/day  RJS 110413
@@ -318,7 +329,8 @@ float floodplain_switch         = 0.0;
 		preConcDIN_denit     = DINTotalIn_denit / (waterTotalVolume) * 1000;                                    // mg/L
                 preConcDIN_assim     = DINTotalIn_assim / (waterTotalVolume) * 1000;                                    // mg/L
 		preConcMixingDIN     = DINTotalInMixing / (waterTotalVolume) * 1000;                                    // mg/L
-		velocity	     = discharge / (depth * width);                                                     // m/s
+		
+                velocity	     = discharge / (depth * width);                                                     // m/s
                 DIN_Vf_denit         = 0.0;                                                                             // m/d
                 DIN_Kt_denit         = 0.0;                                                                             // 1/d
                 DIN_Vf_assim         = 0.0;                                                                             // m/d
@@ -327,11 +339,11 @@ float floodplain_switch         = 0.0;
                 
                 if (preConcDIN_denit > 0.0) {
                    
-			DIN_Vf_ref_denit = pow(10,(denit_int_vf + (log10(preConcDIN_denit * 1000) * denit_slope)))*86400/100;	// no conversion to m/d neccesary - already in m/d
+			DIN_Vf_ref_denit = preConcDIN_denit > 0.0 ? pow(10,(denit_int_vf + (log10(preConcDIN_denit * 1000) * denit_slope)))*86400/100 : 0.0;	// no conversion to m/d neccesary - already in m/d
 			DIN_Vf_ref_denit = DIN_Vf_ref_denit * VfAdjust;                                                           // m/d RJS 050213
 			DIN_Vf_denit	 = DIN_Vf_ref_denit * pow(tnQ10, (((waterT) - tnTref) / 10));                             // m/d	RJS 051211
 
-                       	DIN_Vf_ref_assim = pow(10,(assim_int_vf + (log10(preConcDIN_assim * 1000) * assim_slope)))*86400/100;	// no conversion to m/d neccesary - already in m/d
+                       	DIN_Vf_ref_assim = preConcDIN_assim > 0.0 ? pow(10,(assim_int_vf + (log10(preConcDIN_assim * 1000) * assim_slope)))*86400/100 : 0.0;	// no conversion to m/d neccesary - already in m/d
 			DIN_Vf_ref_assim = DIN_Vf_ref_assim * VfAdjust;                                                           // m/d RJS 050213
 			DIN_Vf_assim	 = DIN_Vf_ref_assim * pow(tnQ10, (((waterT) - tnTref) / 10));                             // m/d	RJS 051211
 
@@ -366,14 +378,14 @@ float floodplain_switch         = 0.0;
 				tStorDZ    = alphaDZ == 0.0 ? 0.0 : (asDZ / (alphaDZ * aA)) / 86400; // days											// RJS 111710
                                 transferDZ = alphaDZ * aA * dL / discharge;		//RJS 072909
                                 waterDZ    = discharge * transferDZ; 		// m3/s
-                                wetland_HL = (transferDZ * discharge) / wetlandArea * 86400;   // m/d
+                                wetland_HL = wetlandArea > 0.0 ? (transferDZ * discharge) / wetlandArea * 86400 : 0.0;   // m/d
                                 
                         }
                                 
                                 /* denitrification */
                                 
                 		uptakeMC_denit  = hydLoad > 0.0 ? 1.0 - pow(2.718281828, -1 * DIN_Vf_denit / hydLoad) : 0.0;                              // RJS 102410
-                                uptakeDZ_denit  = wetland_HL > 0.0 ? 1.0 - pow(2.718281828, -1 * (STS_U / (preConcDIN_denit * 1000)) / wetland_HL) : 0.0;    // RJS 112413
+                                uptakeDZ_denit  = (wetland_HL > 0.0) && (preConcDIN_denit > 0.0) ? 1.0 - pow(2.718281828, -1 * (STS_U / (preConcDIN_denit * 1000)) / wetland_HL) : 0.0;    // RJS 112413
 				uptakeHZ_denit  = 1.0 - pow(2.718281828, -1 * DIN_Kt_denit * tStorHZ);                              // RJS 102410
 
                                 removalMC_denit = uptakeMC_denit;		// reach scale proportional nutrient removal  // **** RJS 032309				
@@ -383,7 +395,7 @@ float floodplain_switch         = 0.0;
                                 /* assimilation */
                                 
                                 uptakeMC_assim  = hydLoad > 0.0 ? 1.0 - pow(2.718281828, -1 * DIN_Vf_assim / hydLoad) : 0.0;                              // RJS 102410
-				uptakeDZ_assim  = wetland_HL > 0.0 ? 1.0 - pow(2.718281828, -1 * (STS_U / (preConcDIN_assim * 1000)) / wetland_HL) : 0.0;    // RJS 112413
+				uptakeDZ_assim  = (wetland_HL > 0.0) && (preConcDIN_denit > 0.0) ? 1.0 - pow(2.718281828, -1 * (STS_U / (preConcDIN_assim * 1000)) / wetland_HL) : 0.0;    // RJS 112413
 				uptakeHZ_assim  = 1.0 - pow(2.718281828, -1 * DIN_Kt_assim * tStorHZ);                              // RJS 102410
 
                                 removalMC_assim = uptakeMC_assim;		// reach scale proportional nutrient removal  // **** RJS 032309				
@@ -409,9 +421,9 @@ float floodplain_switch         = 0.0;
                 totalMassRemoved_DIN_assim   = totalMassRemovedTS_DIN_assim + totalMassRemovedMC_DIN_assim + totalMassRemovedLK_DIN_assim;
                 
                 
-             	postConcDIN_denit      = (DINTotalIn_denit - totalMassRemoved_DIN_denit - flowPathRemoval_denit) / waterTotalVolume * 1000;  // mg/L
-                postConcDIN_assim      = (DINTotalIn_assim - totalMassRemoved_DIN_assim - flowPathRemoval_assim) / waterTotalVolume * 1000;  // mg/L
-                postConcDINMixing      = (DINTotalInMixing - flowPathRemovalMixing) / waterTotalVolume * 1000;					      // mg/L
+             	postConcDIN_denit      = (DINTotalIn_denit - totalMassRemoved_DIN_denit - flowPathRemoval_denit) / (waterTotalVolume - totalEvap) * 1000;  // mg/L
+                postConcDIN_assim      = (DINTotalIn_assim - totalMassRemoved_DIN_assim - flowPathRemoval_assim) / (waterTotalVolume - totalEvap) * 1000;  // mg/L
+                postConcDINMixing      = (DINTotalInMixing - flowPathRemovalMixing) / (waterTotalVolume - totalEvap) * 1000;				    // mg/L
    
                 R_denit  = preConcDIN_denit > 0.0 ? 1.0 - (postConcDIN_denit / preConcDIN_denit) : 0.0;                         // back-calculated removal
                 vf_denit = lake_HL > 0.0 ? -1.0 * lake_HL * log(1.0 - R_denit) : -1.0 * hydLoad * log(1.0 - R_denit);	// back-calculated vf
@@ -455,7 +467,7 @@ float floodplain_switch         = 0.0;
         massBalance_DIN_assim 	 = ((localLoad_DIN + WWTPpointSrc + preFlux_DIN_assim + storeWater_DIN_assim) - (totalMassRemoved_DIN_assim + postFluxDIN_assim + postStoreWater_DIN_assim + flowPathRemoval_assim)) / (localLoad_DIN + WWTPpointSrc + storeWater_DIN_assim + preFlux_DIN_assim);		// RJS 111411
         massBalanceMixing_DIN	 = ((localLoad_DIN + WWTPpointSrc + preFluxMixing_DIN + storeWaterMixing_DIN) - (postFluxDINMixing + postStoreWaterMixing_DIN + flowPathRemovalMixing)) / (localLoad_DIN + WWTPpointSrc + storeWaterMixing_DIN + preFluxMixing_DIN);
         
-//if (((massBalance_DIN_denit > 0.0003) || (massBalance_DIN_assim > 0.0003)) && (localLoad_DIN + storeWater_DIN_denit + preFlux_DIN_denit > 0.000001)) printf("******\n itemID = %d, y = %d, m = %d, d = %d, massBalance_DIN_denit = %f, MB_assim = %f, MB_mixing = %f\n, postConcDIN_denit = %f, postConcDIN_assim = %f, waterStorage = %f, localLoad_DIN = %f, preFlux_DIN_denit = %f, storeWater_DIN_denit = %f, storeWater_DIN_assim = %f\n totalMassRemovedTS_DIN_denit = %f, totalMassRemovedMC_DIN_denit = %f, postFluxDIN_denit = %f, postStoreWater_DIN_denit = %f, flowPathRemoval_denit = %f\n, totalMassRemovedTS_DIN_assim = %f, totalMassRemovedMC_DIN_assim = %f, postFluxDIN_assim = %f, postStoreWater_DIN_assim = %f, flowPathRemoval_assim = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_DIN_denit, massBalance_DIN_assim, massBalanceMixing_DIN, postConcDIN_denit, postConcDIN_assim, waterStorage, localLoad_DIN, preFlux_DIN_denit, storeWater_DIN_denit, storeWater_DIN_assim, totalMassRemovedTS_DIN_denit, totalMassRemovedMC_DIN_denit, postFluxDIN_denit, postStoreWater_DIN_denit, flowPathRemoval_denit, totalMassRemovedTS_DIN_assim, totalMassRemovedMC_DIN_assim, postFluxDIN_assim, postStoreWater_DIN_assim, flowPathRemoval_assim);
+if (((massBalance_DIN_denit > 0.0003) || (massBalance_DIN_assim > 0.0003)) && (localLoad_DIN + storeWater_DIN_denit + preFlux_DIN_denit > 0.000001)) printf("******\n itemID = %d, y = %d, m = %d, d = %d, massBalance_DIN_denit = %f, MB_assim = %f, MB_mixing = %f\n, postConcDIN_denit = %f, postConcDIN_assim = %f, waterStorage = %f, localLoad_DIN = %f, preFlux_DIN_denit = %f, storeWater_DIN_denit = %f, storeWater_DIN_assim = %f\n totalMassRemovedTS_DIN_denit = %f, totalMassRemovedMC_DIN_denit = %f, postFluxDIN_denit = %f, postStoreWater_DIN_denit = %f, flowPathRemoval_denit = %f\n, totalMassRemovedTS_DIN_assim = %f, totalMassRemovedMC_DIN_assim = %f, postFluxDIN_assim = %f, postStoreWater_DIN_assim = %f, flowPathRemoval_assim = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_DIN_denit, massBalance_DIN_assim, massBalanceMixing_DIN, postConcDIN_denit, postConcDIN_assim, waterStorage, localLoad_DIN, preFlux_DIN_denit, storeWater_DIN_denit, storeWater_DIN_assim, totalMassRemovedTS_DIN_denit, totalMassRemovedMC_DIN_denit, postFluxDIN_denit, postStoreWater_DIN_denit, flowPathRemoval_denit, totalMassRemovedTS_DIN_assim, totalMassRemovedMC_DIN_assim, postFluxDIN_assim, postStoreWater_DIN_assim, flowPathRemoval_assim);
 
 //if (itemID==809) printf ("***** itemID=%d, month=%d, day=%d, year=%d, Q=%f, hydLoad=%f, waterT=%f, localLoad_DIN = %f \n",itemID,MFDateGetCurrentMonth(),MFDateGetCurrentDay(),MFDateGetCurrentYear(),discharge,hydLoad,waterT,localLoad_DIN);
 //if (itemID==809) printf ("preConcDIN=%f, postConcDIN=%f, preConcMixingDIN=%f, postConcMixingDIN=%f \n",preConcDIN,postConcDIN,preConcMixingDIN,postConcDINMixing);
@@ -468,17 +480,20 @@ float floodplain_switch         = 0.0;
 //if (itemID == cell_1 || itemID == cell_2) printf("totalMassRemovedDZ_DIN = %f, totalMassRemovedHZ_DIN = %f, totalMassRemovedMC_DIN = %f, postConcDIN = %f, postFluxDIN = %f\n", totalMassRemovedDZ_DIN, totalMassRemovedHZ_DIN, totalMassRemovedMC_DIN, postConcDIN, postFluxDIN);
 //if (itemID == cell_1 || itemID == cell_2) printf("waterT = %f, postConcDINMixing = %f, tnTref = %f, DIN_Vf_ref = %f, DIN_Kt_ref = %f\n", waterT, postConcDINMixing, tnTref, DIN_Vf_ref, DIN_Kt_ref);
 
-/*
-        
-if (MFDateGetCurrentYear() >= 2000) {
-if (itemID == 36) {
+//        if (isnan(preFlux_DIN_denit)) printf("ID = %d, %d-%d-%d\n", itemID,MFDateGetCurrentYear(),MFDateGetCurrentMonth(),MFDateGetCurrentDay());
+
+
+    /*    
+//if (MFDateGetCurrentYear() >= 2000) {
+if ((itemID == 1063) || (itemID == 1063)) {
    printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), discharge, dischargePre, waterStoragePrev, waterStorage, waterStorageChg, waterTotalVolume, runoffVol, depth, width, aA, dL,localLoad_DIN, runoffConc);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,",  storeWater_DIN_denit, storeWater_DIN_assim, storeWaterMixing_DIN, preFlux_DIN_denit, preFlux_DIN_assim, preFluxMixing_DIN, DINTotalIn_denit, DINTotalIn_assim, DINTotalInMixing, preConcDIN_denit, preConcDIN_assim, preConcMixingDIN);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", waterT, denit_int_vf, denit_slope, assim_int_vf, assim_slope, tnQ10, tnTref, VfAdjust, DIN_Vf_ref_denit, DIN_Vf_denit, DIN_Vf_ref_assim, DIN_Vf_assim, STS_Umax, STS_UmaxT, STS_Ks, STS_U, ktHTS, DIN_Kt_denit, DIN_Kt_assim, alphaDZ, alphaHZ, transferDZ, transferHZ, tStorHZ, wetlands, HCWA, wetlandArea, wetland_HL, hydLoad, uptakeMC_denit, uptakeDZ_denit, uptakeHZ_denit, removalMC_denit, removalDZ_denit, removalHZ_denit, removalTotal_denit, totalMassRemovedMC_DIN_denit, totalMassRemovedDZ_DIN_denit, totalMassRemovedHZ_DIN_denit, flowPathRemoval_denit, uptakeMC_assim, removalMC_assim, removalTotal_assim, totalMassRemovedMC_DIN_assim, flowPathRemoval_assim);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", postFluxDIN_denit, postFluxDIN_assim, postFluxDINMixing, postConcDIN_denit, postConcDIN_assim, postConcDINMixing, postStoreWater_DIN_denit, postStoreWater_DIN_assim, postStoreWaterMixing_DIN, DINDeltaStorage_denit, DINDeltaStorage_assim, DINDeltaStorageMixing, massBalance_DIN_denit, massBalance_DIN_assim, massBalanceMixing_DIN);
-}
+//}
 }  
 */
+
         
 MFVarSetFloat (_MDOutPreFlux_DIN_denitID,            itemID, preFlux_DIN_denit);				// RJS 050911
 MFVarSetFloat (_MDOutTotalMassRemoved_DIN_denitID,   itemID, totalMassRemoved_DIN_denit);		// RJS 032509
@@ -603,7 +618,9 @@ int MDDINDef () {
             ((_MDInContributingAreaID       = MFVarGetID (MDVarContributingArea,                          "km2",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120213
             ((_MDInBankFullID               = MFVarGetID (MDVarBankFullDepth,                            "mm/d",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120213
             ((_MDInFloodplainSwitchID       = MFVarGetID (MDVarFloodplainSwitch,                            "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120213
-                         
+            ((_MDInScaleAlphaID             = MFVarGetID (MDVarScaleAlpha,                                  "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120413
+            ((_MDInTotalEvaporationID           = MFVarGetID (MDVarTotalEvaporation,                           "m3",    MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
+     
    // Output
             // denitrification    
 	    ((_MDOutPostConc_DIN_denitID           = MFVarGetID (MDVarPostConcDIN_denit,	         "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||

@@ -156,6 +156,24 @@ extern "C" {
 #define MDVarH2OFracSpatial					 "H2OFracSpatial"		//RJS 091213
 #define MDVarImperviousSoil					 "ImperviousSoil"		// RJS 091213
 
+    
+// New Irrigation Function
+
+#define MDVarIrrDischargeWdls                "IrrDischargeWdls"
+#define MDVarIrrGrdWatWdls                   "IrrGrdWatWdls"
+#define MDVarIrrDeficitNotScaled             "IrrDeficitNotScaled"
+#define MDVarIrrDeficit                      "IrrDeficit"
+#define MDVarIrrDischargePre                 "IrrDischargePre"
+#define MDVarIrrETVol                        "IrrETVol"
+#define MDVarIrrQWdlsVol                     "IrrQWdlsVol"
+#define MDVarIrrGrdWatWdlsVol                "IrrGrdWatWdlsVol"
+#define MDVarIrrDeficitVol                   "IrrDeficitVol"  
+#define MDVarResScenario                     "ResScenario"
+#define MDVarResVolume                       "ResVolume" 
+#define MDVarIrrResWdlsVol                   "IrrResWdlsVol"
+#define MDVarIrrResAccVol                    "IrrResAccVol"
+#define MDVarPropReservoir                   "PropReservoir"
+    
 #define MDVarIrrAreaFraction                 "IrrigatedAreaFraction"
 
 #define MDVarIrrAreaFractionSeason1          "IrrigatedAreaFractionSeason1"
@@ -242,6 +260,11 @@ extern "C" {
 
 #define MDVarPrecipPerv						 "PrecipPerv"			// RJS 082812
 
+#define MDVarPropROFlag                                           "RunoffFlag"                      // RJS 012214   Read-in as input layer
+#define MDVarPropRSFlag                                           "RivStorFlag"                     // RJS 012214
+#define MDVarQFlag                                                "QFlag"                           // RJS 012214
+#define MDVarPropQinFlag                                          "PropQinFlag"                     // RJS 012214
+#define MDVarPropRSinFlag                                         "PropRSinFlag"                    // RJS 012214
 #define MDVarPropROStormWater                                     "PropROStormWater"                // RJS 100313    
 #define MDVarPropROSurfaceWater                                   "PropROSurfaceWater"              // RJS 100313   
 #define MDVarPropROGroundWater                                    "PropROGroundWater"               // RJS 100313    
@@ -311,7 +334,8 @@ extern "C" {
 #define MDVarFloodplainSwitch                            "FloodplainSwitch"
 #define MDVarBankFullDepth                               "BankFullDepth"
 #define MDVarContributingArea                            "ContributingArea"
-    
+#define MDVarScaleAlpha                                  "ScaleAlpha"    
+       
 #define MDVarFluxDIN_denit                               "FluxDINd"
 #define MDVarStoreWaterDIN_denit                         "StoreWaterDINd"
 #define MDVarPostConcDIN_denit				 "PostConcDINd"
@@ -385,6 +409,7 @@ extern "C" {
 #define MDVarLawnAWC                                     "LawnAWC"
 #define MDVarLoadAdjust					 "LoadAdjust"
 #define MDVarLocalLoadDIN				 "LocalLoadDIN"
+#define MDVarInLocalLoadDIN                              "InLocalLoadDIN"                       // RJS 011414
 #define MDVarLocalLoadDINnew				 "LocalLoadDINnew"
 #define MDVarGroundWaterMassRel				 "GroundWaterMassRel"
 #define MDVarRunoffPoolMassRel				 "RunoffPoolMassRel"
@@ -397,6 +422,18 @@ extern "C" {
 #define MDVarLandUseSpatialSub				 "LandUseSpatialSub"
 #define MDVarLandUseSpatialAg				 "LandUseSpatialAg"
 
+    // DOC Variables //
+    
+#define MDVarStoreWaterMixingDOC                         "StoreWaterMixingDOC"
+#define MDVarStoreWaterMixingLTR                         "StoreWaterMixingLTR"
+#define MDVarFluxMixingDOC                               "FluxMixingDOC"
+#define MDVarFluxMixingLTR                               "FluxMixingLTR"
+#define MDVarLocalLoadDOC                                "LocalLoadDOC"
+#define MDVarLocalLoadLTR                                "LocalLoadLTR"
+#define MDVarConcMixingDOC                               "ConcMixingDOC"
+#define MDVarConcMixingLTR                               "ConcMixingLTR"
+
+    
 // DO2 Variables //
 #define MDVarRiverMassDO2					 "RiverMassDO2"				// RJS 111612
 #define MDVarRiverConcDO2					 "RiverConcDO2"				// RJS 111612
@@ -712,6 +749,7 @@ int MDCParamGLMaxDef();
 int MDCParamLPMaxDef();
 int MDCParamZ0gDef();
 int MDDINDef();					// RJS 042513
+int MDDOCDef();                         // RJS 011914
 int MDNitrgoenInputsDef();		// RJS 042513
 int MDDischargeDef();
 int MDDischLevel1Def();
@@ -725,6 +763,7 @@ int MDDischMeanDef();
 int MDDO2Def();					// RJS 2012-06-18
 int MDEvapotranspirationDef();
 int MDGrossRadDef();
+int MDIrrigationDef();                          // RJS 120813
 int MDIrrigatedAreaDef();
 int MDIrrGrossDemandDef();
 int MDIrrRefEvapotransDef();

@@ -69,7 +69,7 @@ static void _MDRunoffInput (int itemID) {														// RJS 061312  ADDED THIS
 // Input
 	float baseFlow;																				// "
 	float surfaceRO;
-	float prop = 0.33333;																			// "
+	float prop = 0.33333																			// "
 
 	baseFlow  = MFVarGetFloat (_MDInBaseFlowID,          itemID, 0.0);							// "
 //	surfaceRO = MFVarGetFloat (_MDInRunoffPoolReleaseID, itemID, 0.0);							// "

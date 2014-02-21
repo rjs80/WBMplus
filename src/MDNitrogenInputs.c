@@ -17,18 +17,19 @@ rob.stewart@unh.edu
 
 // Input
 
-static int _MDInLandUseID			= MFUnset;
-static int _MDInRunoffID			= MFUnset;
-static int _MDInRunoffVolID			= MFUnset;
+static int _MDInLandUseID		= MFUnset;
+static int _MDInRunoffID		= MFUnset;
+static int _MDInRunoffVolID		= MFUnset;
 static int _MDInRiverOrderID		= MFUnset;		//RJS 090508
 static int _MDInDINLoadConcID		= MFUnset;		//RJS 102810
-static int _MDInRunoffPoolMassRelID = MFUnset;		//RJS 050511
+static int _MDInRunoffPoolMassRelID     = MFUnset;		//RJS 050511
 static int _MDInGrdWatMassRelID		= MFUnset;		//RJS 050511
-static int _MDInLawnFractionID      = MFUnset;		//RJS 051111
+static int _MDInLawnFractionID          = MFUnset;		//RJS 051111
 static int _MDInLoadAdjustID		= MFUnset;		//RJS 112211
 static int _MDInTotalPointID		= MFUnset;
 static int _MDInLandUseSubID		= MFUnset;
-static int _MDInLandUseAgID			= MFUnset;
+static int _MDInLandUseAgID		= MFUnset;
+static int _MDInLocalLoad_DINID         = MFUnset;              //RJS 011414
 
 // Output
 
@@ -47,17 +48,21 @@ static void _MDNitrogenInputsInput (int itemID) {
 	float runoffVol; 	//m3/sec
 	float LocalConc_DIN;
 	float riverOrder;
+        float LocalLoad_DIN_in; // kg/d
 
 	//Output
 	float LocalLoad_DIN;
 
-	runoff             = MFVarGetFloat (_MDInRunoffID,         		  itemID, 0.0); // mm / d
-	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,             itemID, 0.0); // m3/sec
-	LocalConc_DIN	   = MFVarGetFloat (_MDInDINLoadConcID,           itemID, 0.0); // mg/L
-	riverOrder		   = MFVarGetFloat (_MDInRiverOrderID,            itemID, 0.0);
+//	runoff             = MFVarGetFloat (_MDInRunoffID,         	  itemID, 0.0); // mm / d
+//	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,             itemID, 0.0); // m3/sec
+//	LocalConc_DIN	   = MFVarGetFloat (_MDInDINLoadConcID,           itemID, 0.0); // mg/L
+        LocalLoad_DIN_in   = MFVarGetFloat (_MDInLocalLoad_DINID,         itemID, 0.0); // kg/d
+//	riverOrder	   = MFVarGetFloat (_MDInRiverOrderID,            itemID, 0.0);
 
-	LocalLoad_DIN      = runoffVol * 86400 * LocalConc_DIN / 1000; // kg/day
-
+//	LocalLoad_DIN      = runoffVol * 86400 * LocalConc_DIN / 1000; // kg/day
+        LocalLoad_DIN      = LocalLoad_DIN_in;                         // kg/day
+        
+        
 	MFVarSetFloat (_MDOutLocalLoad_DINID,        itemID, LocalLoad_DIN);	  // RJS 090308
 
 }
@@ -194,30 +199,31 @@ int MDNitrogenInputsDef () {
 		break;
 
 	case MDinput:
-	if (((_MDInGrdWatMassRelID       = MFVarGetID (MDVarGroundWaterMassRel,   "kg/day", MFInput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
-		((_MDInRunoffPoolMassRelID   = MFVarGetID (MDVarRunoffPoolMassRel,    "kg/day", MFInput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
-		((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||															//RJS 050511
-		((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,         "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
-		(MFModelAddFunction (_MDNitrogenInputsInput) == CMfailed)) return (CMfailed);
+	if (((_MDInLocalLoad_DINID       = MFVarGetID (MDVarInLocalLoadDIN,       "kg/day", MFInput, MFFlux, MFBoundary)) == CMfailed) || 
+//          ((_MDInGrdWatMassRelID       = MFVarGetID (MDVarGroundWaterMassRel,   "kg/day", MFInput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+//          ((_MDInRunoffPoolMassRelID   = MFVarGetID (MDVarRunoffPoolMassRel,    "kg/day", MFInput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+//          ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||															//RJS 050511
+	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,         "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+	    (MFModelAddFunction (_MDNitrogenInputsInput) == CMfailed)) return (CMfailed);
 		break;
 
 	case MDcalculate:
 	if (((_MDInRunoffID   			 = MFVarGetID (MDVarRunoff,              "mm",  MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	//RJS 10-28-10
-	   	((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||			// RJS 10-28-10
-//	   	((_MDInDINLoadConcID         = MFVarGetID (MDVarDINLoadConc,       "mg/L",  MFInput, MFFlux, MFBoundary))  == CMfailed) ||	//RJS 10-28-10
-//	   	((_MDInLandUseID             = MFVarGetID (MDVarLandUseSpatial,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
-		((_MDInLandUseSubID             = MFVarGetID (MDVarLandUseSpatialSub,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
-		((_MDInLandUseAgID             	= MFVarGetID (MDVarLandUseSpatialAg,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
-//	   	((_MDInTotalPointID			 = MDPointSourceDef ()) == CMfailed) ||															//MMM Added this so that Nitrogeninputs knows it must run MDPointSource in order to calculate localload
+	    ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||			// RJS 10-28-10
+//	    ((_MDInDINLoadConcID         = MFVarGetID (MDVarDINLoadConc,       "mg/L",  MFInput, MFFlux, MFBoundary))  == CMfailed) ||	//RJS 10-28-10
+//	    ((_MDInLandUseID             = MFVarGetID (MDVarLandUseSpatial,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInLandUseSubID             = MFVarGetID (MDVarLandUseSpatialSub,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInLandUseAgID             	= MFVarGetID (MDVarLandUseSpatialAg,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+//	    ((_MDInTotalPointID			 = MDPointSourceDef ()) == CMfailed) ||															//MMM Added this so that Nitrogeninputs knows it must run MDPointSource in order to calculate localload
 	    ((_MDInLoadAdjustID          = MFVarGetID (MDVarLoadAdjust,           "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 112211
-		((_MDOutLocalLoad_Sub_DINID     = MFVarGetID (MDVarLocalLoadSubDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
-		((_MDOutLocalLoad_Ag_DINID      = MFVarGetID (MDVarLocalLoadAgDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
-	   	((_MDOutDINSubLoadConcID        = MFVarGetID (MDVarDINSubLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
-	   	((_MDOutDINAgLoadConcID        	= MFVarGetID (MDVarDINAgLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
-		((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//RJS 10-28-10
-		((_MDOutDINLoadConcID        = MFVarGetID (MDVarDINLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	// KYLE
-	   	((_MDInRiverOrderID          = MFVarGetID (MDVarRiverOrder,           "-", MFInput,  MFState, MFBoundary)) == CMfailed) ||  //RJS 10-29-10
-	   	(MFModelAddFunction (_MDNitrogenInputsCalc) == CMfailed)) return (CMfailed);
+	    ((_MDOutLocalLoad_Sub_DINID     = MFVarGetID (MDVarLocalLoadSubDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutLocalLoad_Ag_DINID      = MFVarGetID (MDVarLocalLoadAgDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutDINSubLoadConcID        = MFVarGetID (MDVarDINSubLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
+	    ((_MDOutDINAgLoadConcID        	= MFVarGetID (MDVarDINAgLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
+	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//RJS 10-28-10
+	    ((_MDOutDINLoadConcID        = MFVarGetID (MDVarDINLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	// KYLE
+	    ((_MDInRiverOrderID          = MFVarGetID (MDVarRiverOrder,           "-", MFInput,  MFState, MFBoundary)) == CMfailed) ||  //RJS 10-29-10
+	    (MFModelAddFunction (_MDNitrogenInputsCalc) == CMfailed)) return (CMfailed);
 	   break;
 
 	default: MFOptionMessage (optName, optStr, options); return (CMfailed);

@@ -20,6 +20,7 @@ NOT include any water that is flowing laterally and should not be used to call B
 // Input
 static int _MDInPrecipID             = MFUnset;
 static int _MDInEvaptrsID            = MFUnset;
+static int _MDInPetID                = MFUnset;
 static int _MDInSnowPackChgID        = MFUnset;
 static int _MDInSoilMoistChgID       = MFUnset;
 static int _MDInGrdWatChgID          = MFUnset;
@@ -108,6 +109,12 @@ static int _MDInPropRSinStormWaterID   = MFUnset;
 static int _MDInPropRSinSurfaceWaterID = MFUnset;
 static int _MDInPropRSinGroundWaterID  = MFUnset;
 
+ static int _MDInPropROFlagID          = MFUnset;
+ static int _MDInPropQinFlagID         = MFUnset;
+ static int _MDInPropRSinFlagID        = MFUnset;
+ static int _MDInQFlagID               = MFUnset;
+ static int _MDInPropRSFlagID          = MFUnset;
+
 /*
 // DIN  
 static int _MDInDischarge0ID         = MFUnset;
@@ -129,6 +136,7 @@ static void _MDWaterBalance(int itemID) {
 // Input
 	float precip        	 = MFVarGetFloat(_MDInPrecipID,         itemID, 0.0);
 	float etp           	 = MFVarGetFloat(_MDInEvaptrsID,        itemID, 0.0);
+        float pet                = MFVarGetFloat(_MDInPetID,            itemID, 0.0);
 	float snowPackChg   	 = MFVarGetFloat(_MDInSnowPackChgID,    itemID, 0.0);
 	float soilMoistChg  	 = MFVarGetFloat(_MDInSoilMoistChgID,   itemID, 0.0);
 	float grdWaterChg   	 = MFVarGetFloat(_MDInGrdWatChgID,      itemID, 0.0);
@@ -197,6 +205,12 @@ static void _MDWaterBalance(int itemID) {
         float propSuW_RSout    = MFVarGetFloat (_MDInPropRSSurfaceWaterID,   itemID, 0.0);
         float propGrW_RSout    = MFVarGetFloat (_MDInPropRSGroundWaterID,    itemID, 0.0);
         
+        float propFlag_RO      = MFVarGetFloat (_MDInPropROFlagID,           itemID, 0.0);
+        float propFlag_Qin     = MFVarGetFloat (_MDInPropQinFlagID,          itemID, 0.0);
+        float propFlag_RSin    = MFVarGetFloat (_MDInPropRSinFlagID,         itemID, 0.0);
+        float Flag_Qout        = MFVarGetFloat (_MDInQFlagID,                itemID, 0.0);
+        float propFlag_RSout   = MFVarGetFloat (_MDInPropRSFlagID,           itemID, 0.0);
+        
 	float irrAreaFrac        = 0.0;
 	float irrGrossDemand     = 0.0;
 	float irrReturnFlow      = 0.0;
@@ -242,37 +256,55 @@ static void _MDWaterBalance(int itemID) {
 	balance2 = precip + irrUptakeRiver + irrUptakeExcess - (etp + runoff + grdWaterChg + snowPackChg + soilMoistChg + smallResStorageChg + runoffPoolChg);
 //	printf("d = %d, m = %d, y = %d, waterbalance = %f\n", MFDateGetCurrentDay(), MFDateGetCurrentMonth(), MFDateGetCurrentYear(), balance2);
 
+        
  /*       
-        if (MFDateGetCurrentYear() >= 2000) {
-        if ((itemID == 36)) {
+ //       if (MFDateGetCurrentYear() >= 2000) {
+        if ((itemID == 1063) || (itemID == 1063)) {
 //	if (fabs (balance2) > 0.0001 ) {
 //		printf ("TIEM %i %d %d %d WaterBalance! %f precip %f etp = %f runoff = %f grdWaterChg = %f snowPackChg = %f soilMoistChg = %f runoffPoolChg %f\n runoffPool = %f, runoffPoolRecharge = %f, runoffPoolRelease = %f\n", itemID, MFDateGetCurrentMonth(), MFDateGetCurrentDay(), MFDateGetCurrentYear(), balance2,precip,etp,runoff,grdWaterChg,snowPackChg,soilMoistChg,runoffPoolChg,runoffPool, runoffPoolRecharge, runoffPoolRelease);
 		printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), balance2b, balance2, awCap, impAreaFrac, h2oAreaFrac, precip);
 		printf ("%f, %f, %f, %f,", snowPackChg, snowfall, snowmelt, snowpack);
 		printf ("%f, %f, %f, %f, %f,", stormRunoffImp, stormRunoffH2O, stormRunoffTotal, precipPerv, runoffToPerv);
-		printf ("%f, %f, %f, %f, %f, %f, %f, %f,", soilMoistChg, soilMoistChgNotScaled, soilMoist, soilMoistNotScaled, etp, etpNotScaled, excess, excessNotScaled);
+		printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f,", soilMoistChg, soilMoistChgNotScaled, soilMoist, soilMoistNotScaled, pet, etp, etpNotScaled, excess, excessNotScaled);
 		printf ("%f, %f, %f,", surplus, surfRunoff, infiltration);
 		printf ("%f, %f, %f, %f,", grdWater, grdWaterChg, grdWaterRecharge, baseFlow);
 		printf ("%f, %f, %f, %f,", runoffPool, runoffPoolChg, runoffPoolRecharge, runoffPoolRelease);
 		printf ("%f, %f,", totalSurfRunoff, runoff);
                 printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", C0, C1, C2, runoffVol, discharge, QPre, QCur, QOut_initial, QOut, storage, storageChg);
-                printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", propStW_RO, propSuW_RO, propGrW_RO, propStW_Qin, propSuW_Qin, propGrW_Qin, propStW_RSin, propSuW_RSin, propGrW_RSin, StW_Qout, SuW_Qout, GrW_Qout, propStW_RSout, propSuW_RSout, propGrW_RSout);
+                printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", propStW_RO, propSuW_RO, propGrW_RO, propStW_Qin, propSuW_Qin, propGrW_Qin, propStW_RSin, propSuW_RSin, propGrW_RSin, StW_Qout, SuW_Qout, GrW_Qout, propStW_RSout, propSuW_RSout, propGrW_RSout, propFlag_RO, propFlag_Qin, propFlag_RSin, Flag_Qout, propFlag_RSout);
         }
-        }  
+//        }  
 */
+   
 	MFVarSetFloat (_MDOutWaterBalanceID, itemID , balance);
 }
 
+static void _MDWaterBalanceInput (int itemID) {
+    	float runoff        	 = MFVarGetFloat(_MDInRunoffID,         itemID, 0.0);
+        float balance            = runoff;
+        
+         MFVarSetFloat (_MDOutWaterBalanceID, itemID , balance);
+         
+}
+
+enum { MDinput, MDcalculate};
+
 int MDWaterBalanceDef() {
- 
+        int  optID = MFUnset;
+	const char *optStr, *optName = MDVarRunoff;
+	const char *options [] = { MDInputStr, MDCalculateStr, (char *) NULL };
+
 	MFDefEntering ("WaterBalance");
+        if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);
+	switch (optID) {
+            case MDcalculate: 	       
 	if ((                                  MDAccumBalanceDef     ()  == CMfailed) ||
 	    ((_MDInPrecipID                  = MDPrecipitationDef    ()) == CMfailed) ||
 	    ((_MDInDischargeID               = MDDischargeDef        ()) == CMfailed) || 
 	    ((_MDInSnowPackChgID             = MDSPackChgDef         ()) == CMfailed) ||
 	    ((_MDInSoilMoistChgID            = MDSoilMoistChgDef     ()) == CMfailed) ||
 	    ((_MDInRunoffID                  = MDRunoffDef           ()) == CMfailed) ||
-	    ((_MDInEvaptrsID                 = MFVarGetID (MDVarEvapotranspiration,      	"mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
+//	    ((_MDInEvaptrsID                 = MFVarGetID (MDVarEvapotranspiration,      	"mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
 	    ((_MDInGrdWatChgID               = MFVarGetID (MDVarGroundWaterChange,       	"mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
 	    ((_MDInRunoffPoolChgID           = MFVarGetID (MDVarRunoffPoolChg,           	"mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
 	    ((_MDInRunoffPoolID              = MFVarGetID (MDVarRunoffPool,         		"mm", MFInput, MFState, MFInitial))  == CMfailed) ||
@@ -283,7 +315,8 @@ int MDWaterBalanceDef() {
 	    ((_MDInPrecipPervID        		 = MFVarGetID (MDVarPrecipPerv,      			"mm",   MFInput, MFFlux, MFBoundary)) == CMfailed) ||
 	    ((_MDInStormRunoffTotalID  		 = MFVarGetID (MDVarStormRunoffTotal,			"mm",   MFInput, MFFlux, MFBoundary))  == CMfailed) ||
 	    ((_MDInRunofftoPervID      		 = MFVarGetID (MDVarRunofftoPerv,    			"mm",   MFInput, MFFlux, MFBoundary))  == CMfailed) ||
- 	    ((_MDInEvaptrsID         		 = MFVarGetID (MDVarRainEvapotranspiration,     "mm",   MFInput, MFFlux,  MFBoundary)) == CMfailed) ||
+ 	    ((_MDInPetID                        = MFVarGetID (MDVarRainPotEvapotrans,                  "mm",   MFInput, MFFlux,  MFBoundary)) == CMfailed) ||
+            ((_MDInEvaptrsID         		 = MFVarGetID (MDVarRainEvapotranspiration,     "mm",   MFInput, MFFlux,  MFBoundary)) == CMfailed) ||
  	    ((_MDInEvaptrsNotScaledID		 = MFVarGetID (MDVarRainETnotScaled,            "mm",   MFInput, MFFlux,  MFBoundary)) == CMfailed) ||	// RJS 082812
 	    ((_MDInSoilMoistNotScaledID		 = MFVarGetID (MDVarRainSoilMoistureNotScaled,  "mm",   MFInput, MFState, MFInitial))  == CMfailed) ||
 	    ((_MDInSoilMoistChgNotScaledID	 = MFVarGetID (MDVarRainSoilMoistureChangeNotScaled,  "mm",   MFInput, MFState, MFInitial))  == CMfailed) ||
@@ -327,29 +360,23 @@ int MDWaterBalanceDef() {
             ((_MDInPropQinGroundWaterID   = MFVarGetID (MDVarPropQinGroundWater,   "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313
             ((_MDInPropRSinStormWaterID   = MFVarGetID (MDVarPropRSinStormWater,   "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313
             ((_MDInPropRSinSurfaceWaterID = MFVarGetID (MDVarPropRSinSurfaceWater,  "-", MFInput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313
-            ((_MDInPropRSinGroundWaterID  = MFVarGetID (MDVarPropRSinGroundWater,   "-", MFInput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313 
-            ((_MDOutWaterBalanceID           = MFVarGetID (MDVarWaterBalance,      "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
+            ((_MDInPropRSinGroundWaterID  = MFVarGetID (MDVarPropRSinGroundWater,   "-", MFInput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313            
+            ((_MDInPropROFlagID           = MFVarGetID (MDVarPropROFlag,          "-",   MFInput, MFState, MFBoundary)) == CMfailed) ||
+            ((_MDInQFlagID                = MFVarGetID (MDVarQFlag,            "m3/s",   MFInput, MFState, MFBoundary)) == CMfailed) ||
+            ((_MDInPropRSFlagID           = MFVarGetID (MDVarPropRSFlag,       "-",      MFInput, MFState, MFInitial)) == CMfailed) || 
+            ((_MDInPropQinFlagID          = MFVarGetID (MDVarPropQinFlag,      "-",      MFInput, MFState, MFBoundary))  == CMfailed) ||
+            ((_MDInPropRSinFlagID         = MFVarGetID (MDVarPropRSinFlag,     "-",      MFInput, MFState, MFBoundary))  == CMfailed) ||
+            ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
 	    (MFModelAddFunction(_MDWaterBalance) == CMfailed))
 	    return (CMfailed);
-	if ((_MDInIrrGrossDemandID           = MDIrrGrossDemandDef    ()) != MFUnset) {
-		if ((_MDInIrrGrossDemandID == CMfailed) ||
-	        ((_MDInIrrUptakeRiverID      = MDIrrUptakeRiverDef    ()) == CMfailed) ||
-	        ((_MDInIrrUptakeGrdWaterID   = MDIrrUptakeGrdWaterDef ()) == CMfailed) ||
-	        ((_MDInIrrSoilMoistChgID     = MDIrrSoilMoistChgDef   ()) == CMfailed) ||
-	        ((_MDInIrrAreaFracID         = MDIrrigatedAreaDef    ())==  CMfailed) ||
-	        ((_MDInIrrEvapotranspID      = MFVarGetID (MDVarIrrEvapotranspiration, "mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
-	        ((_MDInIrrReturnFlowID       = MFVarGetID (MDVarIrrReturnFlow,         "mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) || 
-	        ((_MDInIrrUptakeExcessID     = MFVarGetID (MDVarIrrUptakeExcess,       "mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
-		    ((_MDOutIrrUptakeBalanceID   = MFVarGetID (MDVarIrrUptakeBalance,      "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
-		    ((_MDOutIrrWaterBalanceID    = MFVarGetID (MDVarIrrWaterBalance,       "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed))
-	    	return (CMfailed);		
-		if ((_MDInSmallResReleaseID        = MDSmallReservoirReleaseDef ()) != MFUnset) {
-			if (( _MDInSmallResReleaseID == CMfailed) ||
-			    ((_MDInSmallResEvapoID      = MFVarGetID (MDVarSmallResEvaporation,   "mm", MFInput, MFFlux,  MFBoundary)) == CMfailed) ||
-			    ((_MDInSmallResStorageChgID = MFVarGetID (MDVarSmallResStorageChange, "mm", MFInput, MFState, MFInitial))  == CMfailed))
-			    return (CMfailed);
-		}
-	}
+        break;      
+                case MDinput: 																										       			// RJS 061312
+                if (((_MDInRunoffID               = MDRunoffDef           ()) == CMfailed) ||			
+		    ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
+		    (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
+		break;	
+        default: MFOptionMessage (optName, optStr, options); return (CMfailed);
+        }
 	MFDefLeaving ("WaterBalance");
 	return (_MDOutWaterBalanceID);	
 }
