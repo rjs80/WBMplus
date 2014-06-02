@@ -38,6 +38,7 @@
         <in>MDEnergyDemand.c</in>
         <in>MDEvapotransp.c</in>
         <in>MDGrossRad.c</in>
+        <in>MDHydropower.c</in>
         <in>MDIrrGrossDemand.c</in>
         <in>MDIrrRefET.c</in>
         <in>MDIrrRefETFAO.c</in>
@@ -50,6 +51,7 @@
         <in>MDIrrigation.c</in>
         <in>MDLSAreaIndex.c</in>
         <in>MDLandCover.c</in>
+        <in>MDLitterFall.c</in>
         <in>MDNitrogenInputs.c</in>
         <in>MDPermafrost.c</in>
         <in>MDPotETHamon.c</in>

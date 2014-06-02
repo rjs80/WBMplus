@@ -62,8 +62,10 @@ int MDWTempRiverDef () {
 
 	MFDefEntering ("River temperature");
 
-	if (((_MDInSurfRunoffID      = MDRainSurfRunoffDef ()) == CMfailed) ||
-	    ((_MDInBaseFlowID        = MDBaseFlowDef       ()) == CMfailed) ||
+	if (
+            ((_MDInSurfRunoffID      = MDRainSurfRunoffDef ()) == CMfailed) ||
+//	    ((_MDInBaseFlowID        = MDBaseFlowDef       ()) == CMfailed) ||          // commented out 051614 so that input BaseFlow isn't overwritten
+            ((_MDInBaseFlowID        = MFVarGetID (MDVarBaseFlow,          "mm",    MFInput,  MFFlux, MFBoundary)) == CMfailed) ||     
 //	    ((_MDInWTempSurfRunoffID = MDWTempSurfRunoffDef ()) == CMfailed) ||		// commented out RJS 060512
 	    ((_MDInWTempSurfRunoffPoolID = MDWTempSurfRunoffPoolDef ()) == CMfailed) ||		// RJS 060512
 	    ((_MDInWTempGrdWaterID   = MDWTempGrdWaterDef   ()) == CMfailed) ||

@@ -48,6 +48,7 @@ extern "C" {
 #define MDOptThermalInputs					 "ThermalInputs"
 #define MDOptThermalInputs2					 "ThermalInputs2"		// RJS 062012
 #define MDOptThermalInputs3					 "ThermalInputs3"		// RJS 112712
+#define MDOptHydroPower                                 "HydroPower"
 
 #define MDVarAccBalance                      "AccumBalance"
 #define MDVarAccPrecipitation                "AccumPrecipitation"
@@ -137,6 +138,7 @@ extern "C" {
 #define MDVarFuelType6						 "FuelType6"			//RJS 013012
 #define MDVarFuelType7						 "FuelType7"			//RJS 013012
 #define MDVarFuelType8						 "FuelType8"			//RJS 013012
+#define MDVarFracForestedArea                                    "FracForestedArea"             //RJS 022714
 #define MDVarGrossRadiance                   "GrossRadiance"
 #define MDVarGroundWater                     "GroundWater"
 #define MDVarGroundWaterChange               "GroundWaterChange"
@@ -330,12 +332,17 @@ extern "C" {
 #define MDVarHCWA                                        "HCWA"
 #define MDVarSTSUptakeMax                                "STSUptakeMax"
 #define MDVarSTSKs                                       "STSKs"
+#define MDVarRiparianRemoval				 "RiparianRemoval"
+#define MDVarLocalLoadRipDIN				 "LocalLoadRipDIN"
     
 #define MDVarFloodplainSwitch                            "FloodplainSwitch"
 #define MDVarBankFullDepth                               "BankFullDepth"
 #define MDVarContributingArea                            "ContributingArea"
 #define MDVarScaleAlpha                                  "ScaleAlpha"    
-       
+#define MDVarWidthAdjust                                 "WidthAdjust"
+#define MDVarRandomNumber                                "RandomNumber"
+#define MDVarTransferAdjust				 "TransferAdjust"
+    
 #define MDVarFluxDIN_denit                               "FluxDINd"
 #define MDVarStoreWaterDIN_denit                         "StoreWaterDINd"
 #define MDVarPostConcDIN_denit				 "PostConcDINd"
@@ -425,14 +432,18 @@ extern "C" {
     // DOC Variables //
     
 #define MDVarStoreWaterMixingDOC                         "StoreWaterMixingDOC"
-#define MDVarStoreWaterMixingLTR                         "StoreWaterMixingLTR"
+#define MDVarStoreWaterMixingPOC                         "StoreWaterMixingPOC"
 #define MDVarFluxMixingDOC                               "FluxMixingDOC"
-#define MDVarFluxMixingLTR                               "FluxMixingLTR"
-#define MDVarLocalLoadDOC                                "LocalLoadDOC"
-#define MDVarLocalLoadLTR                                "LocalLoadLTR"
+#define MDVarFluxMixingPOC                               "FluxMixingPOC"
+#define MDVarLocalLoadDOC                                "LocalLoadDOC"         // kg/day   (read into MDDOCDef from TEM)
+#define MDVarLocalLoadPOC                                "LocalLoadPOC"         // kg/day   (read into MDDOCDef from MDLitterFallDef)
+#define MDVarLocalLoadLTR                                "LocalLoadLTR"         // g/m2/day (read into MDLitterFallDef from TEM)
 #define MDVarConcMixingDOC                               "ConcMixingDOC"
-#define MDVarConcMixingLTR                               "ConcMixingLTR"
-
+#define MDVarConcMixingPOC                               "ConcMixingPOC"
+#define MDVarOrder1LoadPOC                               "Order1LoadPOC"
+#define MDVarOrder2LoadPOC                               "Order2LoadPOC"
+#define MDVarOrderXLoadPOC                               "OrderXLoadPOC"
+#define MDVarRunoffConcDOC                               "RunoffConcDOC"
     
 // DO2 Variables //
 #define MDVarRiverMassDO2					 "RiverMassDO2"				// RJS 111612
@@ -444,6 +455,28 @@ extern "C" {
 #define MDVarRiverMixingStorMassDO2			 "RiverMixingStorMassDO2"	// RJS 111612
 #define MDVarRiverMixingStorMassChgDO2		 "RiverMixingStorMassChgDO2" // RJS 111612
 
+// Temporary DIN/DOC/Cl Variables //
+
+#define MDVarPostConcDOC                                "PostConcDOC"
+#define MDVarPostConcDIN2                               "PostConcDIN2"
+#define MDVarPostConcCl                                 "PostConcCl"
+#define MDVarStoreWaterDOC                              "StoreWaterDOC"
+#define MDVarStoreWaterDIN2                             "StoreWaterDIN2"
+#define MDVarStoreWaterCl                               "StoreWaterCl"
+#define MDVarFluxDOC                                    "FluxDOC"
+#define MDVarFluxDIN2                                   "FluxDIN2"
+#define MDVarFluxCl                                     "FluxCl"
+#define MDVarFluxMixingDIN2                             "FluxMixingDIN2"	  
+#define MDVarFluxMixingCl                               "FluxMixingCl"
+#define MDVarStoreWaterMixingDIN2                       "StoreWaterMixingDIN2"
+#define MDVarStoreWaterMixingCl                         "StoreWaterMixingCl"
+#define MDVarConcMixingDIN2                             "ConcMixingDIN2"
+#define MDVarConcMixingCl                               "ConcMixingCl"
+#define MDVarHumanLandUse                               "HumanLandUse"
+#define MDVarLocalLoadDOC2                              "LocalLoadDOC2"
+#define MDVarLocalLoadDIN2                              "LocalLoadDIN2"
+#define MDVarLocalLoadCl2                               "LocalLoadCl2"
+    
 #define MDVarRiverStorage                    "RiverStorage"
 #define MDVarRiverStorageChg                 "RiverStorageChange"
 #define MDVarRiverWidth                      "RiverbedWidth"
@@ -578,6 +611,44 @@ extern "C" {
 #define MDVarCondenserInlet					"CondenserInlet"			//RJS 122112
 #define MDVarSimEfficiency					"SimEfficiency"				//RJS 122112
 
+// NIMA Neural Network
+#define MDVarReservoirStorageChange "ReservoirStorageCahnge"
+#define MDVarReservoirCapacity "ReservoirCapacity"
+#define MDVarReservoirStorage "ReservoirStorage"
+#define MDVarPreResStorage "PreviousReservoirStorage"
+//#define MDVarDischMean "MeanDischarge"
+#define MDVarResCapacity "ResrvoirCapacity"
+//#define MDVarDischMTD "TotalMonthlyDischargeUpTothatDate"
+#define MDVarResStorage "ReservoirStorage"
+#define MDVarResStorageChg "ReservoirStorageCahnge"
+//#define MDVarResRelease "ReleasefromReservoir"
+#define MDVarResRelease_t_1_ "ReleasefromReservoirMonthT"
+#define MDVarResRelease_t_2_ "ReleasefromReservoirMonthT-1"
+#define MDVarResRelease_t_3_ "ReleasefromReservoirMonthT-2"
+#define MDVarDisch_t_1_ "InflowToReservoirMonthT"
+#define MDVarDisch_t_2_ "InflowToReservoirMonthT-1"
+#define MDVarDisch_t_3_ "InflowToReservoirMonthT-2"
+#define MDVarDischMin "MinimumLongTermInflow"
+#define MDVarDischMax "MaximumLongTermInflow"
+#define MDVarReleaseMin "MinimumLongTermReservoirRelease"
+#define MDVarReleaseMax "MaximumLongTermReservoirRelease"
+#define MDVarLastMonth "LastMonth"
+#define MDVarMonthToDayInFlow "TotalReservoirInflowUpToDate"
+#define MDVarMonthToDayRelease "TotalReservoirReleaseUpToDate"
+#define MDVarReservoirRelease "ReservoirRelease"
+#define MDVarPMonthInflow "PMonthInflow"
+#define MDVarPPMonthInflow "PPMonthInflow"
+#define MDVarPMonthRelease "PMonthRelease"
+#define MDVarPPMonthRelease "PPMonthRelease"
+#define MDVarAVMTDRelease "AVMTDRelease"
+
+// NIMA HYDRO POWER
+#define MDVarResMaxHeight "MaxReservoirHeight"
+#define MDVarMaxHydroCap "MaxHydroGenerationCapacity"
+#define MDVarMegaWatt "MegaWatt"
+#define MDVarHydroPower "HydroPower"
+#define MDVarResH "ReservoirWaterLevel" 
+    
 // Water Temperature Variables
 // Runoff Temperature
 #define MDVarWTempGrdWater                   "GroundWaterTemperature"
@@ -763,6 +834,7 @@ int MDDischMeanDef();
 int MDDO2Def();					// RJS 2012-06-18
 int MDEvapotranspirationDef();
 int MDGrossRadDef();
+int MDHydroPowerDef();
 int MDIrrigationDef();                          // RJS 120813
 int MDIrrigatedAreaDef();
 int MDIrrGrossDemandDef();
@@ -774,6 +846,7 @@ int MDIrrSoilMoistureDef();
 int MDIrrSoilMoistChgDef();
 int MDIrrUptakeRiverDef();
 int MDIrrUptakeGrdWaterDef();
+int MDLitterFallDef();
 int MDReservoirDef();
 int MDLandCoverDef();
 int MDLeafAreaIndexDef();

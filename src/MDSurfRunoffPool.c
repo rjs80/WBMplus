@@ -50,6 +50,8 @@ static void _MDSurfRunoffPool (int itemID) {
 	else runoffPoolChg = runoffPoolRelease = 0.0;
 	
 //	printf("BETA2 = %f\n", _MDSurfRunoffPoolBETA);
+        
+  //      if (itemID == 1) printf("Beta2 = %f\n", _MDSurfRunoffPoolBETA);
 
 	MFVarSetFloat (_MDOutRunoffPoolID,          itemID, runoffPool);
     MFVarSetFloat (_MDOutRunoffPoolChgID,       itemID, runoffPoolChg);

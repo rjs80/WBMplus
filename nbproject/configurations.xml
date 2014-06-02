@@ -30,6 +30,7 @@
         <in>MDEnergyDemand.c</in>
         <in>MDEvapotransp.c</in>
         <in>MDGrossRad.c</in>
+        <in>MDHydropower.c</in>
         <in>MDIrrGrossDemand.c</in>
         <in>MDIrrRefET.c</in>
         <in>MDIrrRefETFAO.c</in>
@@ -42,6 +43,7 @@
         <in>MDIrrigation.c</in>
         <in>MDLSAreaIndex.c</in>
         <in>MDLandCover.c</in>
+        <in>MDLitterFall.c</in>
         <in>MDNitrogenInputs.c</in>
         <in>MDPermafrost.c</in>
         <in>MDPotETHamon.c</in>
@@ -132,7 +134,7 @@
           </cTool>
         </makeTool>
       </makefileType>
-      <item path="src/MDAccBalance.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDAccBalance.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -143,7 +145,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDAccumulate.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDAccumulate.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -154,7 +156,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDAvgNSteps.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDAvgNSteps.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -165,7 +167,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDBaseFlow.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDBaseFlow.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -176,7 +178,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDBgc.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDBgc.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -187,7 +189,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDBgcDIN.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDBgcDIN.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -198,7 +200,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDBgcDINPlusBiomass.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDBgcDINPlusBiomass.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -209,7 +211,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDBgcDOC.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDBgcDOC.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -220,7 +222,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDBgcFecal.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDBgcFecal.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -231,7 +233,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDBgcRiverGPP.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDBgcRiverGPP.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -242,7 +244,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDBgcRiverLight.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDBgcRiverLight.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -253,7 +255,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDCParams.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDCParams.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -264,7 +266,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDIN.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDIN.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -275,7 +277,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDO2.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDO2.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -286,7 +288,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDOC.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDOC.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -297,7 +299,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischLevel1.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischLevel1.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -308,7 +310,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischLevel2.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischLevel2.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -319,7 +321,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischLevel3.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischLevel3.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -330,7 +332,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischLevel3Accum.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischLevel3Accum.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -341,7 +343,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischLevel3Cascade.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischLevel3Cascade.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -352,7 +354,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischLevel3Muskingum.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischLevel3Muskingum.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -363,7 +365,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischLevel3MuskingumCoeff.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischLevel3MuskingumCoeff.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -374,7 +376,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischMean.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischMean.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -385,7 +387,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDDischarge.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDDischarge.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -396,7 +398,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDEnergyDemand.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDEnergyDemand.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -407,7 +409,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDEvapotransp.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDEvapotransp.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -418,7 +420,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDGrossRad.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDGrossRad.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -429,7 +431,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrGrossDemand.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDHydropower.c" ex="false" tool="0" flavor2="0">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -440,7 +442,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrRefET.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrGrossDemand.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -451,7 +453,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrRefETFAO.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrRefET.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -462,7 +464,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrRefETHamon.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrRefETFAO.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -473,7 +475,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrSoilMoistChg.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrRefETHamon.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -484,7 +486,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrSoilMoisture.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrSoilMoistChg.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -495,7 +497,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrUptakeGrdWater.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrSoilMoisture.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -506,7 +508,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrUptakeRiver.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrUptakeGrdWater.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -517,7 +519,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrigatedArea.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrUptakeRiver.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -528,7 +530,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDIrrigation.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrigatedArea.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -539,7 +541,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDLSAreaIndex.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDIrrigation.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -550,7 +552,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDLandCover.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDLSAreaIndex.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -561,7 +563,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDNitrogenInputs.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDLandCover.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -572,7 +574,29 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDPermafrost.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDLitterFall.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+          <incDir>
+            <pElem>../CMlib/include</pElem>
+            <pElem>../MFlib/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>_GNU_SOURCE</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="src/MDNitrogenInputs.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+          <incDir>
+            <pElem>../CMlib/include</pElem>
+            <pElem>../MFlib/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>_GNU_SOURCE</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="src/MDPermafrost.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -591,7 +615,7 @@
           </incDir>
         </cTool>
       </item>
-      <item path="src/MDPotETlib.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDPotETlib.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -602,7 +626,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDPrecipitation.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDPrecipitation.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -613,7 +637,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainInfiltration.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainInfiltration.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -624,7 +648,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainIntercept.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainIntercept.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -635,7 +659,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotET.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotET.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -646,7 +670,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETHamon.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETHamon.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -657,7 +681,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETJensen.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETJensen.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -668,7 +692,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETPMday.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETPMday.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -679,7 +703,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETPMdn.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETPMdn.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -690,7 +714,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETPsTaylor.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETPsTaylor.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -701,7 +725,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETPstd.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETPstd.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -712,7 +736,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETSWGday.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETSWGday.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -723,7 +747,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETSWGdn.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETSWGdn.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -734,7 +758,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainPotETTurc.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainPotETTurc.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -745,7 +769,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainSMoistChg.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainSMoistChg.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -756,7 +780,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainSMoistLayered.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainSMoistLayered.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -767,7 +791,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainSurfRunoff.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainSurfRunoff.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -778,7 +802,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRainWaterSurplus.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRainWaterSurplus.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -789,7 +813,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRelHumidity.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRelHumidity.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -800,7 +824,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDReservoirs.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDReservoirs.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -827,7 +851,7 @@
           </incDir>
         </cTool>
       </item>
-      <item path="src/MDRiverWidth.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRiverWidth.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -838,7 +862,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRiverbedShapeExp.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRiverbedShapeExp.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -849,7 +873,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRunoff.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRunoff.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -860,7 +884,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRunoffMean.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRunoffMean.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -871,7 +895,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDRunoffVolume.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDRunoffVolume.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -882,7 +906,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSMoistChg.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSMoistChg.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -893,7 +917,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSPackChg.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSPackChg.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -904,7 +928,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSmallReservoirCap.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSmallReservoirCap.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -915,7 +939,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSmallReservoirs.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSmallReservoirs.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -926,7 +950,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSoilAvailWaterCap.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSoilAvailWaterCap.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -937,7 +961,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSolarRad.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSolarRad.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -948,7 +972,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDStormRunoff.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDStormRunoff.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -959,7 +983,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSurfRunoff.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSurfRunoff.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -970,7 +994,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSurfRunoffPool.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSurfRunoffPool.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -981,7 +1005,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDThermalInputs.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDThermalInputs.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -992,7 +1016,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDThermalInputs2.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDThermalInputs2.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1003,7 +1027,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDThermalInputs3.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDThermalInputs3.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1014,7 +1038,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWTempGrdWater.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWTempGrdWater.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1025,7 +1049,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWTempRiver.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWTempRiver.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1036,7 +1060,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWTempRiverRoute.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWTempRiverRoute.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1047,7 +1071,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWTempSurfRunoff.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWTempSurfRunoff.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1058,7 +1082,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWTempSurfRunoffPool.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWTempSurfRunoffPool.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1069,7 +1093,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWWTP.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWWTP.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1080,7 +1104,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWaterBalance.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWaterBalance.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1091,7 +1115,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWetDays.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWetDays.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1102,7 +1126,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWetlandArea.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWetlandArea.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1113,7 +1137,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWetlands.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWetlands.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1124,7 +1148,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDWind.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDWind.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -1135,7 +1159,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/WBMMain.c" ex="false" tool="0" flavor2="0">
+      <item path="src/WBMMain.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>

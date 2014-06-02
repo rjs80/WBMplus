@@ -135,7 +135,7 @@ static void _MDWTempRiverRoute (int itemID) {
     }
      
      waterStorageChange    = MFVarGetFloat ( _MDInRiverStorageChgID,  itemID, 0.0);
-   	 waterStorage          = MFVarGetFloat ( _MDInRiverStorageID,     itemID, 0.0);
+   	waterStorage          = MFVarGetFloat ( _MDInRiverStorageID,     itemID, 0.0);
    	 channelWidth          = MFVarGetFloat ( _MDInRiverWidthID,       itemID, 0.0);
  	 solarRad              = MFVarGetFloat ( _MDInSolarRadID,         itemID, 0.0); //MJ/m2/d - CHECK UNITS
  	 windSpeed             = MFVarGetFloat ( _MDInWindSpeedID,        itemID, 0.0);

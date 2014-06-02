@@ -40,6 +40,7 @@ static void _MDRainInfiltrationSimple (int itemID) {
 	MFVarSetFloat (_MDOutRainSurfRunoffID,       itemID, surfRunoff);
 	MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, infiltration);
 //	printf("Gamma = %f, Infiltraction %f surfRunoff %f \n",_MDInfiltrationFrac, infiltration,surfRunoff);
+   //     if (itemID == 1) printf("Gamma = %f\n", _MDInfiltrationFrac);
 }
 static void _MDRainInfiltrationSaturation (int itemID){
 		MFVarSetFloat (_MDOutRainSurfRunoffID,       itemID, MFVarGetFloat(_MDInSaturationExcessRunoffID, itemID,0.0));

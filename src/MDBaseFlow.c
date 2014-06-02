@@ -89,6 +89,8 @@ static void _MDBaseFlow (int itemID) {
 
 	//if ((itemID == 486)) printf("y = %d, m = %d, d = %d, baseFlow = %f, grdWater = %f, grdWaterChg = %f, grdWaterRecharge = %f\n", MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), baseFlow, grdWater, grdWaterChg, grdWaterRecharge);	//RJS 071511
 
+  //      if (itemID == 1) printf("Beta = %f\n", _MDGroundWatBETA);
+        
 //in= irrReturnFlow+grdWaterRecharge;
 //out = irrUptakeGrdWater + grdWaterChg;
 //float balance;

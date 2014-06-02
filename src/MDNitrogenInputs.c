@@ -158,7 +158,8 @@ static void _MDNitrogenInputsCalc (int itemID) {
 
 	if (loadAdjust > 0.0) LocalLoad_DIN =  LocalLoad_DIN * loadAdjust; 	// RJS 112211
 
-
+ //       if (itemID == 1357) printf("itemID=%d, luAgr = %f, luSub = %f, load_agr = %f, load_sub = %f, totalLoad = %f\n",itemID,luAgr,luSub,LocalLoad_Agr_DIN,LocalLoad_Sub_DIN,LocalLoad_DIN);
+        
         //if(LocalConc_Sub_DIN > 1.4 || LocalConc_Ag_DIN > 4.9) printf("runoff = %f, luSub = %f, luAg = %f, xMid = %f, Sub_conc = %f, Ag_conc = %f\n", runoff, luSub, luAg, xMid, LocalConc_Sub_DIN, LocalConc_Ag_DIN);
         //if (itemID == 809) printf("**** itemID = %d, y=%d, m=%d, d=%d, runoff=%f, luSub=%f, luAg=%f, xMid=%f, Sub_conc=%f, Ag_conc=%f, Subload=%f, Agload=%f, total=%f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), runoff, luSub, luAg, xMid, LocalConc_Sub_DIN, LocalConc_Ag_DIN, LocalLoad_Sub_DIN, LocalLoad_Ag_DIN, LocalLoad_DIN);
 	//if (itemID == 31) printf("***** itemID = %d, year = %d, month = %d, day = %d, xMid = %f, luSub = %f, scale = %f, asym = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), xMid, luSub, scale, asym);

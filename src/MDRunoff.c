@@ -52,7 +52,7 @@ static void _MDRunoff (int itemID) {
         propSuW = totalRO > 0.0 ? runoffPoolRelease / totalRO : 0.33333;
         propGrW = totalRO > 0.0 ? baseFlow / totalRO : 0.33333;
         
-//	if ((itemID == 293)) {
+//	if ((itemID == 1576) || (itemID == 1568)) {
 //			printf("m = %d, d = %d --yes-- id = %d, area = %f,  baseFlow = %f, runoffPoolRelease = %f, stormRunoff = %f, surfaceRO = %f\n", MFDateGetCurrentMonth(), MFDateGetCurrentDay(), itemID, MFModelGetArea (itemID), baseFlow * MFModelGetArea (itemID) / (1000 * 86400), runoffPoolRelease * MFModelGetArea (itemID) / (1000 * 86400), stormRunoffTotal * MFModelGetArea (itemID) / (1000 * 86400),surfaceRO * MFModelGetArea (itemID) / (1000 * 86400));
 //			printf("m = %d, d = %d --yes-- id = %d, area = %f,  baseFlow = %f, runoffPoolRelease = %f, stormRunoff = %f, surfaceRO = %f\n", MFDateGetCurrentMonth(), MFDateGetCurrentDay(), itemID, MFModelGetArea (itemID), baseFlow, runoffPoolRelease, stormRunoffTotal,surfaceRO);
 //	}
@@ -75,7 +75,11 @@ static void _MDRunoffInput (int itemID) {														// RJS 061312  ADDED THIS
 //	surfaceRO = MFVarGetFloat (_MDInRunoffPoolReleaseID, itemID, 0.0);							// "
 	surfaceRO = MFVarGetFloat (_MDInTotalSurfRunoffID, itemID, 0.0);							// RJS 082812, replaces line above
 	
-
+//	if ((itemID == 1576) || (itemID == 1568)) {
+//			printf("id = %d, area = %f,  baseFlow_RO = %f, baseFlow_Q = %f, surfaceRO_RO = %f, surfaceRO_Q = %f\n",itemID, MFModelGetArea (itemID), baseFlow, baseFlow * MFModelGetArea (itemID) / (1000 * 86400), surfaceRO, surfaceRO * MFModelGetArea (itemID) / (1000 * 86400));
+//	}
+        
+        
 	MFVarSetFloat (_MDOutRunoffID, itemID, (baseFlow + surfaceRO));								// "
 	MFVarSetFloat (_MDOutPropROStormWaterID, itemID, prop);
 	MFVarSetFloat (_MDOutPropROSurfaceWaterID, itemID, prop);

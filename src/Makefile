@@ -101,7 +101,9 @@ OBJS = $(OBJ)/WBMMain.o\
        $(OBJ)/MDNitrogenInputs.o\
        $(OBJ)/MDWWTP.o\
        $(OBJ)/MDIrrigation.o\
-       $(OBJ)/MDDOC.o
+       $(OBJ)/MDDOC.o\
+       $(OBJ)/MDLitterFall.o\
+       $(OBJ)/MDHydropower.o
        
 
 all: ${TARGET}

@@ -94,6 +94,8 @@ static void _MDSPackChg (int itemID) {
 		if (sPack > 0.0 ) sDepth = sPack  * densityOfWater / sDensity; //in mm
 	//	printf ("sAge %i sDens %f sPack %f sDepth %f \n", snowAge, sDensity, sPack, sDepth);
 
+     //           if (itemID == 1) printf("SnowFall = %f, SnowMelt = %f\n", _MDFallThreshold, _MDSnowMeltThreshold);
+                
 		MFVarSetFloat(_MDOutSnowDensityID,itemID,sDensity);  
 		MFVarSetFloat(_MDOutSnowDepthID,itemID, sDepth); 
 	//	printf ("Ende SnowPackChange \n");
