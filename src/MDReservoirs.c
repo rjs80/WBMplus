@@ -198,15 +198,20 @@ static void _MDReservoirNeuralNet(int itemID) {
     int y = MFDateGetCurrentYear();
 
     discharge = MFVarGetFloat(_MDInDischargeID, itemID, 0.0);
-   
+  
     if (((resCapacity = MFVarGetFloat(_MDInResCapacityID, itemID, 0.0)) <= 0.0) || y<=1900 ){
                        MFVarSetFloat(_MDOutResStorageID, itemID, 0.0);
                        MFVarSetFloat(_MDOutResStorageChgID, itemID, 0.0);
                        MFVarSetFloat(_MDOutResReleaseID, itemID, discharge);
         return;
-    }
+    } 
+  
         resCapacity = 0.90*MFVarGetFloat(_MDInResCapacityID, itemID, 0.0); //Assuming 30% dead storage; Should add 0.25*MaxCap to final result while presenting
         prevResStorage = MFVarGetFloat(_MDOutPreResStorageID, itemID, 0.03*resCapacity);
+
+     //   if (resCapacity > 0.0) printf("ID=%d, %d-%d-%d, discharge = %f, resRelease = %f, resStorageChg = %f, resCapacity = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), discharge, resRelease, resStorageChg, resCapacity);
+        
+        
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -239,7 +244,7 @@ static void _MDReservoirNeuralNet(int itemID) {
 
         I3 = prevResStorage/resCapacity;
 
- 
+
         ANN = ANNOUTPUT (I1, I2, I3)*resCapacity/(24*3600) ;
         
 
@@ -297,6 +302,8 @@ resRelease = SIMOUT;
 
         res_release_t_1 = resRelease;
 
+
+        
         MFVarSetFloat(_MDOutResReleaseID, itemID, resRelease);
         MFVarSetFloat(_MDOutDisch_t_3_ID, itemID, discharge_t_2); //You Should Set t-2 before t-1
         MFVarSetFloat(_MDOutDisch_t_2_ID, itemID, discharge_t_1); //You Should Set t-2 before t-1
@@ -363,6 +370,8 @@ static void _MDReservoirDW(int itemID) {
 
     balance = discharge - resRelease - (resStorageChg / 86400 * 1e9); // water balance
 
+  //  if (itemID == 159) printf("ID=%d, %d-%d-%d, discharge = %f, resRelease = %f, resStorageChg = %f, resCapacity = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), discharge, resRelease, resStorageChg, resCapacity);
+    
     MFVarSetFloat(_MDOutResStorageID, itemID, resStorage);
     MFVarSetFloat(_MDOutResStorageChgID, itemID, resStorageChg);
     MFVarSetFloat(_MDOutResReleaseID, itemID, resRelease);

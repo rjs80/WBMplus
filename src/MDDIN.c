@@ -319,19 +319,22 @@ float TransferCoef		= 0.0;
 	luSub                = MFVarGetFloat (_MDInLandUseSubID,         itemID, 0.0) / 100;	//KAW 2013 05 08 Suburban Land Use
 	luAgr                = MFVarGetFloat (_MDInLandUseAgrID,         itemID, 0.0) / 100;	//KAW 2013 05 08 Agricultural Land Use
         widthAdjust          = MFVarGetFloat (_MDInWidthAdjustID,        itemID, 0.0);  // width adjust
- //       randomNumber         = MFVarGetFloat (_MDInRandomNumberID,       itemID, 0.0);  // random number        
         transferAdjust	     = MFVarGetFloat (_MDInTransferAdjustID,     itemID, 0.0);  // RipTrans adjust
 	
- //    	RiparianRemCoef      = -0.8 * (luSub + luAgr) + 0.95;	// original, REMOVAL, not transfer
-      RiparianRemCoef      = (-0.6737 * pow(luSub + luAgr, 2)) - (0.272 * (luSub + luAgr)) + 0.9867;	// original, REMOVAL, not transfer
-      TransferCoef	   = (1.0 - RiparianRemCoef) * transferAdjust > 1.0 ? 1.0 : (1.0 - RiparianRemCoef) * transferAdjust;
- //       TransferCoef	     = 0.045 * pow(2.71828183,3.2 * (luSub + luAgr)) > 1.0 ? 1.0 : 0.045 * pow(2.71828183,3.2 * (luSub + luAgr));
- //       TransferCoef	     = (0.9 * pow(luSub + luAgr, 1.3)) > 1.0 ? 1.0 : (0.9 * pow(luSub + luAgr, 1.3));  // BEST ONE!
-//	RiparianRemCoef	     = 0.4994 * pow(luSub + luAgr,1.5909);			// power law (r2=0.42), this is a transfer coefficient
- // 	RiparianRemCoef	     = 0.0113 * pow(2.7182818,(4.8511 * (luSub + luAgr)));	// exponential law (r2=0.39), this is a transfer coefficient
-        localLoad_Rip_DIN    = TransferCoef * localLoad_DIN;
-	RiparianRemoval	     = (1.0 - TransferCoef) * localLoad_DIN;
-	localLoad_DIN 	     = localLoad_Rip_DIN;
+ // Final Riparian calcs:       
+ //     RiparianRemCoef      = (-0.6737 * pow(luSub + luAgr, 2)) - (0.272 * (luSub + luAgr)) + 0.9867;	// original, REMOVAL, not transfer
+ //     TransferCoef	   = (1.0 - RiparianRemCoef) * transferAdjust > 1.0 ? 1.0 : (1.0 - RiparianRemCoef) * transferAdjust;
+ //     localLoad_Rip_DIN    = TransferCoef * localLoad_DIN;
+ //     RiparianRemoval      = (1.0 - TransferCoef) * localLoad_DIN;
+ //     localLoad_DIN        = localLoad_Rip_DIN;
+      
+   // Old Riparian calc attempts:
+   //    RiparianRemCoef      = -0.8 * (luSub + luAgr) + 0.95;	// original, REMOVAL, not transfer
+   //    TransferCoef	      = 0.045 * pow(2.71828183,3.2 * (luSub + luAgr)) > 1.0 ? 1.0 : 0.045 * pow(2.71828183,3.2 * (luSub + luAgr));
+   //    TransferCoef	      = (0.9 * pow(luSub + luAgr, 1.3)) > 1.0 ? 1.0 : (0.9 * pow(luSub + luAgr, 1.3));  // BEST ONE!
+   //	 RiparianRemCoef      = 0.4994 * pow(luSub + luAgr,1.5909);			// power law (r2=0.42), this is a transfer coefficient
+   // 	 RiparianRemCoef      = 0.0113 * pow(2.7182818,(4.8511 * (luSub + luAgr)));	// exponential law (r2=0.39), this is a transfer coefficient
+     
         
         dL                   = MFModelGetLength (itemID);               // km converted to m
 	waterStoragePrev     = waterStorage - waterStorageChg;		// m3/sec!!! RJS 100213
@@ -508,7 +511,7 @@ float TransferCoef		= 0.0;
         massBalance_DIN_denit 	 = ((localLoad_DIN + WWTPpointSrc + preFlux_DIN_denit + storeWater_DIN_denit) - (totalMassRemoved_DIN_denit + postFluxDIN_denit + postStoreWater_DIN_denit + flowPathRemoval_denit)) / (localLoad_DIN + WWTPpointSrc + storeWater_DIN_denit + preFlux_DIN_denit);		// RJS 111411
         massBalance_DIN_assim 	 = ((localLoad_DIN + WWTPpointSrc + preFlux_DIN_assim + storeWater_DIN_assim) - (totalMassRemoved_DIN_assim + postFluxDIN_assim + postStoreWater_DIN_assim + flowPathRemoval_assim)) / (localLoad_DIN + WWTPpointSrc + storeWater_DIN_assim + preFlux_DIN_assim);		// RJS 111411
         massBalanceMixing_DIN	 = ((localLoad_DIN + WWTPpointSrc + preFluxMixing_DIN + storeWaterMixing_DIN) - (postFluxDINMixing + postStoreWaterMixing_DIN + flowPathRemovalMixing)) / (localLoad_DIN + WWTPpointSrc + storeWaterMixing_DIN + preFluxMixing_DIN);
-        
+
 if (((massBalance_DIN_denit > 0.0003) || (massBalance_DIN_assim > 0.0003)) && (localLoad_DIN + storeWater_DIN_denit + preFlux_DIN_denit > 0.000001)) printf("******\n itemID = %d, y = %d, m = %d, d = %d, massBalance_DIN_denit = %f, MB_assim = %f, MB_mixing = %f\n, postConcDIN_denit = %f, postConcDIN_assim = %f, waterStorage = %f, localLoad_DIN = %f, preFlux_DIN_denit = %f, storeWater_DIN_denit = %f, storeWater_DIN_assim = %f\n totalMassRemovedTS_DIN_denit = %f, totalMassRemovedMC_DIN_denit = %f, postFluxDIN_denit = %f, postStoreWater_DIN_denit = %f, flowPathRemoval_denit = %f\n, totalMassRemovedTS_DIN_assim = %f, totalMassRemovedMC_DIN_assim = %f, postFluxDIN_assim = %f, postStoreWater_DIN_assim = %f, flowPathRemoval_assim = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_DIN_denit, massBalance_DIN_assim, massBalanceMixing_DIN, postConcDIN_denit, postConcDIN_assim, waterStorage, localLoad_DIN, preFlux_DIN_denit, storeWater_DIN_denit, storeWater_DIN_assim, totalMassRemovedTS_DIN_denit, totalMassRemovedMC_DIN_denit, postFluxDIN_denit, postStoreWater_DIN_denit, flowPathRemoval_denit, totalMassRemovedTS_DIN_assim, totalMassRemovedMC_DIN_assim, postFluxDIN_assim, postStoreWater_DIN_assim, flowPathRemoval_assim);
 
 //if (itemID==809) printf ("***** itemID=%d, month=%d, day=%d, year=%d, Q=%f, hydLoad=%f, waterT=%f, localLoad_DIN = %f \n",itemID,MFDateGetCurrentMonth(),MFDateGetCurrentDay(),MFDateGetCurrentYear(),discharge,hydLoad,waterT,localLoad_DIN);
@@ -630,7 +633,7 @@ int MDDINDef () {
 
 	MFDefEntering ("N Processing");
 
-
+  
 
    // Input
 	if (

@@ -118,7 +118,7 @@ static void _MDWTempRiverRoute (int itemID) {
    	 Q_incoming            = MFVarGetFloat (_MDInDischargeIncomingID, itemID, 0.0); // already includes local runoff AND ROUTING (storage change in grid cell)
      RO_Vol                = MFVarGetFloat (_MDInRunoffVolumeID,      itemID, 0.0);
    	 RO_WTemp              = MFVarGetFloat (_MDInWTempRiverID,        itemID, 0.0);
-     SnowPack              = MFVarGetFloat (_MDInSnowPackID,          itemID, 0.0);
+ //    SnowPack              = MFVarGetFloat (_MDInSnowPackID,          itemID, 0.0);           // commented out 060514 not needed
      DingmanOnOff		   = MFVarGetFloat (_MDInDingmanOnOffID,      itemID, 0.0);
 
  	
@@ -396,7 +396,7 @@ int MDWTempRiverRouteDef () {
        ((_MDInRiverStorageChgID      = MFVarGetID (MDVarRiverStorageChg,        "m3/s",       MFInput,  MFState, MFBoundary)) == CMfailed) ||
        ((_MDInRiverStorageID         = MFVarGetID (MDVarRiverStorage,           "m3",         MFInput,  MFState, MFInitial))  == CMfailed) ||
        ((_MDInDingmanOnOffID         = MFVarGetID (MDVarDingmanOnOff,           "-",          MFInput,  MFState, MFInitial))  == CMfailed) ||
-       ((_MDInSnowPackID             = MFVarGetID (MDVarSnowPack,               "mm",         MFInput,  MFState, MFBoundary)) == CMfailed) ||
+//       ((_MDInSnowPackID             = MFVarGetID (MDVarSnowPack,               "mm",         MFInput,  MFState, MFBoundary)) == CMfailed) ||
 //       ((_MDInWarmingTempID	       = MFVarGetID (MDVarWarmingTemp,		        "degC",	    MFInput,  MFState, MFBoundary)) == CMfailed) ||	//RJS 072011		//commented out 013112
 //       ((_MDInThermalWdlID           = MFVarGetID (MDVarThermalWdl, 		        "-",          MFInput,  MFState, MFBoundary)) == CMfailed) ||	//RJS 072011	//commented out 013112
        // output

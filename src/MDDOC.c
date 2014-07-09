@@ -32,6 +32,12 @@ static int _MDInImpFractionID          = MFUnset;
 static int _MDInHumanLandUseID         = MFUnset;
 static int _MDInRiverWidthID           = MFUnset;
 static int _MDInRiverOrderID           = MFUnset;
+static int _MDInDOCmID                 = MFUnset;
+static int _MDInDOCbID                 = MFUnset;
+static int _MDInClmID                  = MFUnset;
+static int _MDInClbID                  = MFUnset;
+static int _MDInDINmID                 = MFUnset;
+static int _MDInDINbID                 = MFUnset;
 
 
 
@@ -166,6 +172,14 @@ static void _MDDOC (int itemID) {
     float order                         = 0.0;
     float length                        = 0.0;
     float ClTotalInMixing_Conc          = 0.0;
+    
+    float DIN_m                         = 0.0;
+    float DIN_b                         = 0.0;
+    float Cl_m                          = 0.0;
+    float Cl_b                          = 0.0;
+    float DOC_m                         = 0.0;
+    float DOC_b                         = 0.0;
+    
  //             localLoad_DOC  	     = MFVarGetFloat (_MDInLocalLoad_DOCID,      itemID, 0.0); // kg/day TEM inputs
  //             localLoad_POC        = MFVarGetFloat (_MDInLitterFall_POCID,     itemID, 0.0); // kg/day TEM inputs
  //             preFluxMixing_POC    = MFVarGetFloat (_MDFluxMixing_POCID,       itemID, 0.0); // kg/day TEM inputs
@@ -182,7 +196,13 @@ static void _MDDOC (int itemID) {
  //               totalEvap            = MFVarGetFloat (_MDInTotalEvaporationID,   itemID, 0.0); // m3/day
                 wetlands             = MFVarGetFloat (_MDInWetlandsID,           itemID, 0.0); // proportion wetlands
                 order                = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);
-                
+                DIN_m                = MFVarGetFloat (_MDInDINmID,               itemID, 0.0);
+                DIN_b                = MFVarGetFloat (_MDInDINbID,               itemID, 0.0);
+                DOC_m                = MFVarGetFloat (_MDInDOCmID,               itemID, 0.0);
+                DOC_b                = MFVarGetFloat (_MDInDOCbID,               itemID, 0.0);
+                Cl_m                 = MFVarGetFloat (_MDInClmID,                itemID, 0.0);
+                Cl_b                 = MFVarGetFloat (_MDInClbID,                itemID, 0.0);
+
                 // New Variables //
                 
                 human                = MFVarGetFloat (_MDInHumanLandUseID,       itemID, 0.0);  // percent human land use
@@ -212,14 +232,13 @@ static void _MDDOC (int itemID) {
   //              DOCTotalInMixing     = (runoffConc_DOC * runoffVol * 86400 / 1000) + preFluxMixing_DOC + storeWaterMixing_DOC;        // kg/day  
   //              POCTotalInMixing     = localLoad_POC + preFluxMixing_POC + storeWaterMixing_POC;        // kg/day
  
-                runoffConc_DOC         = 0.065 + 0.671 * (wetlands * 100);
-//              runoffConc_DOC         = ((5.40 + (56.0 * wetlands * 100)) / 1000000 * 12 * 1000) > 0.0 ? (5.40 + (56.0 * wetlands * 100)) / 1000000 * 12 * 1000 : 0.0;
-//              runoffConc_DIN         = 0.73 / (1.0 + pow(2.7182818, (0.2 - human) / 0.74));
-                runoffConc_DIN         = (-0.016 + 0.013 * human) > 0.0 ? -0.016 + 0.013 * human : 0.0;
-//              runoffConc_DIN         = ((-1.14 + 0.878 * human) / pow(10,6) * 14 * 1000) > 0.0 ? (-1.14 + 0.878 * human) / pow(10,6) * 14 * 1000 : 0.0;
-//              runoffConc_Cl          = 5.63 + 11.5 * (imp * 100);
-                runoffConc_Cl          = 3.83 + 8.9 * (imp * 100);
-//              runoffConc_Cl          = (107.9 + 250.5 * (imp * 100)) / pow(10,6) * 35.45 * 1000;
+                runoffConc_DOC         = pow(10, (DOC_m * (wetlands * 100)) + DOC_b) > 0.0 ? pow(10, (DOC_m * (wetlands * 100)) + DOC_b) : 0.0;
+                runoffConc_DIN         = pow(10, (DIN_m * (human) + DIN_b)) > 0.0 ? pow(10, (DIN_m * (human) + DIN_b)) : 0.0;
+                runoffConc_Cl          = (Cl_m * (imp * 100)) + Cl_b;
+                
+//                runoffConc_DOC         = 0.065 + 0.671 * (wetlands * 100);
+//                runoffConc_DIN         = (-0.016 + 0.013 * human) > 0.0 ? -0.016 + 0.013 * human : 0.0;
+//                runoffConc_Cl          = 3.83 + 8.9 * (imp * 100);
               
                 localLoad_DOC        = runoffConc_DOC * runoffVol * 86400 / 1000;
                 localLoad_DIN        = runoffConc_DIN * runoffVol * 86400 / 1000;
@@ -411,7 +430,12 @@ int MDDOCDef () {
             ((_MDInRiverOrderID                 = MFVarGetID (MDVarRiverOrder,                                "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDRunoffConc_DOCID       	= MFVarGetID (MDVarRunoffConcDOC,               "mg/L",     MFOutput,  MFState, MFInitial))    == CMfailed) ||	
             ((_MDInImpFractionID                = MFVarGetID (MDVarImpFracSpatial,                              "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
-    
+            ((_MDInDOCmID                       = MFVarGetID (MDVarDOCm,                                        "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDInDOCbID                       = MFVarGetID (MDVarDOCb,                                        "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDInDINmID                       = MFVarGetID (MDVarDINm,                                        "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDInDINbID                       = MFVarGetID (MDVarDINb,                                        "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDInClmID                        = MFVarGetID (MDVarClm,                                         "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDInClbID                        = MFVarGetID (MDVarClb,                                         "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDOutLocalLoadDOCID              = MFVarGetID (MDVarLocalLoadDOC2,               "kg/d",   MFOutput,  MFFlux,  MFBoundary))   == CMfailed) ||
             ((_MDOutLocalLoadDINID              = MFVarGetID (MDVarLocalLoadDIN2,               "kg/d",   MFOutput,  MFFlux,  MFBoundary))   == CMfailed) ||
             ((_MDOutLocalLoadClID               = MFVarGetID (MDVarLocalLoadCl2,                "kg/d",   MFOutput,  MFFlux,  MFBoundary))   == CMfailed) ||

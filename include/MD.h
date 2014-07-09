@@ -21,6 +21,7 @@ extern "C" {
 #define MDInputStr     "input"
 #define MDLookupStr    "lookup"
 #define MDCalculateStr "calculate"
+#define MDInput2Str     "input2"
 
 // Options
 #define MDOptDINInputs						 "DINInputs"		// RJS 042513
@@ -444,6 +445,13 @@ extern "C" {
 #define MDVarOrder2LoadPOC                               "Order2LoadPOC"
 #define MDVarOrderXLoadPOC                               "OrderXLoadPOC"
 #define MDVarRunoffConcDOC                               "RunoffConcDOC"
+#define MDVarDOCm                                           "DOCm"
+#define MDVarDOCb                                           "DOCb"
+#define MDVarDINm                                           "DINm"
+#define MDVarDINb                                           "DINb"
+#define MDVarClm                                            "Clm"
+#define MDVarClb                                            "Clb"
+
     
 // DO2 Variables //
 #define MDVarRiverMassDO2					 "RiverMassDO2"				// RJS 111612
@@ -717,7 +725,17 @@ extern "C" {
 #define MDVarNu                              "Nu"
 #define MDVarTau                             "Tau"
 #define MDVarPhi                             "Phi"
-    
+#define MDVarEta2                            "Eta2"
+#define MDVarNu2                             "Nu2"
+#define MDVarTau2                            "Tau2"
+#define MDVarPhi2                            "Phi2"
+#define MDVarEta3                            "Eta3"
+#define MDVarNu3                             "Nu3"
+#define MDVarTau3                            "Tau3"
+#define MDVarPhi3                            "Phi3"
+     
+#define MDVarBasinID			     "BasinID"     
+     
 #define MDVarPoint_Fecal                     "FecalPointSources" // TODO Not used!
 #define	MDVarFecalConcentration              "FecalConcentration"
 #define	MDVarFecalLocalIn                    "FecalLocalIn"

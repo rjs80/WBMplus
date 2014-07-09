@@ -165,6 +165,7 @@ static void _MDNitrogenInputsCalc (int itemID) {
 	//if (itemID == 31) printf("***** itemID = %d, year = %d, month = %d, day = %d, xMid = %f, luSub = %f, scale = %f, asym = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), xMid, luSub, scale, asym);
 	//if (itemID == 31) printf("runoffVol = %f, runoff = %f, LocalLoad_DIN = %f, LocalConc_DIN = %f, Total_point= %f, loadAdjust = %f\n", runoffVol, runoff, LocalLoad_DIN, LocalConc_DIN, Total_point, loadAdjust);  //mmm commented out 2013-3-13
 
+ //       printf("loadAdjust = %f\n", loadAdjust);
 
 	MFVarSetFloat (_MDOutLocalLoad_DINID,       itemID, LocalLoad_DIN);	  	// RJS 090308
 	MFVarSetFloat (_MDOutLocalLoad_Sub_DINID,   itemID, LocalLoad_Sub_DIN);	  	// RJS 090308

@@ -81,18 +81,38 @@ static void _MDRunoffInput (int itemID) {														// RJS 061312  ADDED THIS
         
         
 	MFVarSetFloat (_MDOutRunoffID, itemID, (baseFlow + surfaceRO));								// "
-	MFVarSetFloat (_MDOutPropROStormWaterID, itemID, prop);
+        MFVarSetFloat (_MDOutTotalSurfRunoffID, itemID, surfaceRO);                                     // RJS 082812
+        MFVarSetFloat (_MDOutPropROStormWaterID, itemID, prop);
 	MFVarSetFloat (_MDOutPropROSurfaceWaterID, itemID, prop);
 	MFVarSetFloat (_MDOutPropROGroundWaterID, itemID, prop);
 }																								// "
 
+static void _MDRunoffInput2 (int itemID) {														// RJS 061312  ADDED THIS WHOLE FUNCTION
+// Input
+	float baseFlow;																				// "
+	float runoffPoolRelease;
+        float totalRO;
+	float prop = 0.33333;																			// "
+
+        baseFlow 	   = MFVarGetFloat (_MDInBaseFlowID,  itemID, 0.0);
+	runoffPoolRelease  = MFVarGetFloat (_MDInRunoffPoolReleaseID, itemID, 0.0);		// RJS 042712
+
+        totalRO = baseFlow + runoffPoolRelease;
+   
+        
+	MFVarSetFloat (_MDOutRunoffID, itemID, totalRO);								// "
+        MFVarSetFloat (_MDOutTotalSurfRunoffID, itemID, runoffPoolRelease);                                     // RJS 082812
+        MFVarSetFloat (_MDOutPropROStormWaterID, itemID, prop);
+	MFVarSetFloat (_MDOutPropROSurfaceWaterID, itemID, prop);
+	MFVarSetFloat (_MDOutPropROGroundWaterID, itemID, prop);
+}		
  
-enum { MDinput, MDcalculate, MDcorrected };
+enum { MDinput, MDcalculate, MDcorrected, MDinput2 };
 
 int MDRunoffDef () {
 	int  optID = MFUnset;
 	const char *optStr, *optName = MDVarRunoff;
-	const char *options [] = { MDInputStr, MDCalculateStr, "corrected", (char *) NULL };
+	const char *options [] = { MDInputStr, MDCalculateStr, "corrected", MDInput2Str, (char *) NULL };
 
 	if (_MDOutRunoffID != MFUnset) return (_MDOutRunoffID);
 
@@ -107,11 +127,21 @@ int MDRunoffDef () {
                                 ((_MDOutPropROStormWaterID   = MFVarGetID (MDVarPropROStormWater,    "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313
                                 ((_MDOutPropROSurfaceWaterID = MFVarGetID (MDVarPropROSurfaceWater,  "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313 
                                 ((_MDOutPropROGroundWaterID  = MFVarGetID (MDVarPropROGroundWater,   "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||  
-				
+				((_MDOutTotalSurfRunoffID  = MFVarGetID (MDVarTotalSurfRunoff, "mm",     MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
 				((_MDOutRunoffID           = MFVarGetID (MDVarRunoff,            "mm",    MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	// RJS 061312
 				(MFModelAddFunction (_MDRunoffInput) == CMfailed)) return (CMfailed);														// RJS 061312
 			break;																															// RJS 061312
-		case MDcorrected:
+                case MDinput2:
+                        if (((_MDInBaseFlowID   = MDBaseFlowDef   ()) == CMfailed) ||
+                            ((_MDInRunoffPoolReleaseID = MDSurfRunoffPoolDef ()) == CMfailed) ||		// RJS 042612
+                            ((_MDOutPropROStormWaterID   = MFVarGetID (MDVarPropROStormWater,    "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313
+                            ((_MDOutPropROSurfaceWaterID = MFVarGetID (MDVarPropROSurfaceWater,  "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313 
+                            ((_MDOutPropROGroundWaterID  = MFVarGetID (MDVarPropROGroundWater,   "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||  
+			    ((_MDOutTotalSurfRunoffID  = MFVarGetID (MDVarTotalSurfRunoff, "mm",     MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
+                            ((_MDOutRunoffID           = MFVarGetID (MDVarRunoff,            "mm",    MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	// RJS 061312
+                            (MFModelAddFunction (_MDRunoffInput2) == CMfailed)) return (CMfailed);														// RJS 061312
+			break;	
+                case MDcorrected:
 			if ((_MDInRunoffCorrID  = MFVarGetID (MDVarRunoffCorretion, MFNoUnit, MFInput,  MFState, MFBoundary)) == CMfailed)
 				return (CMfailed);
 			break;	// RJS 082812

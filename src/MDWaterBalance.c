@@ -287,12 +287,12 @@ static void _MDWaterBalanceInput (int itemID) {
          
 }
 
-enum { MDinput, MDcalculate};
+enum { MDinput, MDcalculate, MDinput2};
 
 int MDWaterBalanceDef() {
         int  optID = MFUnset;
 	const char *optStr, *optName = MDVarRunoff;
-	const char *options [] = { MDInputStr, MDCalculateStr, (char *) NULL };
+	const char *options [] = { MDInputStr, MDCalculateStr, MDInput2Str, (char *) NULL };
 
 	MFDefEntering ("WaterBalance");
         if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);
@@ -371,6 +371,11 @@ int MDWaterBalanceDef() {
 	    return (CMfailed);
         break;      
                 case MDinput: 																										       			// RJS 061312
+                if (((_MDInRunoffID               = MDRunoffDef           ()) == CMfailed) ||			
+		    ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
+		    (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
+		break;	
+                case MDinput2: 																										       			// RJS 061312
                 if (((_MDInRunoffID               = MDRunoffDef           ()) == CMfailed) ||			
 		    ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
 		    (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
