@@ -170,7 +170,7 @@ int MDBaseFlowDef () {
                      (MFModelAddFunction (_MDBaseFlow) == CMfailed)) return (CMfailed);
                 break;
             case MDinput2:
-                 if (((_MDInRechargeID               = MFVarGetID (MDVarRainInfiltration,    "mm", MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
+                 if (((_MDInRechargeID               = MDRainInfiltrationDef ()) == CMfailed) ||
                      ((_MDOutGrdWatID                = MFVarGetID (MDVarGroundWater,         "mm", MFOutput, MFState, MFInitial))  == CMfailed) ||
                      ((_MDOutGrdWatChgID             = MFVarGetID (MDVarGroundWaterChange,   "mm", MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
                      ((_MDOutGrdWatRechargeID        = MFVarGetID (MDVarGroundWaterRecharge, "mm", MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||

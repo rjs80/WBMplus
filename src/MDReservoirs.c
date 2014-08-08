@@ -34,6 +34,7 @@ static int _MDOutResRelease_t_3_ID = MFUnset;
 static int _MDOutDisch_t_1_ID      = MFUnset;
 static int _MDOutDisch_t_2_ID      = MFUnset;
 static int _MDOutDisch_t_3_ID      = MFUnset;
+static int _MDOutNimasVariableID   = MFUnset;
 
 
 static float ANNOUTPUT(float I1[3][1], float I2[2][1], float I3) {
@@ -195,6 +196,7 @@ static void _MDReservoirNeuralNet(int itemID) {
     float SD_t_1;
     float SR_t_3;
     float SR_t_2;
+    float NimasVariable;
     int y = MFDateGetCurrentYear();
 
     discharge = MFVarGetFloat(_MDInDischargeID, itemID, 0.0);
@@ -302,6 +304,9 @@ resRelease = SIMOUT;
 
         res_release_t_1 = resRelease;
 
+        NimasVariable = resStorageChg;                          // RJS 071514
+        resStorageChg = resStorage - prevResStorage;            // RJS 071514
+
 
         
         MFVarSetFloat(_MDOutResReleaseID, itemID, resRelease);
@@ -310,6 +315,7 @@ resRelease = SIMOUT;
         MFVarSetFloat(_MDOutResRelease_t_3_ID, itemID, res_release_t_2); //You Should Set t-2 before t-1
         MFVarSetFloat(_MDOutResRelease_t_2_ID, itemID, res_release_t_1); //You Should Set t-2 before t-1
         MFVarSetFloat(_MDOutResStorageChgID, itemID, resStorageChg);
+        MFVarSetFloat(_MDOutNimasVariableID, itemID, NimasVariable);    // RJS 071414
         MFVarSetFloat(_MDOutResStorageID, itemID, resStorage);
         MFVarSetFloat(_MDOutPreResStorageID, itemID, resStorage);
 }
@@ -412,6 +418,7 @@ int MDReservoirDef() {
                     ((_MDOutResStorageID = MFVarGetID(MDVarReservoirStorage, "m3" , MFOutput, MFState, MFInitial)) == CMfailed) ||
                     ((_MDOutPreResStorageID = MFVarGetID(MDVarPreResStorage, "m3" , MFOutput, MFState, MFInitial)) == CMfailed) ||
                     ((_MDOutResStorageChgID = MFVarGetID(MDVarReservoirStorageChange, "m3" , MFOutput, MFState, MFInitial)) == CMfailed) ||
+                    ((_MDOutNimasVariableID = MFVarGetID(MDVarNimasVariable,          "m3" , MFOutput, MFState, MFInitial)) == CMfailed) ||
                     ((_MDOutResReleaseID = MFVarGetID(MDVarReservoirRelease, "m3/s", MFOutput, MFState, MFInitial)) == CMfailed) ||
                     ((_MDOutResRelease_t_1_ID = MFVarGetID(MDVarResRelease_t_1_, "m3/s", MFOutput, MFState, MFInitial)) == CMfailed) ||
                     ((_MDOutResRelease_t_2_ID = MFVarGetID(MDVarResRelease_t_2_, "m3/s", MFOutput, MFState, MFInitial)) == CMfailed) ||

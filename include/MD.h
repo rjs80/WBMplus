@@ -429,7 +429,8 @@ extern "C" {
 #define MDVarDINAgLoadConc				 "DINAgLoadConc"
 #define MDVarLandUseSpatialSub				 "LandUseSpatialSub"
 #define MDVarLandUseSpatialAg				 "LandUseSpatialAg"
-
+#define MDVarPercentDINIncrease                          "PercentDINIncrease"
+    
     // DOC Variables //
     
 #define MDVarStoreWaterMixingDOC                         "StoreWaterMixingDOC"
@@ -628,7 +629,8 @@ extern "C" {
 #define MDVarResCapacity "ResrvoirCapacity"
 //#define MDVarDischMTD "TotalMonthlyDischargeUpTothatDate"
 #define MDVarResStorage "ReservoirStorage"
-#define MDVarResStorageChg "ReservoirStorageCahnge"
+#define MDVarResStorageChg "ReservoirStorageChange"
+#define MDVarNimasVariable "NimasVariable"
 //#define MDVarResRelease "ReleasefromReservoir"
 #define MDVarResRelease_t_1_ "ReleasefromReservoirMonthT"
 #define MDVarResRelease_t_2_ "ReleasefromReservoirMonthT-1"

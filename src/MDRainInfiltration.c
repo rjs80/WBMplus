@@ -39,7 +39,7 @@ static void _MDRainInfiltrationSimple (int itemID) {
 	infiltration = surplus *_MDInfiltrationFrac;
 	MFVarSetFloat (_MDOutRainSurfRunoffID,       itemID, surfRunoff);
 	MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, infiltration);
-//	printf("Gamma = %f, Infiltraction %f surfRunoff %f \n",_MDInfiltrationFrac, infiltration,surfRunoff);
+   //     printf("Gamma = %f, Infiltraction %f surfRunoff %f \n",_MDInfiltrationFrac, infiltration,surfRunoff);
    //     if (itemID == 1) printf("Gamma = %f\n", _MDInfiltrationFrac);
 }
 static void _MDRainInfiltrationSaturation (int itemID){
@@ -47,13 +47,13 @@ static void _MDRainInfiltrationSaturation (int itemID){
 		MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, MFVarGetFloat(_MDOutRainInfiltrationID, itemID,0.0));
 }
 
-enum { MDinput, MDsimple, MDvarying,MDSpatially};
+enum { MDinput, MDinput2, MDsimple, MDvarying,MDSpatially};
 
 int MDRainInfiltrationDef () {
 	int  optID = MFUnset;
 	int ret =0;
 	const char *optStr, *optName = MDVarRainInfiltration;
-	const char *options [] = { MDInputStr, "simple", "varying","spatially" ,(char *) NULL };
+	const char *options [] = { MDInputStr, MDInput2Str, "simple", "varying","spatially" ,(char *) NULL };
 	float par;
 	//printf ("THE framework = greatest time sink ever invented\n");
 	if (_MDOutRainInfiltrationID != MFUnset) return (_MDOutRainInfiltrationID);
@@ -98,6 +98,18 @@ int MDRainInfiltrationDef () {
 		case MDinput:
 			_MDOutRainInfiltrationID = MFVarGetID (MDVarRainInfiltration, "mm", MFInput, MFFlux, MFBoundary);
 			break;
+                case MDinput2:
+                    if (_MDInfiltrationFractionID != MFUnset) {
+				if (((optStr = MFOptionGet (MDParInfiltrationFrac))  != (char *) NULL) &&
+				    (sscanf (optStr,"%f",&par) == 1))
+					_MDInfiltrationFrac = par;
+				else goto Stop;
+			}
+                    if (((_MDInRainWaterSurplusID          = MFVarGetID (MDVarRainWaterSurplus,     "mm", MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
+			    ((_MDOutRainSurfRunoffID       = MFVarGetID (MDVarRainSurfRunoff,       "mm", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
+			    ((_MDOutRainInfiltrationID     = MFVarGetID (MDVarRainInfiltration,     "mm", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
+                            (MFModelAddFunction (_MDRainInfiltrationSimple) == CMfailed)) return (CMfailed);	
+                        break;
 		case MDSpatially:
 			_MDInfiltrationFractionID = MFVarGetID (MDParInfiltrationFracSpatial, "mm", MFInput, MFState, MFBoundary);
 			break;		// RJS 082812

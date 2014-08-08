@@ -125,6 +125,7 @@ static int _MDOutBackCalcVf_denitID             = MFUnset; // RJS 100413
 static int _MDOutBackCalcR_assimID              = MFUnset; // RJS 100413
 static int _MDOutBackCalcVf_assimID             = MFUnset; // RJS 100413
 static int _MDOutRiparianRemovalID		= MFUnset; // RJS 040714
+static int _MDOutPercentDINIncreaseID           = MFUnset; // RJS 080614
 
 static float _MDUptakeKtMC   = 0.60;		// RJS 033009
 static float _MDUptakeKtSTS  = 0.60;		// RJS 033009
@@ -283,6 +284,9 @@ float VfAdjust2                 = 0.0;
 float randomNumber              = 0.0;
 float transferAdjust		= 0.0;
 float TransferCoef		= 0.0;
+float DINTotalIn_denit2         = 0.0;
+float preConcDIN_denit2         = 0.0;
+float percentIncrease           = 0.0;
 
 
 	riverOrder           = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);	 //RJS 112211
@@ -360,6 +364,9 @@ float TransferCoef		= 0.0;
 	runoffConc	     = runoffVol > 0.0 ? (localLoad_DIN * 1000000) / (runoffVol * 86400 * 1000) : 0.0;												
         waterTotalVolume     = (waterStoragePrev + dischargePre) * 86400;     // RJS 100213 waterStorage is in m3/s
         
+        DINTotalIn_denit2    = localLoad_DIN + preFlux_DIN_denit + storeWater_DIN_denit;        // Total in WITHOUT WWTP
+        
+        
 //        r1                   = rand();
 //        r2                   = r1 / (RAND_MAX);
 //        VfAdjust2            = randomNumber < 0.5 ? 1.0 / VfAdjust : VfAdjust;
@@ -373,7 +380,10 @@ float TransferCoef		= 0.0;
 		preConcDIN_denit     = DINTotalIn_denit / (waterTotalVolume) * 1000;                                    // mg/L
                 preConcDIN_assim     = DINTotalIn_assim / (waterTotalVolume) * 1000;                                    // mg/L
 		preConcMixingDIN     = DINTotalInMixing / (waterTotalVolume) * 1000;                                    // mg/L
-		
+		preConcDIN_denit2    = DINTotalIn_denit2 / (waterTotalVolume) * 1000;                                   // mg/L conc without WWTP
+                
+                percentIncrease      = (preConcDIN_denit - preConcDIN_denit2) / preConcDIN_denit2 * 100;                // percent increase in Conc due to WWTP
+                
                 velocity	     = discharge / (depth * width);                                                     // m/s
                 DIN_Vf_denit         = 0.0;                                                                             // m/d
                 DIN_Kt_denit         = 0.0;                                                                             // 1/d
@@ -606,6 +616,7 @@ MFVarSetFloat (_MDOutTransferDZID,                   itemID, transferDZ);
 MFVarSetFloat (_MDOutTransferHZID,        	     itemID, transferHZ);
 MFVarSetFloat (_MDOutWaterDZID, 		     itemID, waterDZ);
 MFVarSetFloat (_MDOutWaterHZID, 		     itemID, waterHZ);
+MFVarSetFloat (_MDOutPercentDINIncreaseID, 	     itemID, percentIncrease);
 
 }
 
@@ -742,6 +753,7 @@ int MDDINDef () {
 	    ((_MDOutVelocityID                  = MFVarGetID (MDVarVelocity,                     "m/s",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112108
 	    ((_MDDeltaStoreWaterMixing_DINID    = MFVarGetID (MDVarDeltaStoreWaterMixingDIN,  "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
 	    ((_MDFlowPathRemovalMixing_DINID    = MFVarGetID (MDVarFlowPathRemovalMixingDIN,  "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||   // RJS 112008
+	    ((_MDOutPercentDINIncreaseID        = MFVarGetID (MDVarPercentDINIncrease,             "-",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
 
 
 	(MFModelAddFunction (_MDNProcessing) == CMfailed)) return (CMfailed);

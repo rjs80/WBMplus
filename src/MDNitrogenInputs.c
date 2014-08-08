@@ -67,6 +67,29 @@ static void _MDNitrogenInputsInput (int itemID) {
 
 }
 
+static void _MDNitrogenInputsInput2 (int itemID) {
+
+	//Input
+	float runoff;		//mm/day
+	float runoffVol; 	//m3/sec
+	float LocalConc_DIN;
+	float riverOrder;
+        float LocalLoad_DIN_in; // kg/d
+
+	//Output
+	float LocalLoad_DIN;
+
+
+        LocalLoad_DIN_in   = MFVarGetFloat (_MDInLocalLoad_DINID,         itemID, 0.0); // g / m2
+
+        LocalLoad_DIN      = LocalLoad_DIN_in * MFModelGetArea (itemID) / 1000;                 // kg/day
+        
+ //       printf("area = %f\n", MFModelGetArea (itemID));
+        
+	MFVarSetFloat (_MDOutLocalLoad_DINID,        itemID, LocalLoad_DIN);	  // RJS 090308
+
+}
+
 static void _MDNitrogenInputsPartitioned (int itemID) {
 
 	//Input
@@ -174,13 +197,13 @@ static void _MDNitrogenInputsCalc (int itemID) {
 	MFVarSetFloat (_MDOutDINAgLoadConcID, 	    itemID, LocalConc_Agr_DIN);		// KAW 2013/03/15
 }
 
-enum {MDcalculate, MDinput, MDnone};
+enum {MDcalculate, MDinput, MDinput2, MDnone};
 
 int MDNitrogenInputsDef () {
 
 			int  optID = MFUnset;													    //RJS 10-28-10
 			const char *optStr, *optName = MDOptDINInputs;								//RJS 10-28-10
-			const char *options [] = { MDCalculateStr, MDInputStr, MDNoneStr, (char *) NULL };		//RJS 10-28-10
+			const char *options [] = { MDCalculateStr, MDInputStr, MDInput2Str, MDNoneStr, (char *) NULL };		//RJS 10-28-10
 
 	MFDefEntering ("Nitrogen Inputs");
 
@@ -207,6 +230,12 @@ int MDNitrogenInputsDef () {
 //          ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||															//RJS 050511
 	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,         "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
 	    (MFModelAddFunction (_MDNitrogenInputsInput) == CMfailed)) return (CMfailed);
+		break;
+                
+        case MDinput2:
+	if (((_MDInLocalLoad_DINID       = MFVarGetID (MDVarInLocalLoadDIN,       "kg/day", MFInput, MFFlux, MFBoundary)) == CMfailed) || 
+	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,         "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+	    (MFModelAddFunction (_MDNitrogenInputsInput2) == CMfailed)) return (CMfailed);
 		break;
 
 	case MDcalculate:

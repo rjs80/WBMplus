@@ -89,22 +89,33 @@ static void _MDRunoffInput (int itemID) {														// RJS 061312  ADDED THIS
 
 static void _MDRunoffInput2 (int itemID) {														// RJS 061312  ADDED THIS WHOLE FUNCTION
 // Input
-	float baseFlow;																				// "
-	float runoffPoolRelease;
-        float totalRO;
-	float prop = 0.33333;																			// "
+	float baseFlow;
+	float stormRunoffTotal;		// RJS 082812
+	float runoffPoolRelease;	// RJS 082812
+	float surfaceRO;
+	float runoffCorr;
+        float propStW;                  // RJS 100313
+        float propSuW;                  // RJS 100313
+        float propGrW;                  // RJS 100313
+        float totalRO;                  // RJS 100313
 
-        baseFlow 	   = MFVarGetFloat (_MDInBaseFlowID,  itemID, 0.0);
+	baseFlow 	   = MFVarGetFloat (_MDInBaseFlowID,  itemID, 0.0);
 	runoffPoolRelease  = MFVarGetFloat (_MDInRunoffPoolReleaseID, itemID, 0.0);		// RJS 042712
+	stormRunoffTotal   = MFVarGetFloat (_MDInStormRunoffTotalID,  itemID, 0.0);		// RJS 082812
+	surfaceRO	   = runoffPoolRelease + stormRunoffTotal;							// RJS 082812
+	runoffCorr	   = _MDInRunoffCorrID == MFUnset ? 1.0 : MFVarGetFloat (_MDInRunoffCorrID, itemID, 1.0);
 
-        totalRO = baseFlow + runoffPoolRelease;
-   
-        
-	MFVarSetFloat (_MDOutRunoffID, itemID, totalRO);								// "
-        MFVarSetFloat (_MDOutTotalSurfRunoffID, itemID, runoffPoolRelease);                                     // RJS 082812
-        MFVarSetFloat (_MDOutPropROStormWaterID, itemID, prop);
-	MFVarSetFloat (_MDOutPropROSurfaceWaterID, itemID, prop);
-	MFVarSetFloat (_MDOutPropROGroundWaterID, itemID, prop);
+        totalRO = baseFlow + runoffPoolRelease + stormRunoffTotal;
+        propStW = totalRO > 0.0 ? stormRunoffTotal / totalRO : 0.33333;
+        propSuW = totalRO > 0.0 ? runoffPoolRelease / totalRO : 0.33333;
+        propGrW = totalRO > 0.0 ? baseFlow / totalRO : 0.33333;
+
+
+	MFVarSetFloat (_MDOutRunoffID,          itemID, (baseFlow + surfaceRO) * runoffCorr);
+	MFVarSetFloat (_MDOutTotalSurfRunoffID, itemID, surfaceRO);                                     // RJS 082812
+        MFVarSetFloat (_MDOutPropROStormWaterID,  itemID, propStW);                                       // RJS 100313
+        MFVarSetFloat (_MDOutPropROSurfaceWaterID,   itemID, propSuW);                                       // RJS 100313
+        MFVarSetFloat (_MDOutPropROGroundWaterID, itemID, propGrW);      
 }		
  
 enum { MDinput, MDcalculate, MDcorrected, MDinput2 };
@@ -134,6 +145,7 @@ int MDRunoffDef () {
                 case MDinput2:
                         if (((_MDInBaseFlowID   = MDBaseFlowDef   ()) == CMfailed) ||
                             ((_MDInRunoffPoolReleaseID = MDSurfRunoffPoolDef ()) == CMfailed) ||		// RJS 042612
+                            ((_MDInStormRunoffTotalID  = MFVarGetID (MDVarStormRunoffTotal, "mm",    MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
                             ((_MDOutPropROStormWaterID   = MFVarGetID (MDVarPropROStormWater,    "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313
                             ((_MDOutPropROSurfaceWaterID = MFVarGetID (MDVarPropROSurfaceWater,  "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||       // RJS 100313 
                             ((_MDOutPropROGroundWaterID  = MFVarGetID (MDVarPropROGroundWater,   "-",     MFOutput, MFState, MFBoundary)) == CMfailed) ||  
