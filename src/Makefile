@@ -103,7 +103,9 @@ OBJS = $(OBJ)/WBMMain.o\
        $(OBJ)/MDIrrigation.o\
        $(OBJ)/MDDOC.o\
        $(OBJ)/MDLitterFall.o\
-       $(OBJ)/MDHydropower.o
+       $(OBJ)/MDHydropower.o\
+       $(OBJ)/MDSpecCond.o\
+       $(OBJ)/MDChloride.o
        
 
 all: ${TARGET}
