@@ -11,13 +11,13 @@ balazs.fekete@unh.edu
 *******************************************************************************/
 #include "wbm.h"
 
-enum { MDpet, MDsurplus, MDinfiltration, MDrunoff, MDdischarge,  MDwatertemp, MDthermal, MDthermal2, MDthermal3, MDbalance, MDgeometry, MDbgc, MDbgc_DIN, MDbgc_DINPLUSBIOMASS, MDbgc_DOC, MDfecal, MDDO2, MDDIN, MDIrrigation, MDDOC};
+enum { MDpet, MDsurplus, MDinfiltration, MDrunoff, MDdischarge,  MDwatertemp, MDthermal, MDthermal2, MDthermal3, MDbalance, MDgeometry, MDbgc, MDbgc_DIN, MDbgc_DINPLUSBIOMASS, MDbgc_DOC, MDfecal, MDDO2, MDDIN, MDIrrigation, MDDOC,MDSpecCond,MDChloride};
 
 int main (int argc,char *argv []) {
 	int argNum;
 	int  optID = MDbalance;
 	const char *optStr, *optName = MDOptModel;
-	const char *options [] = { "pet", "surplus", "infiltration", "runoff", "discharge",  "watertemp", "thermal", "thermal2", "thermal3", "balance", "geometry", "bgc", "bgc_DIN","bgc_DINPLUSBIOMASS", "bgc_DOC", "fecal", "DO2", "DIN", "irrigation", "DOC", (char *) NULL };
+	const char *options [] = { "pet", "surplus", "infiltration", "runoff", "discharge",  "watertemp", "thermal", "thermal2", "thermal3", "balance", "geometry", "bgc", "bgc_DIN","bgc_DINPLUSBIOMASS", "bgc_DOC", "fecal", "DO2", "DIN", "irrigation", "DOC","SpecCond","chloride", (char *) NULL };
 
 	argNum = MFOptionParse (argc,argv);
 
@@ -43,6 +43,8 @@ int main (int argc,char *argv []) {
 		case MDDIN:                   return (MFModelRun (argc,argv,argNum,MDDINDef));		// RJS 121013
                 case MDIrrigation:            return (MFModelRun (argc,argv,argNum,MDIrrigationDef));   // RJS 121013
                 case MDDOC:                   return (MFModelRun (argc,argv,argNum,MDDOCDef));          // RJS 011914
+                case MDSpecCond:              return (MFModelRun (argc,argv,argNum,MDSpecCondDef));          // SZ 061014
+                case MDChloride:              return (MFModelRun (argc,argv,argNum,MDChlorideDef));          // SZ 061614
 		default: MFOptionMessage (optName, optStr, options); return (CMfailed);
 	}
 	return (CMfailed);

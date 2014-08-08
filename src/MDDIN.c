@@ -634,8 +634,8 @@ int MDDINDef () {
 
    // Input
 	if (
-	    ((_MDWTemp_QxTID 		    = MDThermalInputs3Def ()) == CMfailed) ||		// comment out for no plants
-//          ((_MDWTemp_QxTID 		    = MDWTempRiverRouteDef()) == CMfailed) ||
+//	    ((_MDWTemp_QxTID 		    = MDThermalInputs3Def ()) == CMfailed) ||		// comment out for no plants
+            ((_MDWTemp_QxTID 		    = MDWTempRiverRouteDef()) == CMfailed) ||
             ((_MDInRiverWidthID             = MDRiverWidthDef ())     == CMfailed) ||
             ((_MDInLocalLoad_DINID	    = MDNitrogenInputsDef())  == CMfailed) ||	// RJS 091108
             ((_MDInWWTPpointSrcID           = MDPointSourceDef())     == CMfailed) ||   // RJS 100413

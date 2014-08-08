@@ -476,6 +476,16 @@ extern "C" {
 #define MDVarLocalLoadDOC2                              "LocalLoadDOC2"
 #define MDVarLocalLoadDIN2                              "LocalLoadDIN2"
 #define MDVarLocalLoadCl2                               "LocalLoadCl2"
+
+// Specific Conductivity Variables // SZ 06122014
+#define MDVarLocalLoadSC                                "LocalLoadSC"
+#define MDVarConcMixingSC                               "ConcMixingSC"
+#define MDVarStoreWaterMixingSC                         "StoreWaterMixingSC"
+#define MDVarFluxMixingSC                               "FluxMixingSC"
+#define MDVarPostConcSC                                 "PostConcSC"
+#define MDVarStoreWaterSC                               "StoreWaterSC"
+#define MDVarFluxSC                                     "FluxSC"
+    
     
 #define MDVarRiverStorage                    "RiverStorage"
 #define MDVarRiverStorageChg                 "RiverStorageChange"
@@ -802,6 +812,7 @@ int MDAccumBalanceDef();
 int MDAvgNStepsDef();
 int MDBaseFlowDef();
 
+
 int MDBgcRoutingDef();
 int MDBgcDOCRoutingDef();
 int MDBgcDINRoutingDef();
@@ -821,6 +832,8 @@ int MDCParamLPMaxDef();
 int MDCParamZ0gDef();
 int MDDINDef();					// RJS 042513
 int MDDOCDef();                         // RJS 011914
+int MDSpecCondDef();                    // SZ 061014
+int MDChlorideDef();                    // SZ 061614
 int MDNitrgoenInputsDef();		// RJS 042513
 int MDDischargeDef();
 int MDDischLevel1Def();
