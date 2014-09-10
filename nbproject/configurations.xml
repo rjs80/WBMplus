@@ -15,6 +15,7 @@
         <in>MDBgcRiverGPP.c</in>
         <in>MDBgcRiverLight.c</in>
         <in>MDCParams.c</in>
+        <in>MDChloride.c</in>
         <in>MDDIN.c</in>
         <in>MDDO2.c</in>
         <in>MDDOC.c</in>
@@ -80,6 +81,7 @@
         <in>MDSmallReservoirs.c</in>
         <in>MDSoilAvailWaterCap.c</in>
         <in>MDSolarRad.c</in>
+        <in>MDSpecCond.c</in>
         <in>MDStormRunoff.c</in>
         <in>MDSurfRunoff.c</in>
         <in>MDSurfRunoffPool.c</in>
@@ -266,6 +268,17 @@
           </preprocessorList>
         </cTool>
       </item>
+      <item path="src/MDChloride.c" ex="false" tool="0" flavor2="0">
+        <cTool>
+          <incDir>
+            <pElem>../CMlib/include</pElem>
+            <pElem>../MFlib/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>_GNU_SOURCE</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
       <item path="src/MDDIN.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
@@ -431,7 +444,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDHydropower.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDHydropower.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -962,6 +975,17 @@
         </cTool>
       </item>
       <item path="src/MDSolarRad.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+          <incDir>
+            <pElem>../CMlib/include</pElem>
+            <pElem>../MFlib/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>_GNU_SOURCE</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="src/MDSpecCond.c" ex="false" tool="0" flavor2="0">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>

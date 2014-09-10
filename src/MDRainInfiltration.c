@@ -18,6 +18,10 @@ balazs.fekete@unh.edu
 
 // Input
 static int _MDInRainWaterSurplusID      = MFUnset;
+static int _MDInRainWaterSurplusCID     = MFUnset;
+static int _MDInRainWaterSurplusDID     = MFUnset;
+static int _MDInRainWaterSurplusMID     = MFUnset;
+
 // Output
 static int _MDOutRainSurfRunoffID       = MFUnset;
 static int _MDOutRainInfiltrationID     = MFUnset;
@@ -42,6 +46,29 @@ static void _MDRainInfiltrationSimple (int itemID) {
    //     printf("Gamma = %f, Infiltraction %f surfRunoff %f \n",_MDInfiltrationFrac, infiltration,surfRunoff);
    //     if (itemID == 1) printf("Gamma = %f\n", _MDInfiltrationFrac);
 }
+
+static void _MDRainInfiltrationSimple2 (int itemID) {
+
+	float surplusC;
+        float surplusD;
+        float surplusM;
+	float surfRunoff;
+	float infiltration;
+
+	if (_MDInfiltrationFractionID != MFUnset)
+		_MDInfiltrationFrac = MFVarGetFloat(_MDInfiltrationFractionID,itemID,0.0);
+
+	surplusC = MFVarGetFloat(_MDInRainWaterSurplusCID, itemID, 0.0);
+	surplusD = MFVarGetFloat(_MDInRainWaterSurplusDID, itemID, 0.0);
+        surplusM = MFVarGetFloat(_MDInRainWaterSurplusMID, itemID, 0.0);
+	surfRunoff   = (surplusC + surplusD + surplusM) * (1.0 - _MDInfiltrationFrac);
+	infiltration = (surplusC + surplusD + surplusM) *_MDInfiltrationFrac;
+	MFVarSetFloat (_MDOutRainSurfRunoffID,       itemID, surfRunoff);
+	MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, infiltration);
+ //  if ((itemID == 8640) || (itemID == 4596))   printf("id = %d, Gamma = %f, Infiltration %f surfRunoff %f \n",itemID, _MDInfiltrationFrac, infiltration,surfRunoff);
+   //     if (itemID == 1) printf("Gamma = %f\n", _MDInfiltrationFrac);
+}
+
 static void _MDRainInfiltrationSaturation (int itemID){
 		MFVarSetFloat (_MDOutRainSurfRunoffID,       itemID, MFVarGetFloat(_MDInSaturationExcessRunoffID, itemID,0.0));
 		MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, MFVarGetFloat(_MDOutRainInfiltrationID, itemID,0.0));
@@ -105,10 +132,13 @@ int MDRainInfiltrationDef () {
 					_MDInfiltrationFrac = par;
 				else goto Stop;
 			}
-                    if (((_MDInRainWaterSurplusID          = MFVarGetID (MDVarRainWaterSurplus,     "mm", MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
-			    ((_MDOutRainSurfRunoffID       = MFVarGetID (MDVarRainSurfRunoff,       "mm", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
+         //           if (((_MDInRainWaterSurplusID          = MFVarGetID (MDVarRainWaterSurplus,     "mm", MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
+                        if (((_MDInRainWaterSurplusDID     = MFVarGetID (MDVarRainWaterSurplusD,    "mm", MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
+			    ((_MDInRainWaterSurplusCID     = MFVarGetID (MDVarRainWaterSurplusC,    "mm", MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
+     			    ((_MDInRainWaterSurplusMID     = MFVarGetID (MDVarRainWaterSurplusM,    "mm", MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
+                            ((_MDOutRainSurfRunoffID       = MFVarGetID (MDVarRainSurfRunoff,       "mm", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
 			    ((_MDOutRainInfiltrationID     = MFVarGetID (MDVarRainInfiltration,     "mm", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
-                            (MFModelAddFunction (_MDRainInfiltrationSimple) == CMfailed)) return (CMfailed);	
+                            (MFModelAddFunction (_MDRainInfiltrationSimple2) == CMfailed)) return (CMfailed);	
                         break;
 		case MDSpatially:
 			_MDInfiltrationFractionID = MFVarGetID (MDParInfiltrationFracSpatial, "mm", MFInput, MFState, MFBoundary);

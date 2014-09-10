@@ -311,6 +311,9 @@ extern "C" {
 #define MDVarRainSurfRunoff                  "RainSurfRunoff"
 #define MDVarRainTranspiration               "RainTranspiration"
 #define MDVarRainWaterSurplus                "RainWaterSurplus"
+#define MDVarRainWaterSurplusC                "RainWaterSurplusC"
+#define MDVarRainWaterSurplusD                "RainWaterSurplusD"
+#define MDVarRainWaterSurplusM                "RainWaterSurplusM"
 
 #define MDVarRemovalOrder                    "RemovalOrder"                     // RJS 100213    
 #define MDVarReservoirCapacity               "ReservoirCapacity"
@@ -417,18 +420,34 @@ extern "C" {
 #define MDVarLawnAWC                                     "LawnAWC"
 #define MDVarLoadAdjust					 "LoadAdjust"
 #define MDVarLocalLoadDIN				 "LocalLoadDIN"
+#define MDVarLocalConcDIN				 "LocalConcDIN"
 #define MDVarInLocalLoadDIN                              "InLocalLoadDIN"                       // RJS 011414
+#define MDVarInLocalLoadConDIN                           "InLocalLoadConDIN"
+#define MDVarInLocalLoadDecDIN                           "InLocalLoadDecDIN"
+#define MDVarInLocalLoadMixDIN                           "InLocalLoadMixDIN"
+#define MDVarInLocalLoadLakDIN                           "InLocalLoadLakDIN"
 #define MDVarLocalLoadDINnew				 "LocalLoadDINnew"
 #define MDVarGroundWaterMassRel				 "GroundWaterMassRel"
 #define MDVarRunoffPoolMassRel				 "RunoffPoolMassRel"
 #define MDVarDINLoadConc				 "DINLoadConc"
-
+    
+ #define MDVarLocalConcSubDIN                            "LocalConcSubDIN"
+ #define MDVarLocalConcAgDIN                             "LocalConcAgDIN"
+ #define MDVarLocalConcLakDIN                            "LocalConcLakDIN"
+ #define MDVarLocalLoadLakDIN                            "LocalLoadLakDIN"
+ #define MDVarLocalConcForDIN                            "LocalConcForDIN"
+ #define MDVarLocalLoadForDIN                            "LocalLoadForDIN"
+    
+#define MDVarLocalLoadPnETDIN				 "LocalLoadSubDIN"
 #define MDVarLocalLoadSubDIN				 "LocalLoadSubDIN"
 #define MDVarLocalLoadAgDIN				 "LocalLoadAgDIN"
 #define MDVarDINSubLoadConc				 "DINSubLoadConc"
 #define MDVarDINAgLoadConc				 "DINAgLoadConc"
 #define MDVarLandUseSpatialSub				 "LandUseSpatialSub"
 #define MDVarLandUseSpatialAg				 "LandUseSpatialAg"
+#define MDVarLandUseSpatialDec                           "LandUseSpatialDec"
+#define MDVarLandUseSpatialCon                           "LandUseSpatialCon"
+#define MDVarLandUseSpatialMix                           "LandUseSpatialMix"
 #define MDVarPercentDINIncrease                          "PercentDINIncrease"
     
     // DOC Variables //
@@ -527,6 +546,7 @@ extern "C" {
 #define MDVarSnowMelt                        "SnowMelt"
 #define MDVarSnowPack                        "SnowPack"
 #define MDVarSnowPackChange                  "SnowPackChange"
+#define MDVarSnowPackDays                    "SnowPackDays"
 #define MDVarSoilAvailWaterCap               "AvailableWaterCapacity"
 #define MDVarSoilAvailWaterCapInput	     "AWCInput"                         // RJS 091713
 #define MDVarSoilFieldCapacity               "FieldCapacity"
@@ -631,7 +651,7 @@ extern "C" {
 #define MDVarSimEfficiency					"SimEfficiency"				//RJS 122112
 
 // NIMA Neural Network
-#define MDVarReservoirStorageChange "ReservoirStorageCahnge"
+#define MDVarReservoirStorageChange "ReservoirStorageChange"
 #define MDVarReservoirCapacity "ReservoirCapacity"
 #define MDVarReservoirStorage "ReservoirStorage"
 #define MDVarPreResStorage "PreviousReservoirStorage"
