@@ -42,6 +42,7 @@ extern "C" {
 #define MDOptSoilMoisture					 "SoilMoisture"
 #define MDOptSoilTemperature				 "SoilTemperature"
 #define MDOptAllWithdrawals					 "AllWithdrawals"
+#define MDOptSpecConductance                "SpecificConductance"               // SZ 08212014 (Only calculate implemented)
 
 
 #define MDOptIrrigatedAreaMap                "IrrigatedAreaMap"
@@ -495,7 +496,7 @@ extern "C" {
 #define MDVarStoreWaterSC                               "StoreWaterSC"
 #define MDVarFluxSC                                     "FluxSC"
     
-    
+   
 #define MDVarRiverStorage                    "RiverStorage"
 #define MDVarRiverStorageChg                 "RiverStorageChange"
 #define MDVarRiverWidth                      "RiverbedWidth"
@@ -535,6 +536,7 @@ extern "C" {
 #define MDVarSoilMoistChange                 "SoilMoistureChange"
 #define MDVarSoilWiltingPoint                "WiltingPoint"
 #define MDVarSoilBulkDensity                 "SoilBulkDensity"
+#define MDVarSoilPermeability                "SaturatedSoilPermeabilityInput"                        // SZ 08212014
 
 #define MDVarSoilTotalVol					 "SoilTotalVol"			// RJS 082812
 
