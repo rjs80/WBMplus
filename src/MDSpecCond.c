@@ -32,7 +32,8 @@ static int _MDInRiverOrderID           = MFUnset;
 static int _MDInBaseFlowID             = MFUnset;
 static int _MDInRunoffCorrID          = MFUnset;
 
-static int _MDInWTempRiverID           =MFUnset;
+static int _MDInWTempRiverID           = MFUnset;
+static int _MDInDINFluxID              = MFUnset;
 
 // Loading calculation
 static int _MDInSubFractionID          = MFUnset;
@@ -92,6 +93,7 @@ static void _MDSpecCond (int itemID) {
     float order                         = 0.0;
     float length                        = 0.0;
     float SCTotalInMixing_Conc          = 0.0;
+    float DINflux                       = 0.0;
     
     runoffVol            = MFVarGetFloat (_MDInRunoffVolumeID,       itemID, 0.0); // m3/s
     baseflowVol          = MFVarGetFloat (_MDInBaseFlowID,            itemID,0.0) * MFModelGetArea (itemID) / (MFModelGet_dt () * 1000.0); // TODO: Either need to define BaseFlowVolumeDef or calculate internally here.
@@ -102,7 +104,8 @@ static void _MDSpecCond (int itemID) {
     discharge            = MFVarGetFloat (_MDInDischargeID,          itemID, 0.0); // m3/sec, discharge leaving the grid cell, after routing!
     dischargePre	 = MFVarGetFloat (_MDInDischarge0ID,         itemID, 0.0); // m3/sec, discharge from upstream PLUS local runoff, before routing!
     order                = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);
-
+    DINflux              = MFVarGetFloat (_MDInDINFluxID,            itemID, 0.0);
+    
     // New Variables //
 
     dev                  = MFVarGetFloat (_MDInSubFractionID,        itemID, 0.0);  // proportion developed land
@@ -199,7 +202,8 @@ int MDSpecCondDef () {
 	MFDefEntering ("Specific Conductance Routing");
 	
         if (
-	    ((_MDInWTempRiverID                 = MDWTempRiverRouteDef ()) == CMfailed) ||	
+            ((_MDInDINFluxID                    = MDDINDef ()) == CMfailed) ||    
+	    ((_MDInWTempRiverID                 = MFVarGetID (MDVarWTemp_QxT,              "degC",      MFInput, MFState, MFBoundary)) == CMfailed)   ||
             ((_MDInRiverWidthID                 = MDRiverWidthDef ())     == CMfailed) ||
 //          ((_MDInLitterFall_POCID             = MDLitterFallDef ()) == CMfailed) ||
 //          ((_MDInLocalLoad_DOCID              = MFVarGetID (MDVarLocalLoadDOC,                             "kg/d",    MFInput,  MFFlux,  MFBoundary))   == CMfailed) ||

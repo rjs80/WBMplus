@@ -31,10 +31,10 @@ static int _MDOutWTempSurfRunoffPoolID  = MFUnset;
 static void _MDWTempSurfRunoffPool (int itemID) {
 
 	float SurfRunoffT;
-    float SurfRunoffPoolT;
+        float SurfRunoffPoolT;
 
 	float SurfRunoff;
-    float SurfRunoffPool;
+        float SurfRunoffPool;
 
 	SurfRunoffT     = MFVarGetFloat (_MDInWTempSurfRunoffID,      itemID, 0.0);
 	SurfRunoffPoolT = MFVarGetFloat (_MDOutWTempSurfRunoffPoolID, itemID, 0.0);

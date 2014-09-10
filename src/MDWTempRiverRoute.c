@@ -129,7 +129,7 @@ static void _MDWTempRiverRoute (int itemID) {
      waterStorageChange    = MFVarGetFloat ( _MDInRiverStorageChgID,  itemID, 0.0);
      waterStorage          = MFVarGetFloat ( _MDInRiverStorageID,     itemID, 0.0);
      channelWidth          = MFVarGetFloat ( _MDInRiverWidthID,       itemID, 0.0);
-     solarRad              = MFVarGetFloat ( _MDInSolarRadID,         itemID, 0.0); //MJ/m2/d - CHECK UNITS
+     solarRad              = MFVarGetFloat ( _MDInSolarRadID,         itemID, 0.0); //MJ/m2/d if calculated by clouds, w/m2 if input
      windSpeed             = MFVarGetFloat ( _MDInWindSpeedID,        itemID, 0.0);
      cloudCover            = MFVarGetFloat ( _MDInCloudCoverID,       itemID, 0.0);
      Tair                  = MFVarGetFloat ( _MDInAirTemperatureID,   itemID, 0.0);
@@ -139,6 +139,8 @@ static void _MDWTempRiverRoute (int itemID) {
      QxT_mix               = MFVarGetFloat (_MDFluxMixing_QxTID,      itemID, 0.0);
      StorexT_mix           = MFVarGetFloat (_MDStorageMixing_QxTID,   itemID, 0.0);
 
+     solarRad    = solarRad * 0.0036 * 24.0;    // converting w/m2 to MJ/m2/d
+     
      Q_upstream	 = Q + waterStorageChange + (ResWaterStorageChange / 86400) - RO_Vol;		// RJS 030113	Amount of flow coming from upstream grid cell; Q is routed volume going downstream, waterStorageChange (-) is amount lost from WaterStorage, (+) amount added to waterStorage
 
      Q_WTemp = QxT / (Q_upstream * 86400);
@@ -285,7 +287,7 @@ static void _MDWTempRiverRoute (int itemID) {
 //         printf("**** airT = %f, Tequil = %f, GJ_out = %f\n", Tair, Tequil, (Q_WTemp_new + 273.15) * Q * 86400 * 4.18 * 0.001);
  //        }
 
- //        printf("solarRad = %f,  dL = %f\n ", solarRad, MFModelGetLength(itemID));
+//         printf("solarRad = %f,  dL = %f\n ", solarRad, MFModelGetLength(itemID));
 
          MFVarSetFloat(_MDDeltaTID,      itemID, deltaT);
          MFVarSetFloat(_MDLocalIn_QxTID, itemID, QxT_input);
