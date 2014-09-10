@@ -105,7 +105,7 @@ int MDStormRunoffDef () {
 	MFDefEntering ("Storm Runoff");
 
 	if (((_MDInPrecipID             = MDPrecipitationDef ()) == CMfailed) ||
-		((_MDInH2OFractionID        = MFVarGetID (MDVarH2OFracSpatial,  "-",   MFInput,  MFState, MFBoundary)) == CMfailed) ||		//commented out 082812
+            ((_MDInH2OFractionID        = MFVarGetID (MDVarH2OFracSpatial,  "-",   MFInput,  MFState, MFBoundary)) == CMfailed) ||		//commented out 082812
 	    ((_MDInImpFractionID        = MFVarGetID (MDVarImpFracSpatial,  "-",    MFInput,  MFState, MFBoundary)) == CMfailed) ||
 	    ((_MDInSPackChgID           = MFVarGetID (MDVarSnowPackChange,  "mm",   MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
 	    ((_MDInHCIAID               = MFVarGetID (MDVarHCIA,            "-",    MFInput,  MFState, MFBoundary)) == CMfailed) ||
@@ -113,8 +113,8 @@ int MDStormRunoffDef () {
 	    ((_MDOutStormRunoffH2OID    = MFVarGetID (MDVarStormRunoffH2O,  "mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||		//commented out 082812
 	    ((_MDOutPrecipPervID        = MFVarGetID (MDVarPrecipPerv,      "mm",   MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
 	    ((_MDOutStormRunoffTotalID  = MFVarGetID (MDVarStormRunoffTotal,"mm",   MFOutput, MFFlux, MFBoundary))  == CMfailed) ||
-            ((_MDOutH2OFractionID        = MFVarGetID (MDVarH2OFracSpatial,  "-",   MFOutput,  MFState, MFBoundary)) == CMfailed) ||		// RJS 100113
-	    ((_MDOutImpFractionID        = MFVarGetID (MDVarImpFracSpatial,  "-",    MFOutput,  MFState, MFBoundary)) == CMfailed) ||           // RJS 100113
+            ((_MDOutH2OFractionID       = MFVarGetID (MDVarH2OFracSpatial,  "-",    MFOutput,  MFState, MFBoundary)) == CMfailed) ||		// RJS 100113
+	    ((_MDOutImpFractionID       = MFVarGetID (MDVarImpFracSpatial,  "-",    MFOutput,  MFState, MFBoundary)) == CMfailed) ||           // RJS 100113
             ((_MDOutRunofftoPervID      = MFVarGetID (MDVarRunofftoPerv,    "mm",   MFOutput, MFFlux, MFBoundary))  == CMfailed) ||
 	    (MFModelAddFunction (_MDStormRunoff) == CMfailed)) return (CMfailed);
 
