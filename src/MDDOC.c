@@ -76,109 +76,108 @@ static int _MDRunoffConc_DOCID         = MFUnset;
 
 static void _MDDOC (int itemID) {
 
-    float runoffVol                     = 0.0;
-    float waterStorage                  = 0.0;
-    float waterStorageChange            = 0.0;
-    float localLoad_DOC                 = 0.0;
-    float localLoad_POC                 = 0.0;
-    float preFluxMixing_DOC             = 0.0;
-    float preFluxMixing_POC             = 0.0;
-    float postFluxMixing_DOC            = 0.0;
-    float postFluxMixing_POC            = 0.0;
-    float storeWaterMixing_DOC          = 0.0;
-    float storeWaterMixing_POC          = 0.0;
-    float postStoreWaterMixing_DOC      = 0.0;
-    float postStoreWaterMixing_POC      = 0.0;
-    float discharge                     = 0.0;
-    float dischargePre                  = 0.0;
-    float waterStoragePrev              = 0.0;
-    float DOCTotalInMixing              = 0.0;
-    float POCTotalInMixing              = 0.0;
-    float runoffConc_DOC                = 0.0;
-    float waterTotalVolume              = 0.0;	
-    float DIN                           = 0.0;
-    float flowPathRemovalMixing_DOC     = 0.0;
-    float flowPathRemovalMixing_POC     = 0.0;
-    float postConcMixing_DOC            = 0.0;
-    float postConcMixing_POC            = 0.0;
-    float massBalanceMixing_DOC         = 0.0;
-    float massBalanceMixing_POC         = 0.0;  
-    float preConcMixing_DOC             = 0.0;
-    float preConcMixing_POC             = 0.0;
-    float totalEvap                     = 0.0;
-    float litterFall_POC                = 0.0;
-    float wetlands                      = 0.0;
+    float runoffVol                     = 0.0;  // m3/s
+    float waterStorage                  = 0.0;  // m3/s
+    float waterStorageChange            = 0.0;  // m3/s
+    float localLoad_DOC                 = 0.0;  // kg/d
+    float localLoad_POC                 = 0.0;  // kg/d
+    float preFluxMixing_DOC             = 0.0;  // kg/d
+    float preFluxMixing_POC             = 0.0;  // kg/d
+    float postFluxMixing_DOC            = 0.0;  // kg/d
+    float postFluxMixing_POC            = 0.0;  // kg/d
+    float storeWaterMixing_DOC          = 0.0;  // kg/d
+    float storeWaterMixing_POC          = 0.0;  // kg/d
+    float postStoreWaterMixing_DOC      = 0.0;  // kg/d
+    float postStoreWaterMixing_POC      = 0.0;  // kg/d
+    float discharge                     = 0.0;  // m3/s
+    float dischargePre                  = 0.0;  // m3/s
+    float waterStoragePrev              = 0.0;  // m3/s
+    float DOCTotalInMixing              = 0.0;  // kg/d
+    float POCTotalInMixing              = 0.0;  // kg/d
+    float runoffConc_DOC                = 0.0;  // mg/L
+    float waterTotalVolume              = 0.0;	// m3/d
+    float DIN                           = 0.0;  // kg/d
+    float flowPathRemovalMixing_DOC     = 0.0;  // kg/d
+    float flowPathRemovalMixing_POC     = 0.0;  // kg/d
+    float postConcMixing_DOC            = 0.0;  // mg/L
+    float postConcMixing_POC            = 0.0;  // mg/L
+    float massBalanceMixing_DOC         = 0.0;  // kg/d
+    float massBalanceMixing_POC         = 0.0;  // kg/d
+    float preConcMixing_DOC             = 0.0;  // mg/L
+    float preConcMixing_POC             = 0.0;  // mg/L
+    float litterFall_POC                = 0.0;  // kg/d
+    float wetlands                      = 0.0;  // proportion wetlands
     
     // New Variables // 
     
-    float imp                           = 0.0;
-    float human                         = 0.0;
-    float preFluxMixing_DIN             = 0.0;
-    float preFluxMixing_Cl              = 0.0;
-    float postFluxMixing_DIN            = 0.0;
-    float postFluxMixing_Cl             = 0.0;
-    float storeWaterMixing_DIN          = 0.0;
-    float storeWaterMixing_Cl           = 0.0;
-    float postStoreWaterMixing_DIN      = 0.0;
-    float postStoreWaterMixing_Cl       = 0.0;
-    float DINTotalInMixing              = 0.0;
-    float ClTotalInMixing               = 0.0;
-    float flowPathRemovalMixing_DIN     = 0.0;
-    float flowPathRemovalMixing_Cl      = 0.0;
-    float postConcMixing_DIN            = 0.0;
-    float postConcMixing_Cl             = 0.0;
-    float massBalanceMixing_DIN         = 0.0;
-    float massBalanceMixing_Cl          = 0.0;  
-    float preConcMixing_DIN             = 0.0;
-    float preConcMixing_Cl              = 0.0;
-    float preFlux_DIN                   = 0.0;
-    float storeWater_DIN                = 0.0;
-    float preFlux_Cl                    = 0.0;
-    float storeWater_Cl                 = 0.0;
-    float preFlux_DOC                   = 0.0;
-    float storeWater_DOC                = 0.0;
-    float runoffConc_DIN                = 0.0;
-    float runoffConc_Cl                 = 0.0;
-    float DOCTotalIn                    = 0.0;
-    float DINTotalIn                    = 0.0;
-    float ClTotalIn                     = 0.0;
-    float preConc_DIN                   = 0.0;
-    float preConc_DOC                   = 0.0;
-    float preConc_Cl                    = 0.0;
+    float imp                           = 0.0;  // proportion impervious
+    float human                         = 0.0;  // proportion human land use
+    float preFluxMixing_DIN             = 0.0;  // kg/d
+    float preFluxMixing_Cl              = 0.0;  // kg/d
+    float postFluxMixing_DIN            = 0.0;  // kg/d
+    float postFluxMixing_Cl             = 0.0;  // kg/d
+    float storeWaterMixing_DIN          = 0.0;  // kg/d
+    float storeWaterMixing_Cl           = 0.0;  // kg/d
+    float postStoreWaterMixing_DIN      = 0.0;  // kg/d
+    float postStoreWaterMixing_Cl       = 0.0;  // kg/d
+    float DINTotalInMixing              = 0.0;  // kg/d
+    float ClTotalInMixing               = 0.0;  // kg/d
+    float flowPathRemovalMixing_DIN     = 0.0;  // kg/d
+    float flowPathRemovalMixing_Cl      = 0.0;  // kg/d
+    float postConcMixing_DIN            = 0.0;  // kg/d
+    float postConcMixing_Cl             = 0.0;  // kg/d
+    float massBalanceMixing_DIN         = 0.0;  // kg/d
+    float massBalanceMixing_Cl          = 0.0;  // kg/d
+    float preConcMixing_DIN             = 0.0;  // kg/d
+    float preConcMixing_Cl              = 0.0;  // kg/d
+    float preFlux_DIN                   = 0.0;  // kg/d
+    float storeWater_DIN                = 0.0;  // kg/d
+    float preFlux_Cl                    = 0.0;  // kg/d
+    float storeWater_Cl                 = 0.0;  // kg/d
+    float preFlux_DOC                   = 0.0;  // kg/d
+    float storeWater_DOC                = 0.0;  // kg/d
+    float runoffConc_DIN                = 0.0;  // mg/L
+    float runoffConc_Cl                 = 0.0;  // mg/L
+    float DOCTotalIn                    = 0.0;  // kg/d
+    float DINTotalIn                    = 0.0;  // kg/d
+    float ClTotalIn                     = 0.0;  // kg/d
+    float preConc_DIN                   = 0.0;  // mg/L
+    float preConc_DOC                   = 0.0;  // mg/L
+    float preConc_Cl                    = 0.0;  // mg/L
     float Vf                            = 35.0; // m/yr
-    float HL                            = 0.0;
-    float width                         = 0.0;
-    float removal                       = 0.0;
-    float totalMassRemoved_DIN          = 0.0;
-    float totalMassRemoved_DOC          = 0.0;
-    float totalMassRemoved_Cl           = 0.0;
-    float flowPathRemoval_DOC           = 0.0;
-    float flowPathRemoval_DIN           = 0.0;
-    float flowPathRemoval_Cl            = 0.0;
-    float postConc_DIN                  = 0.0;
-    float postConc_DOC                  = 0.0;
-    float postConc_Cl                   = 0.0;
-    float postFlux_DIN                  = 0.0;
-    float postFlux_DOC                  = 0.0;
-    float postFlux_Cl                   = 0.0;
-    float postStoreWater_DOC            = 0.0;
-    float postStoreWater_DIN            = 0.0;
-    float postStoreWater_Cl             = 0.0;
-    float massBalance_DOC               = 0.0;
-    float massBalance_DIN               = 0.0;
-    float massBalance_Cl                = 0.0;
-    float localLoad_DIN                 = 0.0;
-    float localLoad_Cl                  = 0.0;
-    float order                         = 0.0;
-    float length                        = 0.0;
-    float ClTotalInMixing_Conc          = 0.0;
+    float HL                            = 0.0;  // m/d
+    float width                         = 0.0;  // m
+    float removal                       = 0.0;  // proportional removal
+    float totalMassRemoved_DIN          = 0.0;  // kg/d
+    float totalMassRemoved_DOC          = 0.0;  // kg/d
+    float totalMassRemoved_Cl           = 0.0;  // kg/d
+    float flowPathRemoval_DOC           = 0.0;  // kg/d
+    float flowPathRemoval_DIN           = 0.0;  // kg/d
+    float flowPathRemoval_Cl            = 0.0;  // kg/d
+    float postConc_DIN                  = 0.0;  // mg/L
+    float postConc_DOC                  = 0.0;  // mg/L
+    float postConc_Cl                   = 0.0;  // mg/L
+    float postFlux_DIN                  = 0.0;  // kg/d
+    float postFlux_DOC                  = 0.0;  // kg/d
+    float postFlux_Cl                   = 0.0;  // kg/d
+    float postStoreWater_DOC            = 0.0;  // kg/d
+    float postStoreWater_DIN            = 0.0;  // kg/d
+    float postStoreWater_Cl             = 0.0;  // kg/d
+    float massBalance_DOC               = 0.0;  // kg/d
+    float massBalance_DIN               = 0.0;  // kg/d
+    float massBalance_Cl                = 0.0;  // kg/d
+    float localLoad_DIN                 = 0.0;  // kg/d
+    float localLoad_Cl                  = 0.0;  // kg/d
+    float order                         = 0.0;  // river order
+    float length                        = 0.0;  // m
+    float ClTotalInMixing_Conc          = 0.0;  // kg/d
     
-    float DIN_m                         = 0.0;
-    float DIN_b                         = 0.0;
-    float Cl_m                          = 0.0;
-    float Cl_b                          = 0.0;
-    float DOC_m                         = 0.0;
-    float DOC_b                         = 0.0;
+    float DIN_m                         = 0.0;  // slope DIN
+    float DIN_b                         = 0.0;  // intercept DIN
+    float Cl_m                          = 0.0;  // slope chloride
+    float Cl_b                          = 0.0;  // intercept chloride
+    float DOC_m                         = 0.0;  // slope DOC
+    float DOC_b                         = 0.0;  // intercept DOC
     
  //             localLoad_DOC  	     = MFVarGetFloat (_MDInLocalLoad_DOCID,      itemID, 0.0); // kg/day TEM inputs
  //             localLoad_POC        = MFVarGetFloat (_MDInLitterFall_POCID,     itemID, 0.0); // kg/day TEM inputs
@@ -186,45 +185,44 @@ static void _MDDOC (int itemID) {
  //             storeWaterMixing_POC = MFVarGetFloat (_MDStoreWaterMixing_POCID, itemID, 0.0); // kg/day TEM inputs
  
                 runoffVol            = MFVarGetFloat (_MDInRunoffVolumeID,       itemID, 0.0); // m3/s
-		waterStorageChange   = MFVarGetFloat (_MDInRiverStorageChgID,    itemID, 0.0);
-		waterStorage         = MFVarGetFloat (_MDInRiverStorageID,       itemID, 0.0);
+		waterStorageChange   = MFVarGetFloat (_MDInRiverStorageChgID,    itemID, 0.0); // m3/s
+		waterStorage         = MFVarGetFloat (_MDInRiverStorageID,       itemID, 0.0); // m3/s 
                 preFluxMixing_DOC    = MFVarGetFloat (_MDFluxMixing_DOCID,       itemID, 0.0); // kg/day 
                 storeWaterMixing_DOC = MFVarGetFloat (_MDStoreWaterMixing_DOCID, itemID, 0.0); // kg/day 
                 discharge            = MFVarGetFloat (_MDInDischargeID,          itemID, 0.0); // m3/sec, discharge leaving the grid cell, after routing!
                 dischargePre	     = MFVarGetFloat (_MDInDischarge0ID,         itemID, 0.0); // m3/sec, discharge from upstream PLUS local runoff, before routing!
                 DIN                  = MFVarGetFloat (_MDFlux_DIN_denitID,       itemID, 0.0); // to start DIN model 
- //               totalEvap            = MFVarGetFloat (_MDInTotalEvaporationID,   itemID, 0.0); // m3/day
                 wetlands             = MFVarGetFloat (_MDInWetlandsID,           itemID, 0.0); // proportion wetlands
-                order                = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);
-                DIN_m                = MFVarGetFloat (_MDInDINmID,               itemID, 0.0);
-                DIN_b                = MFVarGetFloat (_MDInDINbID,               itemID, 0.0);
-                DOC_m                = MFVarGetFloat (_MDInDOCmID,               itemID, 0.0);
-                DOC_b                = MFVarGetFloat (_MDInDOCbID,               itemID, 0.0);
-                Cl_m                 = MFVarGetFloat (_MDInClmID,                itemID, 0.0);
-                Cl_b                 = MFVarGetFloat (_MDInClbID,                itemID, 0.0);
+                order                = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0); // strahler order
+                DIN_m                = MFVarGetFloat (_MDInDINmID,               itemID, 0.0); // slope DIN
+                DIN_b                = MFVarGetFloat (_MDInDINbID,               itemID, 0.0); // intercept DIN
+                DOC_m                = MFVarGetFloat (_MDInDOCmID,               itemID, 0.0); // slope DOC
+                DOC_b                = MFVarGetFloat (_MDInDOCbID,               itemID, 0.0); // intercept DOC
+                Cl_m                 = MFVarGetFloat (_MDInClmID,                itemID, 0.0); // slope chloride
+                Cl_b                 = MFVarGetFloat (_MDInClbID,                itemID, 0.0); // intercept chloride
 
                 // New Variables //
                 
                 human                = MFVarGetFloat (_MDInHumanLandUseID,       itemID, 0.0);  // percent human land use
                 imp                  = MFVarGetFloat (_MDInImpFractionID,        itemID, 0.0);  // proportion impervious surface
-                preFluxMixing_DIN    = MFVarGetFloat (_MDFluxMixing_DINID,       itemID, 0.0); // kg/day 
-                preFluxMixing_Cl     = MFVarGetFloat (_MDFluxMixing_ClID,        itemID, 0.0); // kg/day 
-                storeWaterMixing_DIN = MFVarGetFloat (_MDStoreWaterMixing_DINID, itemID, 0.0); // kg/day 
-                storeWaterMixing_Cl  = MFVarGetFloat (_MDStoreWaterMixing_ClID,  itemID, 0.0); // kg/day       
-                preFlux_DIN          = MFVarGetFloat (_MDFlux_DINID,             itemID, 0.0);	 // kg/day RJS 091108
-                storeWater_DIN       = MFVarGetFloat (_MDStoreWater_DINID,       itemID, 0.0);	 // kg/day RJS 091108
-                preFlux_Cl           = MFVarGetFloat (_MDFlux_ClID,              itemID, 0.0);	 // kg/day RJS 091108
-                storeWater_Cl        = MFVarGetFloat (_MDStoreWater_ClID,        itemID, 0.0);	 // kg/day RJS 091108
-                preFlux_DOC          = MFVarGetFloat (_MDFlux_DOCID,             itemID, 0.0);	 // kg/day RJS 091108
-                storeWater_DOC       = MFVarGetFloat (_MDStoreWater_DOCID,       itemID, 0.0);	 // kg/day RJS 091108
-                width	             = MFVarGetFloat (_MDInRiverWidthID,    	 itemID, 0.0);	 // m			// moved here 031209
+                preFluxMixing_DIN    = MFVarGetFloat (_MDFluxMixing_DINID,       itemID, 0.0);  // kg/day 
+                preFluxMixing_Cl     = MFVarGetFloat (_MDFluxMixing_ClID,        itemID, 0.0);  // kg/day 
+                storeWaterMixing_DIN = MFVarGetFloat (_MDStoreWaterMixing_DINID, itemID, 0.0);  // kg/day 
+                storeWaterMixing_Cl  = MFVarGetFloat (_MDStoreWaterMixing_ClID,  itemID, 0.0);  // kg/day       
+                preFlux_DIN          = MFVarGetFloat (_MDFlux_DINID,             itemID, 0.0);	// kg/day RJS 091108
+                storeWater_DIN       = MFVarGetFloat (_MDStoreWater_DINID,       itemID, 0.0);	// kg/day RJS 091108
+                preFlux_Cl           = MFVarGetFloat (_MDFlux_ClID,              itemID, 0.0);	// kg/day RJS 091108
+                storeWater_Cl        = MFVarGetFloat (_MDStoreWater_ClID,        itemID, 0.0);	// kg/day RJS 091108
+                preFlux_DOC          = MFVarGetFloat (_MDFlux_DOCID,             itemID, 0.0);	// kg/day RJS 091108
+                storeWater_DOC       = MFVarGetFloat (_MDStoreWater_DOCID,       itemID, 0.0);	// kg/day RJS 091108
+                width	             = MFVarGetFloat (_MDInRiverWidthID,    	 itemID, 0.0);	// m			// moved here 031209
                 length               = MFModelGetLength(itemID) / 1000;
                 
                 
                 
-                waterStoragePrev     = waterStorage - waterStorageChange;                               // m3/sec     
-                waterTotalVolume     = discharge * 86400;                       // m3/d
-                HL                   = discharge > 0.0001 ? discharge / (width * length) * 86400 : 0.0;                // m/d
+                waterStoragePrev     = waterStorage - waterStorageChange;                                    // m3/sec     
+                waterTotalVolume     = discharge * 86400;                                                    // m3/d
+                HL                   = discharge > 0.0001 ? discharge / (width * length) * 86400 : 0.0;      // m/d
  //               runoffConc_DOC	     = runoffVol > 0.0 ? (localLoad_DOC * 1000000) / (runoffVol * 86400 * 1000) : 0.0;	// TEM INPUTS
  //               DOCTotalInMixing     = localLoad_DOC + preFluxMixing_DOC + storeWaterMixing_DOC;        // kg/day                TEM INPUTS
   //              if (itemID == 100) printf("HL = %f, width = %f, discharge = %f, length = %f\n", HL, width, discharge, length);
@@ -232,47 +230,47 @@ static void _MDDOC (int itemID) {
   //              DOCTotalInMixing     = (runoffConc_DOC * runoffVol * 86400 / 1000) + preFluxMixing_DOC + storeWaterMixing_DOC;        // kg/day  
   //              POCTotalInMixing     = localLoad_POC + preFluxMixing_POC + storeWaterMixing_POC;        // kg/day
  
-                runoffConc_DOC         = pow(10, (DOC_m * (wetlands * 100)) + DOC_b) > 0.0 ? pow(10, (DOC_m * (wetlands * 100)) + DOC_b) : 0.0;
-                runoffConc_DIN         = pow(10, (DIN_m * (human) + DIN_b)) > 0.0 ? pow(10, (DIN_m * (human) + DIN_b)) : 0.0;
-                runoffConc_Cl          = (Cl_m * (imp * 100)) + Cl_b;
+                runoffConc_DOC         = pow(10, (DOC_m * (wetlands * 100)) + DOC_b) > 0.0 ? pow(10, (DOC_m * (wetlands * 100)) + DOC_b) : 0.0; // mg/L
+                runoffConc_DIN         = pow(10, (DIN_m * (human) + DIN_b)) > 0.0 ? pow(10, (DIN_m * (human) + DIN_b)) : 0.0;                   // mg/L
+                runoffConc_Cl          = (Cl_m * (imp * 100)) + Cl_b;                                                                           // mg/L
                 
 //                runoffConc_DOC         = 0.065 + 0.671 * (wetlands * 100);
 //                runoffConc_DIN         = (-0.016 + 0.013 * human) > 0.0 ? -0.016 + 0.013 * human : 0.0;
 //                runoffConc_Cl          = 3.83 + 8.9 * (imp * 100);
               
-                localLoad_DOC        = runoffConc_DOC * runoffVol * 86400 / 1000;
-                localLoad_DIN        = runoffConc_DIN * runoffVol * 86400 / 1000;
-                localLoad_Cl         = runoffConc_Cl * runoffVol * 86400 / 1000;
+                localLoad_DOC        = runoffConc_DOC * runoffVol * 86400 / 1000;                       // kg/d
+                localLoad_DIN        = runoffConc_DIN * runoffVol * 86400 / 1000;                       // kg/d
+                localLoad_Cl         = runoffConc_Cl * runoffVol * 86400 / 1000;                        // kg/d
                 
-                DOCTotalInMixing     = localLoad_DOC + preFluxMixing_DOC + storeWaterMixing_DOC;        // kg/day  
-                DINTotalInMixing     = localLoad_DIN + preFluxMixing_DIN + storeWaterMixing_DIN;        // kg/day  
-                ClTotalInMixing      = localLoad_Cl + preFluxMixing_Cl  + storeWaterMixing_Cl;         // kg/day  
+                DOCTotalInMixing     = localLoad_DOC + preFluxMixing_DOC + storeWaterMixing_DOC;        // kg/d  
+                DINTotalInMixing     = localLoad_DIN + preFluxMixing_DIN + storeWaterMixing_DIN;        // kg/d  
+                ClTotalInMixing      = localLoad_Cl + preFluxMixing_Cl  + storeWaterMixing_Cl;          // kg/d  
                 
-                ClTotalInMixing_Conc = ClTotalInMixing / waterTotalVolume * 1000;
+                ClTotalInMixing_Conc = ClTotalInMixing / waterTotalVolume * 1000;                       // mg/L
                 
-                DOCTotalIn           = localLoad_DOC + preFlux_DOC + storeWater_DOC;        // kg/day  
-                DINTotalIn           = localLoad_DIN + preFlux_DIN + storeWater_DIN;        // kg/day  
-                ClTotalIn            = localLoad_Cl + preFlux_Cl  + storeWater_Cl;          // kg/day  
+                DOCTotalIn           = localLoad_DOC + preFlux_DOC + storeWater_DOC;                    // kg/day  
+                DINTotalIn           = localLoad_DIN + preFlux_DIN + storeWater_DIN;                    // kg/day  
+                ClTotalIn            = localLoad_Cl + preFlux_Cl  + storeWater_Cl;                      // kg/day  
 
     //            printf("waterStoragePrev = %f, waterStorage = %f, waterStorageChange = %f\n", waterStoragePrev, waterStorage, waterStorageChange);
                 
                 if (discharge > 0.0000001) {
                 
-                  preConcMixing_DOC    = DOCTotalInMixing / waterTotalVolume * 1000;            
-                  preConcMixing_DIN    = DINTotalInMixing / waterTotalVolume * 1000;                                                   
-                  preConcMixing_Cl     = ClTotalInMixing / waterTotalVolume * 1000;          
+                  preConcMixing_DOC    = DOCTotalInMixing / waterTotalVolume * 1000;                    // mg/L      
+                  preConcMixing_DIN    = DINTotalInMixing / waterTotalVolume * 1000;                    // mg/L                        
+                  preConcMixing_Cl     = ClTotalInMixing / waterTotalVolume * 1000;                     // mg/L
                    
-                  preConc_DOC    = DOCTotalIn / waterTotalVolume * 1000;            
-                  preConc_DIN    = DINTotalIn / waterTotalVolume * 1000;                                                   
-                  preConc_Cl     = ClTotalIn  / waterTotalVolume * 1000;
+                  preConc_DOC    = DOCTotalIn / waterTotalVolume * 1000;                                // mg/L          
+                  preConc_DIN    = DINTotalIn / waterTotalVolume * 1000;                                // mg/L                                             
+                  preConc_Cl     = ClTotalIn  / waterTotalVolume * 1000;                                // mg/L
                   
                         if (order > 2.0) {
                   
-                                removal = 1.0 - pow(2.718281828, -1.0 * (Vf / 365) / HL);
+                                removal = 1.0 - pow(2.718281828, -1.0 * (Vf / 365) / HL);               // proportional removal
 
-                                totalMassRemoved_DIN = removal * DINTotalIn;
-                                totalMassRemoved_DOC = removal * DOCTotalIn;
-                                totalMassRemoved_Cl  = removal * ClTotalIn;
+                                totalMassRemoved_DIN = removal * DINTotalIn;                            // kg/d
+                                totalMassRemoved_DOC = removal * DOCTotalIn;                            // kg/d
+                                totalMassRemoved_Cl  = removal * ClTotalIn;                             // kg/d
                                         
  //                             preConcMixing_DOC    = DOCTotalInMixing / waterTotalVolume * 1000;            // TEM version
  //                             preConcMixing_POC    = POCTotalInMixing / waterTotalVolume * 1000;            // TEM version                                                                     
@@ -281,29 +279,29 @@ static void _MDDOC (int itemID) {
           
                         }
                   
-                   postConcMixing_DOC   = DOCTotalInMixing / waterTotalVolume * 1000;
-                   postConcMixing_DIN   = DINTotalInMixing / waterTotalVolume * 1000;
-                   postConcMixing_Cl    = ClTotalInMixing / waterTotalVolume * 1000;
+                   postConcMixing_DOC   = DOCTotalInMixing / waterTotalVolume * 1000;                   // mg/L
+                   postConcMixing_DIN   = DINTotalInMixing / waterTotalVolume * 1000;                   // mg/L
+                   postConcMixing_Cl    = ClTotalInMixing / waterTotalVolume * 1000;                    // mg/L
                                    
                 }
                 
                 else {
                   
-                  flowPathRemoval_DOC       = DOCTotalIn;
-                  flowPathRemoval_DIN       = DINTotalIn;
-                  flowPathRemoval_Cl        = ClTotalIn;                               
+                  flowPathRemoval_DOC       = DOCTotalIn;                       // kg/d
+                  flowPathRemoval_DIN       = DINTotalIn;                       // kg/d
+                  flowPathRemoval_Cl        = ClTotalIn;                        // kg/d
                     
-                  flowPathRemovalMixing_DOC = DOCTotalInMixing;
-                  flowPathRemovalMixing_DIN = DINTotalInMixing;
-                  flowPathRemovalMixing_Cl  = ClTotalInMixing;
+                  flowPathRemovalMixing_DOC = DOCTotalInMixing;                 // kg/d
+                  flowPathRemovalMixing_DIN = DINTotalInMixing;                 // kg/d
+                  flowPathRemovalMixing_Cl  = ClTotalInMixing;                  // kg/d
                   
-                  postConc_DOC        = 0.0;
-                  postConc_DIN        = 0.0;
-                  postConc_Cl         = 0.0;
+                  postConc_DOC        = 0.0;                                    // mg/L                            
+                  postConc_DIN        = 0.0;                                    // mg/L
+                  postConc_Cl         = 0.0;                                    // mg/L
                   
-                  postConcMixing_DOC        = 0.0;
-                  postConcMixing_DIN        = 0.0;
-                  postConcMixing_Cl         = 0.0;
+                  postConcMixing_DOC        = 0.0;                              // mg/L
+                  postConcMixing_DIN        = 0.0;                              // mg/L
+                  postConcMixing_Cl         = 0.0;                              // mg/L
                     
 //                flowPathRemovalMixing_DOC = DOCTotalInMixing;         // TEM version
 //                flowPathRemovalMixing_POC = POCTotalInMixing;         // TEM version
@@ -313,9 +311,9 @@ static void _MDDOC (int itemID) {
                 
                 }
    
-                postConc_DOC   = discharge > 0.0000001 ? (DOCTotalIn - totalMassRemoved_DOC - flowPathRemoval_DOC) / waterTotalVolume * 1000 : 0.0;
-                postConc_DIN   = discharge > 0.0000001 ? (DINTotalIn - totalMassRemoved_DIN - flowPathRemoval_DIN) / waterTotalVolume * 1000 : 0.0;
-                postConc_Cl    = discharge > 0.0000001 ? (ClTotalIn - totalMassRemoved_Cl - flowPathRemoval_Cl) / waterTotalVolume * 1000 : 0.0;                
+                postConc_DOC   = discharge > 0.0000001 ? (DOCTotalIn - totalMassRemoved_DOC - flowPathRemoval_DOC) / waterTotalVolume * 1000 : 0.0;     // mg/L
+                postConc_DIN   = discharge > 0.0000001 ? (DINTotalIn - totalMassRemoved_DIN - flowPathRemoval_DIN) / waterTotalVolume * 1000 : 0.0;     // mg/L
+                postConc_Cl    = discharge > 0.0000001 ? (ClTotalIn - totalMassRemoved_Cl - flowPathRemoval_Cl) / waterTotalVolume * 1000 : 0.0;        // mg/L 
                 
                 postFlux_DOC 	   = (discharge * MDConst_m3PerSecTOm3PerDay) * postConc_DOC / 1000;        // kg/day
                 postFlux_DIN       = (discharge * MDConst_m3PerSecTOm3PerDay) * postConc_DIN / 1000;        // kg/day
@@ -327,19 +325,19 @@ static void _MDDOC (int itemID) {
 
                 postFluxMixing_DOC 	 = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcMixing_DOC / 1000;	 // kg/day
                 postFluxMixing_DIN       = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcMixing_DIN / 1000;         // kg/day
-                postFluxMixing_Cl        = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcMixing_Cl / 1000;         // kg/day
+                postFluxMixing_Cl        = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcMixing_Cl / 1000;          // kg/day
 
                 postStoreWaterMixing_DOC = (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcMixing_DOC / 1000;	 // kg/day
                 postStoreWaterMixing_DIN = (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcMixing_DIN / 1000;      // kg/day
-                postStoreWaterMixing_Cl  = (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcMixing_Cl / 1000;      // kg/day
+                postStoreWaterMixing_Cl  = (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcMixing_Cl / 1000;       // kg/day
 
-                massBalanceMixing_DOC = (DOCTotalInMixing - (postFluxMixing_DOC + postStoreWaterMixing_DOC + flowPathRemovalMixing_DOC)) / DOCTotalInMixing;
-                massBalanceMixing_DIN = (DINTotalInMixing - (postFluxMixing_DIN + postStoreWaterMixing_DIN + flowPathRemovalMixing_DIN)) / DINTotalInMixing;
-                massBalanceMixing_Cl  = (ClTotalInMixing - (postFluxMixing_Cl + postStoreWaterMixing_Cl + flowPathRemovalMixing_Cl));
+                massBalanceMixing_DOC = (DOCTotalInMixing - (postFluxMixing_DOC + postStoreWaterMixing_DOC + flowPathRemovalMixing_DOC)) / DOCTotalInMixing;    // proportion of total kg in
+                massBalanceMixing_DIN = (DINTotalInMixing - (postFluxMixing_DIN + postStoreWaterMixing_DIN + flowPathRemovalMixing_DIN)) / DINTotalInMixing;    // proportion of total kg in
+                massBalanceMixing_Cl  = (ClTotalInMixing - (postFluxMixing_Cl + postStoreWaterMixing_Cl + flowPathRemovalMixing_Cl));                           // proportion of total kg in
 
-                massBalance_DOC = DOCTotalIn > 0.00001 ? (DOCTotalIn - (postFlux_DOC + postStoreWater_DOC + flowPathRemoval_DOC + totalMassRemoved_DOC)) / DOCTotalIn : 0.0;
-                massBalance_DIN = DINTotalIn > 0.00001 ? (DINTotalIn - (postFlux_DIN + postStoreWater_DIN + flowPathRemoval_DIN + totalMassRemoved_DIN)) / DINTotalIn : 0.0;
-                massBalance_Cl  = ClTotalIn > 0.00001 ? (ClTotalIn - (postFlux_Cl + postStoreWater_Cl + flowPathRemoval_Cl + totalMassRemoved_Cl)) : 0.0;
+                massBalance_DOC = DOCTotalIn > 0.00001 ? (DOCTotalIn - (postFlux_DOC + postStoreWater_DOC + flowPathRemoval_DOC + totalMassRemoved_DOC)) / DOCTotalIn : 0.0;    // proportion of total kg in
+                massBalance_DIN = DINTotalIn > 0.00001 ? (DINTotalIn - (postFlux_DIN + postStoreWater_DIN + flowPathRemoval_DIN + totalMassRemoved_DIN)) / DINTotalIn : 0.0;    // proportion of total kg in
+                massBalance_Cl  = ClTotalIn > 0.00001 ? (ClTotalIn - (postFlux_Cl + postStoreWater_Cl + flowPathRemoval_Cl + totalMassRemoved_Cl)) : 0.0;                       // proportion of total kg in
 
  //               if ((massBalance_DOC > 0.003) || (massBalance_DIN > 0.003) || (massBalance_Cl > 0.003)) {
  //                   printf("itemID = %d, %d-%d-%d, MB_DOC = %f, MB_DIN = %f, MB_Cl = %f\n",itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_DOC, massBalance_DIN, massBalance_Cl);                  
