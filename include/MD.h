@@ -472,6 +472,7 @@ extern "C" {
 #define MDVarDINb                                           "DINb"
 #define MDVarClm                                            "Clm"
 #define MDVarClb                                            "Clb"
+#define MDVarVf                                             "Vf"
 
     
 // DO2 Variables //
