@@ -31,6 +31,7 @@ OBJS = $(OBJ)/WBMMain.o\
        $(OBJ)/MDDischLevel3.o\
        $(OBJ)/MDDischLevel3Accum.o\
        $(OBJ)/MDDischLevel3Cascade.o\
+       $(OBJ)/MDDischLevel3CascadeCoeff.o\
        $(OBJ)/MDDischLevel3Muskingum.o\
        $(OBJ)/MDDischLevel3MuskingumCoeff.o\
        $(OBJ)/MDDischMean.o\
