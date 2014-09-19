@@ -118,7 +118,7 @@ static void _MDSpecCond (int itemID) {
         if ( (massBalance_SC > 0.001)) {
            printf("itemID = %d, %d-%d-%d, MB_SC = %f\n",itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_SC);
            printf("\tTotalIn: %f, Local: %f , UpFlux: %f, InStore: %f\n",SCTotalIn,localLoad_SC,preFlux_SC,storeWater_SC);
-           printf("\tDownFlux: %f, OutStore: %f , flowPathRemove: %f\n",postFlux_SC,postStoreWater_SC,0.0);
+           printf("\tDownFlux: %f, discharge; %f, OutStore: %f , storage: %f\n",postFlux_SC,discharge, postStoreWater_SC,waterStorage);
         }
         // Debug prints
         //if ((itemID == 8310)) {
@@ -153,7 +153,8 @@ int MDSpecCondDef () {
 
         case MDcalculate:
         if (
-            ((_MDInDINFluxID                    = MDDINDef ()) == CMfailed) ||    
+//            ((_MDInDischargeID                  = MDDischargeDef()) == CMfailed ) ||
+            ((_MDInDINFluxID                    = MDDINDef ()) == CMfailed) ||     // Needed for merging with upstream
 	    ((_MDInWTempRiverID                 = MFVarGetID (MDVarWTemp_QxT,              "degC",      MFInput, MFState, MFBoundary)) == CMfailed)   ||
             ((_MDInRiverWidthID                 = MDRiverWidthDef ())     == CMfailed) ||
 //          ((_MDInLitterFall_POCID             = MDLitterFallDef ()) == CMfailed) ||
@@ -161,7 +162,7 @@ int MDSpecCondDef () {
             ((_MDInDischarge0ID                 = MFVarGetID (MDVarDischarge0,                               "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||	
 	    ((_MDInDischargeID                  = MFVarGetID (MDVarDischarge,                                "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDInRiverStorageID               = MFVarGetID (MDVarRiverStorage,                           "m3/day",    MFInput,  MFState, MFInitial))    == CMfailed) ||	
-                ((_MDInBaseFlowID                   = MFVarGetID (MDVarBaseFlow,                                  "mm",    MFInput,  MFFlux,MFBoundary))    == CMfailed) ||
+            ((_MDInBaseFlowID                   = MFVarGetID (MDVarBaseFlow,                                  "mm",    MFInput,  MFFlux,MFBoundary))    == CMfailed) ||
             ((_MDInStormRunoffTotalID           = MFVarGetID (MDVarStormRunoffTotal,                          "mm",   MFInput, MFFlux, MFBoundary))  == CMfailed) ||
             ((_MDInRunoffPoolReleaseID          = MFVarGetID (MDVarRunoffPoolRelease,                        "mm",  MFInput, MFFlux, MFBoundary))  == CMfailed) ||
             ((_MDInAirTemperatureID             = MFVarGetID (MDVarAirTemperature,         "degC",       MFInput,  MFState, MFBoundary)) == CMfailed) ||
