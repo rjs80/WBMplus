@@ -231,13 +231,13 @@ static void _MDDOC (int itemID) {
   //              DOCTotalInMixing     = (runoffConc_DOC * runoffVol * 86400 / 1000) + preFluxMixing_DOC + storeWaterMixing_DOC;        // kg/day  
   //              POCTotalInMixing     = localLoad_POC + preFluxMixing_POC + storeWaterMixing_POC;        // kg/day
  
-                runoffConc_DOC         = pow(10, (DOC_m * (wetlands * 100)) + DOC_b) > 0.0 ? pow(10, (DOC_m * (wetlands * 100)) + DOC_b) : 0.0; // mg/L
-                runoffConc_DIN         = pow(10, (DIN_m * (human) + DIN_b)) > 0.0 ? pow(10, (DIN_m * (human) + DIN_b)) : 0.0;                   // mg/L
-                runoffConc_Cl          = (Cl_m * (imp * 100)) + Cl_b;                                                                           // mg/L
+ //               runoffConc_DOC         = pow(10, (DOC_m * (wetlands * 100)) + DOC_b) > 0.0 ? pow(10, (DOC_m * (wetlands * 100)) + DOC_b) : 0.0; // mg/L
+ //               runoffConc_DIN         = pow(10, (DIN_m * (human) + DIN_b)) > 0.0 ? pow(10, (DIN_m * (human) + DIN_b)) : 0.0;                   // mg/L
+ //               runoffConc_Cl          = (Cl_m * (imp * 100)) + Cl_b;                                                                           // mg/L
                 
-//                runoffConc_DOC         = 0.065 + 0.671 * (wetlands * 100);
-//                runoffConc_DIN         = (-0.016 + 0.013 * human) > 0.0 ? -0.016 + 0.013 * human : 0.0;
-//                runoffConc_Cl          = 3.83 + 8.9 * (imp * 100);
+                runoffConc_DOC         = 0.065 + 0.671 * (wetlands * 100);
+                runoffConc_DIN         = (-0.016 + 0.013 * human) > 0.0 ? -0.016 + 0.013 * human : 0.0;
+                runoffConc_Cl          = 3.83 + 8.9 * (imp * 100);
               
                 localLoad_DOC        = runoffConc_DOC * runoffVol * 86400 / 1000;                       // kg/d
                 localLoad_DIN        = runoffConc_DIN * runoffVol * 86400 / 1000;                       // kg/d
