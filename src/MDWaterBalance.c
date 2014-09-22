@@ -90,6 +90,7 @@ static int _MDInRiverStorageID  = MFUnset;
 static int _MDInMuskingumC0ID   = MFUnset;
 static int _MDInMuskingumC1ID   = MFUnset;
 static int _MDInMuskingumC2ID   = MFUnset;
+static int _MDInCascadeC0ID     = MFUnset;
 static int _MDInRiverStorChgID  = MFUnset;
 static int _MDInDischRJSID      = MFUnset;
 
@@ -182,9 +183,22 @@ static void _MDWaterBalance(int itemID) {
 	float QOut               = MFVarGetFloat (_MDInQOutID,          itemID, 0.0);
 	float QCur               = MFVarGetFloat (_MDInQCurID,          itemID, 0.0);
 	float storage            = MFVarGetFloat (_MDInRiverStorageID,  itemID, 0.0);
-        float C0                 = MFVarGetFloat (_MDInMuskingumC0ID,   itemID, 1.0);
-	float C1                 = MFVarGetFloat (_MDInMuskingumC1ID,   itemID, 0.0);
-	float C2                 = MFVarGetFloat (_MDInMuskingumC2ID,   itemID, 0.0);
+        float C0;
+        float C1;
+        float C2;
+        if (_MDInMuskingumC0ID != MFUnset) {
+            C0                 = MFVarGetFloat (_MDInMuskingumC0ID,   itemID, 1.0);
+            C1                 = MFVarGetFloat (_MDInMuskingumC1ID,   itemID, 0.0);
+            C2                 = MFVarGetFloat (_MDInMuskingumC2ID,   itemID, 0.0);
+        } else if (_MDInCascadeC0ID != MFUnset) {
+            C0                 = MFVarGetFloat (_MDInCascadeC0ID,   itemID, 1.0);
+            C1                 = 0.0;
+            C2                 = 1.-C0;
+        } else {
+            C0 = 1.0;
+            C1 = 0.0;
+            C2 = 0.0;
+        }
         float discharge          = MFVarGetFloat (_MDInDischargeID,     itemID, 0.0);
         float storageChg         = MFVarGetFloat (_MDInRiverStorChgID,  itemID, 0.0);
         float QOut_initial       = MFVarGetFloat (_MDInDischRJSID,      itemID, 0.0);
@@ -228,7 +242,7 @@ static void _MDWaterBalance(int itemID) {
 	float balance;
 	float balance2;
 	float balance2b;
-
+        
 	if (_MDInIrrGrossDemandID != MFUnset) { 
 		irrAreaFrac       = MFVarGetFloat (_MDInIrrAreaFracID,            itemID, 0.0);
 		irrGrossDemand    = MFVarGetFloat (_MDInIrrGrossDemandID,         itemID, 0.0);
@@ -287,24 +301,53 @@ static void _MDWaterBalanceInput (int itemID) {
          
 }
 
-enum { MDinput, MDcalculate, MDinput2};
 
 int MDWaterBalanceDef() {
+        enum { MDaccumulate, MDmuskingum, MDcascade };
+        int  RoptID = MFUnset;
+        const char *RoptStr, *RoptName = MDOptRouting;
+        const char *Roptions [] = { "accumulate", "muskingum", "cascade", (char *) NULL };
+        if ((RoptStr = MFOptionGet (RoptName)) != (char *) NULL) RoptID = CMoptLookup (Roptions, RoptStr, true);
+        
+        enum { MDinput, MDcalculate, MDinput2};
         int  optID = MFUnset;
 	const char *optStr, *optName = MDVarRunoff;
 	const char *options [] = { MDInputStr, MDCalculateStr, MDInput2Str, (char *) NULL };
-
+        
 	MFDefEntering ("WaterBalance");
         if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);
-	switch (optID) {
-            case MDcalculate: 	       
-	if ((                                  MDAccumBalanceDef     ()  == CMfailed) ||
+        switch (optID) {
+        
+        case MDcalculate:
+            // Build the calculation hierarchy
+        if ((                                  MDAccumBalanceDef     ()  == CMfailed) ||
 	    ((_MDInPrecipID                  = MDPrecipitationDef    ()) == CMfailed) ||
 	    ((_MDInDischargeID               = MDDischargeDef        ()) == CMfailed) || 
 	    ((_MDInSnowPackChgID             = MDSPackChgDef         ()) == CMfailed) ||
 	    ((_MDInSoilMoistChgID            = MDSoilMoistChgDef     ()) == CMfailed) ||
-	    ((_MDInRunoffID                  = MDRunoffDef           ()) == CMfailed) ||
-//	    ((_MDInEvaptrsID                 = MFVarGetID (MDVarEvapotranspiration,      	"mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
+	    ((_MDInRunoffID                  = MDRunoffDef           ()) == CMfailed)
+            ) return (CMfailed);
+            // Fill in the routing parameters            
+            switch (RoptID) {
+                case MDaccumulate:
+                    //Nothing to do
+                    break;
+                case MDmuskingum:
+                    if (
+                       ((_MDInMuskingumC0ID                  = MFVarGetID(MDVarMuskingumC0, MFNoUnit,MFInput,  MFState,  MFBoundary)) == CMfailed) ||
+                       ((_MDInMuskingumC1ID                  = MFVarGetID(MDVarMuskingumC1, MFNoUnit,MFInput,  MFState,  MFBoundary)) == CMfailed) ||
+                       ((_MDInMuskingumC2ID                  = MFVarGetID(MDVarMuskingumC2, MFNoUnit,MFInput,  MFState,  MFBoundary)) == CMfailed)
+                        )    return (CMfailed);
+                    break;
+                case MDcascade:
+                    if (
+                       ((_MDInCascadeC0ID                  = MFVarGetID(MDVarCascadeC0, MFNoUnit,MFInput,  MFState,  MFBoundary)) == CMfailed)
+                       ) return (CMfailed);
+                    break;
+            }
+            // Continue with remaining parameters and add function
+	if (
+//	    ((_MDInEvaptrsID                 = MFVarGetID (MDVarEvapotranspiration,      	"mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||    
 	    ((_MDInGrdWatChgID               = MFVarGetID (MDVarGroundWaterChange,       	"mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
 	    ((_MDInRunoffPoolChgID           = MFVarGetID (MDVarRunoffPoolChg,           	"mm",   MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
 	    ((_MDInRunoffPoolID              = MFVarGetID (MDVarRunoffPool,         		"mm", MFInput, MFState, MFInitial))  == CMfailed) ||
@@ -330,10 +373,7 @@ int MDWaterBalanceDef() {
 	    ((_MDInQCurID       	 	 = MFVarGetID (MDVarQCur,                     "m3/s",   MFInput,  MFState, MFInitial)) == CMfailed) ||   // RJS 100213
             ((_MDInQOutID       	 	 = MFVarGetID (MDVarQOut,                     "m3/s",   MFInput,  MFState, MFInitial)) == CMfailed) ||   // RJS 100213
             ((_MDInDischRJSID                    = MFVarGetID (MDVarDischRJS,                 "m3/s",   MFInput,  MFState, MFInitial)) == CMfailed) ||   // RJS 100213
-            ((_MDInMuskingumC0ID     	 	 = MFVarGetID (MDVarMuskingumC0,            MFNoUnit,   MFInput,  MFState, MFBoundary)) == CMfailed) ||   // RJS 100213
-            ((_MDInMuskingumC1ID     	 	 = MFVarGetID (MDVarMuskingumC1,            MFNoUnit,   MFInput,  MFState, MFBoundary)) == CMfailed) ||   // RJS 100213
-            ((_MDInMuskingumC2ID     	 	 = MFVarGetID (MDVarMuskingumC2,            MFNoUnit,   MFInput,  MFState, MFBoundary)) == CMfailed) ||   // RJS 100213
-       	    ((_MDInRiverStorChgID                = MFVarGetID (MDVarRiverStorageChg,  "m3",     MFInput, MFFlux,  MFBoundary)) == CMfailed) ||          // RJS 100213
+            ((_MDInRiverStorChgID                = MFVarGetID (MDVarRiverStorageChg,  "m3",     MFInput, MFFlux,  MFBoundary)) == CMfailed) ||          // RJS 100213
 	    ((_MDInRiverStorageID                = MFVarGetID (MDVarRiverStorage,     "m3",     MFInput, MFState, MFInitial))  == CMfailed) ||          // RJS 100213
             ((_MDInRunoffVolumeID                = MFVarGetID (MDVarRunoffVolume,      "m3/s", MFInput, MFState, MFBoundary)) == CMfailed) ||
 	    ((_MDInRainWaterSurplusID            = MFVarGetID (MDVarRainWaterSurplus,     		"mm", MFInput, MFFlux, MFBoundary)) == CMfailed) ||  
@@ -369,17 +409,19 @@ int MDWaterBalanceDef() {
             ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
 	    (MFModelAddFunction(_MDWaterBalance) == CMfailed))
 	    return (CMfailed);
-        break;      
-                case MDinput: 																										       			// RJS 061312
-                if (((_MDInRunoffID               = MDRunoffDef           ()) == CMfailed) ||			
-		    ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
-		    (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
-		break;	
-                case MDinput2: 																										       			// RJS 061312
-                if (((_MDInRunoffID               = MDRunoffDef           ()) == CMfailed) ||			
-		    ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
-		    (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
-		break;	
+        
+        break;
+        
+        case MDinput: 																										       			// RJS 061312
+        if (((_MDInRunoffID               = MDRunoffDef           ()) == CMfailed) ||			
+            ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
+            (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
+        break;	
+        case MDinput2: 																										       			// RJS 061312
+        if (((_MDInRunoffID               = MDRunoffDef           ()) == CMfailed) ||			
+            ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
+            (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
+        break;	
         default: MFOptionMessage (optName, optStr, options); return (CMfailed);
         }
 	MFDefLeaving ("WaterBalance");
