@@ -24,6 +24,7 @@
         <in>MDDischLevel3.c</in>
         <in>MDDischLevel3Accum.c</in>
         <in>MDDischLevel3Cascade.c</in>
+        <in>MDDischLevel3CascadeCoeff.c</in>
         <in>MDDischLevel3Muskingum.c</in>
         <in>MDDischLevel3MuskingumCoeff.c</in>
         <in>MDDischMean.c</in>
@@ -268,7 +269,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDChloride.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDChloride.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -357,6 +358,17 @@
         </cTool>
       </item>
       <item path="src/MDDischLevel3Cascade.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+          <incDir>
+            <pElem>../CMlib/include</pElem>
+            <pElem>../MFlib/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>_GNU_SOURCE</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="src/MDDischLevel3CascadeCoeff.c" ex="false" tool="0" flavor2="0">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -985,7 +997,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSpecCond.c" ex="false" tool="0" flavor2="0">
+      <item path="src/MDSpecCond.c" ex="false" tool="0" flavor2="2">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>

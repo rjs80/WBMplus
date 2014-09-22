@@ -43,7 +43,7 @@ extern "C" {
 #define MDOptSoilTemperature				 "SoilTemperature"
 #define MDOptAllWithdrawals					 "AllWithdrawals"
 #define MDOptSpecConductance                "SpecificConductance"               // SZ 08212014 (Only calculate implemented)
-
+#define MDOptCascade                        "Cascade"
 
 #define MDOptIrrigatedAreaMap                "IrrigatedAreaMap"
 #define MDOptSoilAvailableWaterCapacity		 "SoilWaterCapacity"
@@ -472,7 +472,9 @@ extern "C" {
 #define MDVarDINb                                           "DINb"
 #define MDVarClm                                            "Clm"
 #define MDVarClb                                            "Clb"
-
+#define MDVarVf                                             "Vf"
+#define MDVarSinuosity                                      "Sinuosity"
+#define MDVarCascadeC0                                      "CascadeC0"
     
 // DO2 Variables //
 #define MDVarRiverMassDO2					 "RiverMassDO2"				// RJS 111612
