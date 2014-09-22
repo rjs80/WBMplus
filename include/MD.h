@@ -872,6 +872,7 @@ int MDCParamLPMaxDef();
 int MDCParamZ0gDef();
 int MDDINDef();					// RJS 042513
 int MDDOCDef();                         // RJS 011914
+int MDDOCv2Def();                       // RJS 092214
 int MDSpecCondDef();                    // SZ 061014
 int MDChlorideDef();                    // SZ 061614
 int MDNitrgoenInputsDef();		// RJS 042513
