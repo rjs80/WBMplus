@@ -100,13 +100,13 @@ static void _MDDOCv2 (int itemID) {
                 width	             = MFVarGetFloat (_MDInRiverWidthID,    	 itemID, 0.0);	// m			// moved here 031209
                 length               = MFModelGetLength(itemID) / 1000;
                      
-                DOC_m                = MFVarGetFloat (_MDInDOCmID,               itemID, 0.0); // slope DOC
-                DOC_b                = MFVarGetFloat (_MDInDOCbID,               itemID, 0.0); // intercept DOC
+//                DOC_m                = MFVarGetFloat (_MDInDOCmID,               itemID, 0.0); // slope DOC
+//                DOC_b                = MFVarGetFloat (_MDInDOCbID,               itemID, 0.0); // intercept DOC
                 Vf                   = MFVarGetFloat (_MDInVfID,                 itemID, 0.0); // m/yr
                 
    
                 waterStoragePrev     = waterStorage - waterStorageChange;                                    // m3/sec     
-                waterTotalVolume     = discharge * 86400;                                                    // m3/d
+                waterTotalVolume     = (discharge + waterStorage) * 86400;                                   // m3/d
                 HL                   = discharge > 0.0001 ? discharge / (width * length) * 86400 : 0.0;      // m/d
 
                 
@@ -149,15 +149,22 @@ static void _MDDOCv2 (int itemID) {
                 postStoreWater_DOC       = (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConc_DOC / 1000;            // kg/day
                 postStoreWaterMixing_DOC = (waterStorage * MDConst_m3PerSecTOm3PerDay) * postConcMixing_DOC / 1000;	 // kg/day
 
-                massBalance_DOC       = DOCTotalIn > 0.00001 ? (DOCTotalIn - (postFlux_DOC + postStoreWater_DOC + flowPathRemoval_DOC + totalMassRemoved_DOC)) / DOCTotalIn : 0.0;    // proportion of total kg in
+                massBalance_DOC       = DOCTotalIn > 0.00001 ? (DOCTotalIn - (postFlux_DOC + postStoreWater_DOC + flowPathRemoval_DOC + totalMassRemoved_DOC)) : 0.0;    // proportion of total kg in
                 massBalanceMixing_DOC = (DOCTotalInMixing - (postFluxMixing_DOC + postStoreWaterMixing_DOC + flowPathRemovalMixing_DOC)) / DOCTotalInMixing;                          // proportion of total kg in
 
-                if (massBalance_DOC > 0.003) {
+                if (massBalance_DOC > 0.00001) {
                     printf("itemID = %d, %d-%d-%d, MB_DOC = %f\n",itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_DOC);                  
                     printf("Q = %f, DOCTotalIn=%f, postFlux_DOC=%f, postStoreWater_DOC=%f, flowPathRemoval_DOC=%f\n",discharge,DOCTotalIn,postFlux_DOC,postStoreWater_DOC,flowPathRemoval_DOC);
                 }              
                 
   
+  //              if ((itemID == 20) || (itemID == 9)) {
+  //                  printf("*** itemID = %d, %d-%d-%d, preFlux_DOC = %f, localLoad_DOC = %f, storeWater_DOC = %f\n",itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), preFlux_DOC, localLoad_DOC, storeWater_DOC);
+  //                  printf("totalMassRemoved_DOC = %f, flowPathRemoval_DOC = %f, postFlux_DOC = %f, postStoreWater_DOC = %f\n", totalMassRemoved_DOC, flowPathRemoval_DOC, postFlux_DOC, postStoreWater_DOC);
+  //                  printf("dischargePre = %f, discharge = %f, waterStorage = %f, waterStoragePrev = %f\n", dischargePre, discharge, waterStorage, waterStoragePrev);
+  //                  printf("MB_DOC = %f\n", massBalance_DOC);
+  //              }
+                
                 MFVarSetFloat (_MDFluxMixing_DOCID,             itemID, postFluxMixing_DOC);
                 MFVarSetFloat (_MDFlux_DOCID,                   itemID, postFlux_DOC);
                 MFVarSetFloat (_MDOutLocalLoadDOCID,            itemID, localLoad_DOC);
