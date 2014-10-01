@@ -129,12 +129,12 @@ static void _MDRunoffInput2 (int itemID) {														// RJS 061312  ADDED THI
         MFVarSetFloat (_MDOutStormRunoffTotalID,  itemID, stormRunoffTotal);
 }		
  
-enum { MDinput, MDcalculate, MDcorrected, MDinput2 };
+enum { MDinput, MDcalculate, MDcorrected, MDinput2 , MDspatial };
 
 int MDRunoffDef () {
 	int  optID = MFUnset;
 	const char *optStr, *optName = MDVarRunoff;
-	const char *options [] = { MDInputStr, MDCalculateStr, "corrected", MDInput2Str, (char *) NULL };
+	const char *options [] = { MDInputStr, MDCalculateStr, "corrected", MDInput2Str, "spatially", (char *) NULL };
 
 	if (_MDOutRunoffID != MFUnset) return (_MDOutRunoffID);
 
@@ -170,6 +170,7 @@ int MDRunoffDef () {
 			if ((_MDInRunoffCorrID  = MFVarGetID (MDVarRunoffCorretion, MFNoUnit, MFInput,  MFState, MFBoundary)) == CMfailed)
 				return (CMfailed);
 			break;	// RJS 082812
+                case MDspatial: // SZ 10012014 (Spatially varying baseflow)
 		case MDcalculate:		
 			if (((_MDInBaseFlowID   = MDBaseFlowDef   ()) == CMfailed) ||
 //			    ((_MDInSurfRunoffID = MDSurfRunoffDef ()) == CMfailed) ||				//commented out RJS 042612

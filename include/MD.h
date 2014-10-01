@@ -21,6 +21,7 @@ extern "C" {
 #define MDInputStr     "input"
 #define MDLookupStr    "lookup"
 #define MDCalculateStr "calculate"
+#define MDCalculate2Str "calculate2"
 #define MDInput2Str     "input2"
 
 // Options
@@ -51,6 +52,9 @@ extern "C" {
 #define MDOptThermalInputs2					 "ThermalInputs2"		// RJS 062012
 #define MDOptThermalInputs3					 "ThermalInputs3"		// RJS 112712
 #define MDOptHydroPower                                 "HydroPower"
+
+#define MDOptSnowMeltCalculation            "SnowMeltCalculation"   // SZ 09222014
+#define MDOptImperviousMeltCalc             "ImperviousSnowMelt"    // SZ 09242014
 
 #define MDVarAccBalance                      "AccumBalance"
 #define MDVarAccPrecipitation                "AccumPrecipitation"
@@ -512,6 +516,7 @@ extern "C" {
 #define MDVarLocalLoadSC                                "LocalLoadSC"
 #define MDVarPostSpecCond                               "PostSpecCond"
 #define MDVarStoreWaterSC                               "StoreWaterSC"
+#define MDVarSurfRunoffPoolSC                           "SurfRunoffPoolSC"
 #define MDVarFluxSC                                     "FluxSC"
     
     
@@ -547,6 +552,9 @@ extern "C" {
 #define MDVarSnowPack                        "SnowPack"
 #define MDVarSnowPackChange                  "SnowPackChange"
 #define MDVarSnowPackDays                    "SnowPackDays"
+#define MDVarSnowMeltFactor                  "SnowMeltFactor"                   // SZ 09222014
+#define MDVarSnowPackAge                     "SnowPackAge"                      // SZ 09222014 
+#define MDVarImpSnowFallRunoff               "ImpSnowFallRunoff"                // SZ 09242014
 #define MDVarSoilAvailWaterCap               "AvailableWaterCapacity"
 #define MDVarSoilAvailWaterCapInput	     "AWCInput"                         // RJS 091713
 #define MDVarSoilFieldCapacity               "FieldCapacity"
@@ -785,6 +793,7 @@ extern "C" {
 #define MDParGrossRadTAU                     "GrossRadTAU"
 #define MDParGroundWatBETA                   "GroundWaterBETA"
 #define MDParSurfWaterBETA2					 "SurfWaterBETA2"			//RJS 042612
+#define MDVarSurfWaterBETA2                  "SurfWaterBETA2"                                           //SZ - Spatially varying parameterization
 #define MDParSoilMoistALPHA                  "SoilMoistureALPHA"
 #define MDParInfiltrationFrac                "InfiltrationFraction"
 #define MDParSurfRunoffPoolBETA			 	 "SurfacePoolBETA"			//RJS 042012
@@ -881,6 +890,7 @@ int MDDischLevel2Def();
 int MDDischLevel3Def();
 int MDDischLevel3AccumulateDef();
 int MDDischLevel3CascadeDef();
+int MDDischLevel3CascadeCoeffDef();     // SZ 2014-09-12
 int MDDischLevel3MuskingumDef();
 int MDDischLevel3MuskingumCoeffDef();
 int MDDischMeanDef();

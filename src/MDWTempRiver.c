@@ -56,7 +56,7 @@ static void _MDWTempRiver (int itemID) {
 
 }
 
-enum { MDcalculate, MDinput, MDinput2 };         // RJS 060214
+enum { MDcalculate, MDinput, MDinput2 , MDspatial };         // RJS 060214 // SZ 10012014
 int MDWTempRiverDef () {
 	const char *optStr;
         
@@ -66,12 +66,13 @@ int MDWTempRiverDef () {
         
         int  optID = MFUnset;                                                                                   // RJS 060214
 	const char *optName = MDVarRunoff;                                                                      // RJS 060214
-	const char *options [] = { MDCalculateStr, MDInputStr, MDInput2Str, (char *) NULL };                    // RJS 060214
+	const char *options [] = { MDCalculateStr, MDInputStr, MDInput2Str, "spatially", (char *) NULL };                    // RJS 060214
     
         if ((optStr  = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);    // RJS 060214
 
         
         switch (optID) {
+            case MDspatial: // SZ10012014 (Spatially variable baseflow)
         case MDcalculate: 	
             
 	if (

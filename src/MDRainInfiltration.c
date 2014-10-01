@@ -74,7 +74,7 @@ static void _MDRainInfiltrationSaturation (int itemID){
 		MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, MFVarGetFloat(_MDOutRainInfiltrationID, itemID,0.0));
 }
 
-enum { MDinput, MDinput2, MDsimple, MDvarying,MDSpatially};
+enum { MDinput, MDinput2, MDsimple, MDvarying, MDspatial };
 
 int MDRainInfiltrationDef () {
 	int  optID = MFUnset;
@@ -119,11 +119,9 @@ int MDRainInfiltrationDef () {
 
 	}
 	
-	
-	
 	switch (optID) {
 		case MDinput:
-			_MDOutRainInfiltrationID = MFVarGetID (MDVarRainInfiltration, "mm", MFInput, MFFlux, MFBoundary);
+			_MDOutRainInfiltrationID = MFVarGetID (MDVarRainInfiltration, "mm", MFInput, MFState, MFBoundary);
 			break;
                 case MDinput2:
                     if (_MDInfiltrationFractionID != MFUnset) {
@@ -140,13 +138,13 @@ int MDRainInfiltrationDef () {
 			    ((_MDOutRainInfiltrationID     = MFVarGetID (MDVarRainInfiltration,     "mm", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
                             (MFModelAddFunction (_MDRainInfiltrationSimple2) == CMfailed)) return (CMfailed);	
                         break;
-		case MDSpatially:
-			_MDInfiltrationFractionID = MFVarGetID (MDParInfiltrationFracSpatial, "mm", MFInput, MFState, MFBoundary);
-			break;		// RJS 082812
+		case MDspatial:
+			if (( _MDInfiltrationFractionID = MFVarGetID (MDParInfiltrationFrac, "mm", MFInput, MFState, MFBoundary)) == CMfailed) return (CMfailed);
+			//break;		// RJS 082812 // SZ commented out 09292014
 		case MDsimple:
 		case MDvarying:
 			if ((_MDInRainWaterSurplusID = MDRainWaterSurplusDef ()) == CMfailed) return (CMfailed);
-			if (_MDInfiltrationFractionID != MFUnset) {
+			if (_MDInfiltrationFractionID == MFUnset) {
 				if (((optStr = MFOptionGet (MDParInfiltrationFrac))  != (char *) NULL) &&
 				    (sscanf (optStr,"%f",&par) == 1))
 					_MDInfiltrationFrac = par;
