@@ -19,6 +19,7 @@
         <in>MDDIN.c</in>
         <in>MDDO2.c</in>
         <in>MDDOC.c</in>
+        <in>MDDOCv2.c</in>
         <in>MDDischLevel1.c</in>
         <in>MDDischLevel2.c</in>
         <in>MDDischLevel3.c</in>
@@ -269,7 +270,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDChloride.c" ex="false" tool="0" flavor2="2">
+      <item path="src/MDChloride.c" ex="false" tool="0" flavor2="0">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -303,6 +304,17 @@
         </cTool>
       </item>
       <item path="src/MDDOC.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+          <incDir>
+            <pElem>../CMlib/include</pElem>
+            <pElem>../MFlib/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>_GNU_SOURCE</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="src/MDDOCv2.c" ex="false" tool="0" flavor2="0">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
@@ -997,7 +1009,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="src/MDSpecCond.c" ex="false" tool="0" flavor2="2">
+      <item path="src/MDSpecCond.c" ex="false" tool="0" flavor2="0">
         <cTool>
           <incDir>
             <pElem>../CMlib/include</pElem>
