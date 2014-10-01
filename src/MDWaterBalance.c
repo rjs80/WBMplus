@@ -270,10 +270,10 @@ static void _MDWaterBalance(int itemID) {
 	balance2 = precip + irrUptakeRiver + irrUptakeExcess - (etp + runoff + grdWaterChg + snowPackChg + soilMoistChg + smallResStorageChg + runoffPoolChg);
 //	printf("d = %d, m = %d, y = %d, waterbalance = %f\n", MFDateGetCurrentDay(), MFDateGetCurrentMonth(), MFDateGetCurrentYear(), balance2);
 
-/*
+
  //       if (MFDateGetCurrentYear() >= 2000) {
-        if ((itemID == 1063) || (itemID == 1063)) {
-//	if (fabs (balance2) > 0.0001 ) {
+ //       if ((itemID == 1063) || (itemID == 1063)) {
+	if (fabs (balance2) > 0.0001 ) {
 //		printf ("TIEM %i %d %d %d WaterBalance! %f precip %f etp = %f runoff = %f grdWaterChg = %f snowPackChg = %f soilMoistChg = %f runoffPoolChg %f\n runoffPool = %f, runoffPoolRecharge = %f, runoffPoolRelease = %f\n", itemID, MFDateGetCurrentMonth(), MFDateGetCurrentDay(), MFDateGetCurrentYear(), balance2,precip,etp,runoff,grdWaterChg,snowPackChg,soilMoistChg,runoffPoolChg,runoffPool, runoffPoolRecharge, runoffPoolRelease);
 		printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), balance2b, balance2, awCap, impAreaFrac, h2oAreaFrac, precip);
 		printf ("%f, %f, %f, %f,", snowPackChg, snowfall, snowmelt, snowpack);
@@ -287,7 +287,6 @@ static void _MDWaterBalance(int itemID) {
                 printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", propStW_RO, propSuW_RO, propGrW_RO, propStW_Qin, propSuW_Qin, propGrW_Qin, propStW_RSin, propSuW_RSin, propGrW_RSin, StW_Qout, SuW_Qout, GrW_Qout, propStW_RSout, propSuW_RSout, propGrW_RSout, propFlag_RO, propFlag_Qin, propFlag_RSin, Flag_Qout, propFlag_RSout);
         }
 //        }  
-*/
    
 	MFVarSetFloat (_MDOutWaterBalanceID, itemID , balance);
 }
@@ -308,15 +307,15 @@ int MDWaterBalanceDef() {
         const char *Roptions [] = { "accumulate", "muskingum", "cascade", (char *) NULL };
         if ((RoptStr = MFOptionGet (RoptName)) != (char *) NULL) RoptID = CMoptLookup (Roptions, RoptStr, true);
         
-        enum { MDinput, MDcalculate, MDinput2};
+        enum { MDinput, MDcalculate, MDinput2, MDspatial };
         int  optID = MFUnset;
 	const char *optStr, *optName = MDVarRunoff;
-	const char *options [] = { MDInputStr, MDCalculateStr, MDInput2Str, (char *) NULL };
+	const char *options [] = { MDInputStr, MDCalculateStr, MDInput2Str, "spatially",(char *) NULL };
         
 	MFDefEntering ("WaterBalance");
         if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);
         switch (optID) {
-        
+        case MDspatial: // SZ 10012014 (spatially variable baseflow)
         case MDcalculate:
             // Build the calculation hierarchy
         if ((                                  MDAccumBalanceDef     ()  == CMfailed) ||

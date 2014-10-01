@@ -22,6 +22,7 @@ static int _MDInIrrGrossDemandID     = MFUnset;
 static int _MDInIrrReturnFlowID      = MFUnset;
 static int _MDInIrrAreaFracID        = MFUnset;
 static int _MDInSmallResReleaseID    = MFUnset;
+static int _MDInGroundWatBETAID      = MFUnset;
 // Output
 static int _MDOutGrdWatID            = MFUnset;
 static int _MDOutGrdWatChgID         = MFUnset;
@@ -82,7 +83,7 @@ static void _MDBaseFlow (int itemID) {
 		else irrUptakeExt = irrDemand;
 		MFVarSetFloat (_MDOutIrrUptakeExternalID, itemID, irrUptakeExt);
 	}
-
+        _MDGroundWatBETA = _MDInGroundWatBETAID == MFUnset ? _MDGroundWatBETA : MFVarGetFloat(_MDInGroundWatBETAID, itemID, _MDGroundWatBETA);
 	baseFlow    = grdWater * _MDGroundWatBETA;
 	grdWater    = grdWater - baseFlow;
 	grdWaterChg = grdWater - grdWaterChg;
@@ -133,7 +134,7 @@ static void _MDBaseFlow2 (int itemID) {
 	MFVarSetFloat (_MDOutBaseFlowID,       itemID, baseFlow);
 }
 
-enum { MDcalculate, MDinput2 };         // RJS 060214
+enum { MDcalculate, MDinput2 , MDspatial};         // RJS 060214 // SZ 100114
 
 int MDBaseFlowDef () {
 	float par;
@@ -141,16 +142,21 @@ int MDBaseFlowDef () {
         
         int  optID = MFUnset;                                                                                   // RJS 060214
 	const char *optName = MDVarRunoff;                                                                      // RJS 060214
-	const char *options [] = { MDCalculateStr, MDInput2Str, (char *) NULL };                                // RJS 060214
+	const char *options [] = { MDCalculateStr, MDInput2Str, "spatially", (char *) NULL };                                // RJS 060214
 
 	if (_MDOutBaseFlowID != MFUnset) return (_MDOutBaseFlowID);
 
 	MFDefEntering ("Base flow");
-	if (((optStr = MFOptionGet (MDParGroundWatBETA))  != (char *) NULL) && (sscanf (optStr,"%f",&par) == 1)) _MDGroundWatBETA = par;
+
 	if ((optStr  = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);    // RJS 060214
 
         switch (optID) {
+            case MDspatial:
+                if ((_MDInGroundWatBETAID     = MFVarGetID(MDParGroundWatBETA,       "1/d", MFInput, MFState, MFBoundary)) == CMfailed) return (CMfailed);
              case MDcalculate: 	
+                 if (_MDInGroundWatBETAID == MFUnset) {
+                    if (((optStr = MFOptionGet (MDParGroundWatBETA))  != (char *) NULL) && (sscanf (optStr,"%f",&par) == 1)) _MDGroundWatBETA = par;
+                 }
                 if (((_MDInRechargeID       = MDRainInfiltrationDef ()) == CMfailed) ||
                     ((_MDInIrrGrossDemandID = MDIrrGrossDemandDef   ()) == CMfailed)) return (CMfailed);
 

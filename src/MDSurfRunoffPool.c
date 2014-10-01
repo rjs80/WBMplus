@@ -18,7 +18,7 @@ rob.stewart@unh.edu
 
 // Input
 static int _MDInRainSurfRunoffID           = MFUnset;
-
+static int _MDInSurfWaterBETA2             = MFUnset;
 // Output
 static int _MDOutRunoffPoolChgID           = MFUnset;
 static int _MDOutRunoffPoolID              = MFUnset;
@@ -38,7 +38,7 @@ static void _MDSurfRunoffPool (int itemID) {
 	runoffPoolChg 		= runoffPool = MFVarGetFloat (_MDOutRunoffPoolID,   itemID, 0.0);
 	runoffPoolRecharge  = MFVarGetFloat (_MDInRainSurfRunoffID,  itemID, 0.0);
 	runoffPool          = runoffPool + runoffPoolRecharge;
-
+        _MDSurfRunoffPoolBETA = (_MDInSurfWaterBETA2 != MFUnset) ? MFVarGetFloat(_MDInSurfWaterBETA2,itemID,_MDSurfRunoffPoolBETA) : _MDSurfRunoffPoolBETA;
 	if (runoffPool > 0.0) {
 
 		runoffPoolRelease    = runoffPool * _MDSurfRunoffPoolBETA;
@@ -51,7 +51,7 @@ static void _MDSurfRunoffPool (int itemID) {
 	
 //	printf("BETA2 = %f\n", _MDSurfRunoffPoolBETA);
         
-  //      if (itemID == 1) printf("Beta2 = %f\n", _MDSurfRunoffPoolBETA);
+//        if (itemID == 1) printf("irrBeta2 = %f\n", BETA);
 
 	MFVarSetFloat (_MDOutRunoffPoolID,          itemID, runoffPool);
     MFVarSetFloat (_MDOutRunoffPoolChgID,       itemID, runoffPoolChg);
@@ -85,6 +85,8 @@ static void _MDSurfRunoffPoolInput2 (int itemID) {      // RJS 060214
 	runoffPoolRecharge  = MFVarGetFloat (_MDInRainSurfRunoffID,  itemID, 0.0);
 	runoffPool          = runoffPool + runoffPoolRecharge;
 
+        _MDSurfRunoffPoolBETA = (_MDInSurfWaterBETA2 != MFUnset) ? (MFVarGetFloat(_MDInSurfWaterBETA2,itemID,_MDSurfRunoffPoolBETA)) : _MDSurfRunoffPoolBETA;
+
 	if (runoffPool > 0.0) {
 
 		runoffPoolRelease    = runoffPool * _MDSurfRunoffPoolBETA;
@@ -95,8 +97,8 @@ static void _MDSurfRunoffPoolInput2 (int itemID) {      // RJS 060214
 	
 	else runoffPoolChg = runoffPoolRelease = 0.0;
 	
+//  if (itemID == 1) printf("Beta2 = %f\n", _MDSurfRunoffPoolBETA);
 
-        
 	MFVarSetFloat (_MDOutRunoffPoolID,          itemID, runoffPool);
         MFVarSetFloat (_MDOutRunoffPoolChgID,       itemID, runoffPoolChg);
         MFVarSetFloat (_MDOutRunoffPoolRechargeID,  itemID, runoffPoolRecharge);
@@ -104,22 +106,33 @@ static void _MDSurfRunoffPoolInput2 (int itemID) {      // RJS 060214
 	
 }
 
-enum {MDnone, MDcalculate, MDinput2};
+enum { MDnone, MDcalculate, MDinput2, MDspatial };
+
 int MDSurfRunoffPoolDef () {
  
+        // TODO: Does not define MDVarSurfaceRunoff ... bypasses to MDVarRainSurfRunoff.
 	float par;
 	int  optID = MFUnset;
 	const char *optStr, *optName = MDOptSurfRunoffPool;
-	const char *options [] = { MDNoneStr, MDCalculateStr, MDInput2Str, (char *) NULL };             // RJS 060214 added input2 
+	const char *options [] = { MDNoneStr, MDCalculateStr, MDInput2Str, "spatially", (char *) NULL };             // RJS 060214 added input2 // SZ 092914 added spatially
+        if (_MDOutRunoffPoolReleaseID != MFUnset) return (_MDOutRunoffPoolReleaseID);
+        
 if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);
-if (((optStr = MFOptionGet (MDParSurfWaterBETA2))   != (char *) NULL) && (sscanf (optStr,"%f",&par) == 1)) _MDSurfRunoffPoolBETA = par;
 
 	MFDefEntering ("Surface Runoff Pool");
 
 	switch (optID) {
 	
+        case MDspatial:
+                if ((_MDInSurfWaterBETA2  = MFVarGetID (MDVarSurfWaterBETA2, "1/d",MFInput,MFState,MFBoundary )) == CMfailed) return (CMfailed);
 	case MDcalculate:
-
+            if (_MDInSurfWaterBETA2 == MFUnset){
+             if (((optStr = MFOptionGet (MDParSurfWaterBETA2))   != (char *) NULL) && (sscanf (optStr,"%f",&par) == 1)) {
+                 _MDSurfRunoffPoolBETA = par;
+             } else {
+                 CMmsgPrint(CMmsgWarning,"MDParSurfWaterBETA2 not set or not set correctly.  Defaulting to %f\n",_MDSurfRunoffPoolBETA);
+             }
+            } 
 	if 	   (((_MDInRainSurfRunoffID          = MDRainSurfRunoffDef  ()) == CMfailed)  ||
 			((_MDOutRunoffPoolID             = MFVarGetID (MDVarRunoffPool,         "mm", MFOutput, MFState, MFInitial))  == CMfailed) ||
 			((_MDOutRunoffPoolChgID          = MFVarGetID (MDVarRunoffPoolChg,      "mm", MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||

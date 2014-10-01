@@ -32,6 +32,7 @@ static int _MDInImpFractionID         = MFUnset;  // RJS 082812
 static int _MDInH2OFractionID         = MFUnset;  // RJS 100103
 static int _MDInStormRunoffTotalID    = MFUnset;  // RJS 082812
 // static int _MDInImperviousSoilID	  = MFUnset;  // RJS 091213
+static int _MDInImpSnowFallROID      = MFUnset; // SZ 092414
 
 // Output
 static int _MDOutEvaptrsID            = MFUnset;
@@ -51,6 +52,7 @@ static void _MDRainSMoistChg (int itemID) {
 	float pet;               	  // Potential evapotranspiration [mm/dt]
 	float intercept;         	  // Interception (when the interception module is turned on) [mm/dt]
 	float sPackChg;          	  // Snow pack change [mm/dt]
+        float impSnowFallRO    = 0.0; // Immediate runoff from snowfall on HCIA [mm/dt] // SZ 09242014
 	float irrAreaFrac      = 0.0; // Irrigated area fraction
 	float impAreaFrac      = 0.0; // Impervious area fraction // RJS 082812
         float h2oAreaFrac      = 0.0; // H2O area fraction RJS 100103
@@ -88,8 +90,9 @@ static void _MDRainSMoistChg (int itemID) {
 	
 	//reduce available water capacity by ice content
 //	awCap= awCap - (awCap * iceContent);
+	impSnowFallRO = (_MDInImpSnowFallROID != MFUnset) ? MFVarGetFloat(_MDInImpSnowFallROID,itemID,0.0) : 0.0;
 	
-	waterIn = precip - intercept - sPackChg + runoffToPerv;	// RJS 082812
+	waterIn = precip - intercept - sPackChg + runoffToPerv - impSnowFallRO;	// RJS 082812 // added impSnowFallRO // SZ 09242014
 
 //*	if (airT > 0.0) {											// this was commented out prior to 082812, uncommented 082812
 
@@ -219,6 +222,28 @@ int MDRainSMoistChgDef () {
 	    ((_MDOutSMoistChgNotScaledID   = MFVarGetID (MDVarRainSoilMoistureChangeNotScaled,       "mm",   MFOutput, MFState, MFInitial))  == CMfailed) ||
 	    ((_MDOutSMoistChgID        = MFVarGetID (MDVarRainSoilMoistChange,        "mm",   MFOutput, MFState, MFBoundary)) == CMfailed) ||
         (MFModelAddFunction (_MDRainSMoistChg) == CMfailed)) return (CMfailed);
+        
+        const char *snowImpervMeltOptions [] = { MDNoneStr, MDCalculateStr,(char *) NULL };
+        int impervSnowMeltCalcID;
+        if ((optStr = MFOptionGet (MDOptImperviousMeltCalc) ) == (char *) NULL) {
+            optStr = MDNoneStr;
+            //CMmsgPrint(CMmsgWarning," Impervious Snow Fall runoff method not specified - defaulting to none (RainSMoistChgDef).\n");
+        } 
+        if ((impervSnowMeltCalcID = CMoptLookup (snowImpervMeltOptions,optStr,true)) == CMfailed) {
+            CMmsgPrint(CMmsgUsrError," Impervious Snow Fall runoff method incorrectly specified. Options are 'none' or 'calculate'.\n");
+            return (CMfailed);
+        }
+        switch (impervSnowMeltCalcID) {
+            case MFnone:
+                // Nothing to be done
+                break;
+            case MFcalculate:
+                if (((_MDInImpSnowFallROID    = MFVarGetID ( MDVarImpSnowFallRunoff,"mm",   MFInput, MFFlux,  MFBoundary)) == CMfailed)
+                    ) return (CMfailed);
+                break;
+            default: MFOptionMessage (MDOptImperviousMeltCalc, optStr, snowImpervMeltOptions); return (CMfailed);
+        }
+        
 	MFDefLeaving ("Rainfed Soil Moisture");
 	return (_MDOutSMoistChgID);
 }
