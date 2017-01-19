@@ -84,7 +84,13 @@ static void _MDWTempGrdWater (int itemID) {
 
 	if (GrdWaterT > 100) printf("m = %d, d = %d, itemID = %d, GrdWaterT = %f, RainRechargeIn = %f\n", MFDateGetCurrentMonth (), MFDateGetCurrentDay (), itemID, GrdWaterT, RainRechargeIn);
 //	if (itemID == 486) printf("y = %d, m = %d, d = %d, GwT = %f, ReT = %f, AirT = %f, Recharge = %f, GW = %f\n", MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), GrdWaterT, RechargeT, airT, RainRechargeIn, GrdWaterStorage);
-
+/*
+        if (MFDateGetCurrentYear() >= 2000) {
+        if ((itemID == 13) || (itemID == 12)) {
+        printf ("%f, %f, %f, %f, %f, ", GrdWaterStorage, GrdWaterT, RainRechargeIn, RechargeT, airT);
+        }
+        }  
+ */
 }
 
 enum {MDcalculate, MDinput};																											// RJS 061312

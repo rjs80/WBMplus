@@ -49,7 +49,7 @@ static void _MDSurfRunoffPool (int itemID) {
 	
 	else runoffPoolChg = runoffPoolRelease = 0.0;
 	
-//	printf("BETA2 = %f\n", _MDSurfRunoffPoolBETA);
+//if (itemID == 1) printf("%d-%d-%d, BETA2 = %f\n", MFDateGetCurrentYear(), MFDateGetCurrentMonth(),MFDateGetCurrentDay(),_MDSurfRunoffPoolBETA);
         
   //      if (itemID == 1) printf("Beta2 = %f\n", _MDSurfRunoffPoolBETA);
 

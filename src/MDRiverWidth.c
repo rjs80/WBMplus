@@ -61,6 +61,11 @@ static void _MDRiverWidth (int itemID) {
 		depth = alpha * pow (width, shapeExp);
 	}
 
+ //      depth = avgDepth;       // RJS commented out above and added these two lines 12/6/16
+//       width = avgWidth;
+        
+       printf("shapeExp = %f, width = %f, ", shapeExp);
+       
 	MFVarSetFloat (_MDOutRiverDepthID,   itemID, depth);
 	MFVarSetFloat (_MDOutRiverWidthID,   itemID, width);
 }

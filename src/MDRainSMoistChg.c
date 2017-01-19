@@ -150,7 +150,7 @@ static void _MDRainSMoistChg (int itemID) {
 //		printf("balance = %f, gm = %f, impAreaFrac = %f, runofftoPerv(basin) = %f, runofftoPerv(perv) = %f\n", balance, gm, impAreaFrac, runoffToPerv * (1.00 - impAreaFrac), runoffToPerv);
 //	}
 
-    //    if (itemID == 1) printf("Alpha = %f\n",_MDSoilMoistALPHA);
+ //       if (itemID == 1) printf("%d-%d-%d, Alpha = %f\n",MFDateGetCurrentYear(), MFDateGetCurrentMonth(),MFDateGetCurrentDay(),_MDSoilMoistALPHA);
         
 if (fabs(balance) > 0.00001) {
 	printf("**** itemID = %d, month = %d, day = %d, airT = %f, surplus = %f, stormRunoff = %f, intercept = %f\n", itemID, MFDateGetCurrentMonth (), MFDateGetCurrentDay (), airT, precip - sPackChg - evapotrans - sMoistChg - stormRunoffTotal, stormRunoffTotal, intercept);

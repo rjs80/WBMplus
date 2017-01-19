@@ -117,16 +117,18 @@ static int _MDOutSolarRadID = MFUnset;
 static void _MDSolarRadiationCloud (int itemID) {
 // Input
 	float cloud;
+        float grossRad; //RJS 05-04-15
 // Output
 	float solarRad;
 // Local
 
-	solarRad = MFVarGetFloat (_MDGrossRadID, itemID, 0.0);
+	solarRad = grossRad = MFVarGetFloat (_MDGrossRadID, itemID, 0.0);
 	cloud    = MFVarGetFloat (_MDInputID,    itemID, 0.0) ;
-	if (fabs(cloud) > 100.0) printf ("cloud cover item %i  %f VarID %i \n",itemID, cloud, _MDInputID);
-	cloud = cloud / 100.0;
+	if (fabs(cloud) > 1.0) printf ("cloud cover item %i  %f VarID %i \n",itemID, cloud, _MDInputID);  // when cloud is in percent set this to 100, and have the next line uncommented.  When cloud is a proportion set this value to 1, and comment out the next line
+	// cloud = cloud / 100.0;      // cloud coverage data is a proportion NOT a percent (MERRA)
 		 
 	solarRad = solarRad * (0.803 - (0.340 * cloud) - (0.458 * (float) pow ((double) cloud,(double) 2.0)));
+               
     MFVarSetFloat (_MDOutSolarRadID,  itemID, solarRad);
 }
 

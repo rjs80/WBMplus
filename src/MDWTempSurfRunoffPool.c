@@ -59,7 +59,14 @@ static void _MDWTempSurfRunoffPool (int itemID) {
   	    MFVarSetMissingVal(_MDOutWTempSurfRunoffPoolID,itemID);
 
 	}
-
+/*
+         if (MFDateGetCurrentYear() >= 2000) {
+         if ((itemID == 13) || (itemID == 12)) {
+         printf ("%f, %f, %f, %f, ", SurfRunoff, SurfRunoffT, SurfRunoffPool, SurfRunoffPoolT);
+        }
+        }     
+*/
+        
 }
 
 

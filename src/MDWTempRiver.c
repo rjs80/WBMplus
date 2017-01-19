@@ -52,7 +52,8 @@ static void _MDWTempRiver (int itemID) {
    	
    	
 	MFVarSetFloat(_MDOutWTempRiverID,itemID,TemperatureRO); 
-
+        
+  //      if (itemID == 17738) printf("ID = %d, %d-%d-%d, RechargeT = %f, GrdWaterT = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), RechargeT, GrdWaterT);
 
 }
 
