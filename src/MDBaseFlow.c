@@ -23,6 +23,7 @@ static int _MDInIrrReturnFlowID      = MFUnset;
 static int _MDInIrrAreaFracID        = MFUnset;
 static int _MDInSmallResReleaseID    = MFUnset;
 static int _MDInGroundWatBETAID      = MFUnset;
+static int _MDInSoilPercolationID      = MFUnset; // SZ 10212014
 // Output
 static int _MDOutGrdWatID            = MFUnset;
 static int _MDOutGrdWatChgID         = MFUnset;
@@ -44,6 +45,7 @@ static void _MDBaseFlow (int itemID) {
 	float grdWaterChg;             // Groundwater change [mm/dt]
 	float grdWaterRecharge;        // Groundwater recharge [mm/dt]
 	float grdWaterUptake;          // Groundwater uptake [mm/dt]
+        float percolation;               // Soil to Groundwater percolation (mm/dt)
 	float baseFlow          = 0.0; // Base flow from groundwater [mm/dt]
 	float irrUptakeGrdWater = 0.0; // Irrigational water uptake from shallow groundwater [mm/dt]
 	float irrUptakeExt      = 0.0; // Unmet irrigational water demand [mm/dt]
@@ -52,7 +54,13 @@ static void _MDBaseFlow (int itemID) {
 	grdWaterChg = grdWater = MFVarGetFloat (_MDOutGrdWatID,  itemID, 0.0);
 	if (grdWater < 0.0) grdWaterChg = grdWater = 0.0;			//RJS 071511
 	grdWaterRecharge = MFVarGetFloat (_MDInRechargeID, itemID, 0.0);
-	grdWater = grdWater + grdWaterRecharge;
+        if (_MDInSoilPercolationID != MFUnset) {
+            percolation = MFVarGetFloat (_MDInSoilPercolationID,itemID,0.0); // SZ 10212014
+        } else {
+            percolation = 0.0;
+        }
+        
+	grdWater = grdWater + grdWaterRecharge + percolation;
 
 	if ((_MDInIrrGrossDemandID != MFUnset) &&
 	    (_MDInIrrReturnFlowID  != MFUnset) &&
@@ -114,19 +122,26 @@ static void _MDBaseFlow2 (int itemID) {
 	float grdWaterChg;             // Groundwater change [mm/dt]
 	float grdWaterRecharge;        // Groundwater recharge [mm/dt]
 	float grdWaterUptake;          // Groundwater uptake [mm/dt]
+        float percolation;              // Soil to Groundwater percolation (mm/dt)
 	float baseFlow          = 0.0; // Base flow from groundwater [mm/dt]
 
 // Local
                      
 	grdWaterChg = grdWater = MFVarGetFloat (_MDOutGrdWatID,  itemID, 0.0);
+        if (_MDInSoilPercolationID != MFUnset ) {
+            percolation = MFVarGetFloat(_MDInSoilPercolationID,itemID,0.0); // SZ 10212014
+        } else {
+            percolation = 0.0; 
+        }
+        
 	if (grdWater < 0.0) grdWaterChg = grdWater = 0.0;			//RJS 071511
 	grdWaterRecharge = MFVarGetFloat (_MDInRechargeID, itemID, 0.0);
-	grdWater = grdWater + grdWaterRecharge;
+	grdWater = grdWater + grdWaterRecharge + percolation;
 
 	baseFlow    = grdWater * _MDGroundWatBETA;
 	grdWater    = grdWater - baseFlow;
 	grdWaterChg = grdWater - grdWaterChg;
-
+ //       if ((MFDateGetCurrentYear() > 0) && (grdWater != grdWater)) printf("itemID %d: grdWater %.2e baseFlow %.2e alpha %.2e percolation %.2e recharge %.2e\n", itemID, grdWater, baseFlow, _MDGroundWatBETA, percolation, grdWaterRecharge);
 	
 	MFVarSetFloat (_MDOutGrdWatID,         itemID, grdWater);
         MFVarSetFloat (_MDOutGrdWatChgID,      itemID, grdWaterChg);
@@ -134,15 +149,19 @@ static void _MDBaseFlow2 (int itemID) {
 	MFVarSetFloat (_MDOutBaseFlowID,       itemID, baseFlow);
 }
 
-enum { MDcalculate, MDinput2 , MDspatial};         // RJS 060214 // SZ 100114
+enum { MDspatial, MDcalculate, MDPnET };         // RJS 060214 // SZ 100114
 
 int MDBaseFlowDef () {
 	float par;
 	const char *optStr;
+        // Test if the percolation pathway is active (if its not - PercolationBETA should not be in the Options)
+        if ((optStr = MFOptionGet(MDParSoilPercolationBETA)) != (char *) NULL) {        
+            if ((_MDInSoilPercolationID = MFVarGetID (MDVarSoilPercolation,     "mm", MFInput, MFFlux,   MFBoundary)) == CMfailed) return (CMfailed); // SZ 10212014
+        }
         
         int  optID = MFUnset;                                                                                   // RJS 060214
 	const char *optName = MDVarRunoff;                                                                      // RJS 060214
-	const char *options [] = { MDCalculateStr, MDInput2Str, "spatially", (char *) NULL };                                // RJS 060214
+	const char *options [] = { "spatially", MDCalculateStr, MDPnETStr, (char *) NULL };                                // RJS 060214
 
 	if (_MDOutBaseFlowID != MFUnset) return (_MDOutBaseFlowID);
 
@@ -175,7 +194,10 @@ int MDBaseFlowDef () {
                     ((_MDOutBaseFlowID              = MFVarGetID (MDVarBaseFlow,            "mm", MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
                      (MFModelAddFunction (_MDBaseFlow) == CMfailed)) return (CMfailed);
                 break;
-            case MDinput2:
+            case MDPnET:
+                if (_MDInGroundWatBETAID == MFUnset) {
+                    if (((optStr = MFOptionGet (MDParGroundWatBETA))  != (char *) NULL) && (sscanf (optStr,"%f",&par) == 1)) _MDGroundWatBETA = par;
+                 }
                  if (((_MDInRechargeID               = MDRainInfiltrationDef ()) == CMfailed) ||
                      ((_MDOutGrdWatID                = MFVarGetID (MDVarGroundWater,         "mm", MFOutput, MFState, MFInitial))  == CMfailed) ||
                      ((_MDOutGrdWatChgID             = MFVarGetID (MDVarGroundWaterChange,   "mm", MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
