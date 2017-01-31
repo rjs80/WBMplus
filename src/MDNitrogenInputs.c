@@ -34,10 +34,21 @@ static int _MDInLocalLoad_Con_DINID     = MFUnset;              //RJS 081814
 static int _MDInLocalLoad_Dec_DINID     = MFUnset;              //RJS 081814
 static int _MDInLocalLoad_Mix_DINID     = MFUnset;              //RJS 081814
 static int _MDInLocalLoad_Lak_DINID     = MFUnset;              //RJS 081914
+static int _MDInLocalLoad_Wet_DINID     = MFUnset;
 static int _MDInLandUseConID            = MFUnset;              //RJS 081914
 static int _MDInLandUseDecID            = MFUnset;              //RJS 081914
 static int _MDInLandUseMixID            = MFUnset;              //RJS 081914
 static int _MDInH2OFractionID           = MFUnset;              //RJS 081914
+static int _MDInAsymID                  = MFUnset;              //RJS 102314
+static int _MDInScaleID                 = MFUnset;              //RJS 102314
+static int _MDInXmid_bID                = MFUnset;              //RJS 102314
+static int _MDInXmid_mID                = MFUnset;              //RJS 102314
+static int _MDInLandUseUrbForID         = MFUnset;
+static int _MDInImpFractionID           = MFUnset;
+static int _MDInWetlandsID              = MFUnset;
+static int _MDInPropROGroundWaterID     = MFUnset;
+static int _MDInBFIID                   = MFUnset;
+static int _MDInDINadjustID             = MFUnset;
 
 // Output
 
@@ -45,17 +56,24 @@ static int _MDOutLocalLoad_DINID                   = MFUnset;		// RJS 090308
 static int _MDOutLocalConc_DINID                   = MFUnset;		// RJS 090308
 static int _MDOutLocalLoadnew_DINID                = MFUnset;		// RJS 061511	just to CHECK whether the new and old loading are the same
 static int _MDOutDINLoadConcID                     = MFUnset;		// KYLE
-static int _MDOutLocalLoad_Sub_DINID               = MFUnset;
 static int _MDOutLocalLoad_Agr_DINID		   = MFUnset;
 static int _MDOutDINSubLoadConcID		   = MFUnset;
 static int _MDOutDINAgLoadConcID		   = MFUnset;
 static int _MDOutLocalLoad_PnET_DINID              = MFUnset;
 static int _MDOutLocalLoad_Lak_DINID               = MFUnset;
-static int _MDOutLocalLoad_For_DINID               = MFUnset;
+static int _MDOutLocalLoad_Wet_DINID               = MFUnset;
+static int _MDOutLocalLoad_Con_DINID               = MFUnset;
+static int _MDOutLocalLoad_Dec_DINID               = MFUnset;
+static int _MDOutLocalLoad_Mix_DINID               = MFUnset;
+static int _MDOutLocalLoad_Sub_DINID               = MFUnset;
+
 static int _MDOutLocalConc_Sub_DINID               = MFUnset;
 static int _MDOutLocalConc_Agr_DINID               = MFUnset;
 static int _MDOutLocalConc_Lak_DINID               = MFUnset;
-static int _MDOutLocalConc_For_DINID               = MFUnset;
+static int _MDOutLocalConc_Wet_DINID               = MFUnset;
+static int _MDOutLocalConc_Con_DINID               = MFUnset;
+static int _MDOutLocalConc_Dec_DINID               = MFUnset;
+static int _MDOutLocalConc_Mix_DINID               = MFUnset;
 
 
 static void _MDNitrogenInputsInput (int itemID) {
@@ -87,78 +105,93 @@ static void _MDNitrogenInputsInput (int itemID) {
 static void _MDNitrogenInputsInput2 (int itemID) {
 
 	//Input
-	float runoff                    = 0.0;		//mm/day
-	float runoffVol                 = 0.0; 	//m3/sec
+	float runoff                    = 0.0; //mm/day
+	float runoffVol                 = 0.0; //m3/sec
 	float LocalConc_DIN             = 0.0;
 	float riverOrder                = 0.0;
+   
+        float luLawn                    = 0.0; // proportion lawn
+        float luUrbFor                  = 0.0; // proportion urban forest
+        float luImp                     = 0.0; // proportion impervious
+        float luSub                     = 0.0; // PERCENT suburban or developed
+        float luAgr                     = 0.0; // PERCENT agriculture
+        float luCon                     = 0.0; // proportion suburban or developed
+        float luDec                     = 0.0; // proportion agriculture
+        float luMix                     = 0.0; // proportion suburban or developed
+        float luWet                     = 0.0; // proportion agriculture
+        float luLak                     = 0.0; // proportion lake or water
+        
         float LocalLoad_Con_DIN_in      = 0.0; // kg/d
         float LocalLoad_Dec_DIN_in      = 0.0; // kg/d
         float LocalLoad_Mix_DIN_in      = 0.0; // kg/d
         float LocalLoad_Lak_DIN_in      = 0.0; // kg/d
-        float luSub                     = 0.0; // proportion suburban or developed
-        float luAgr                     = 0.0; // proportion agriculture
-        float LocalLoad_Con_DIN         = 0.0;
-        float LocalLoad_Dec_DIN         = 0.0;
-        float LocalLoad_Mix_DIN         = 0.0;
-        float LocalLoad_Sub_DIN         = 0.0;
-        float LocalLoad_Agr_DIN         = 0.0;
-        float LocalLoad_For_DIN         = 0.0;
-        float LocalLoad_Lak_DIN         = 0.0;
-        float LocalConc_Sub_DIN         = 0.0;
-        float LocalConc_Agr_DIN         = 0.0;
-        float LocalConc_For_DIN         = 0.0;
-        float LocalConc_Lak_DIN         = 0.0;
+        float LocalLoad_Wet_DIN_in      = 0.0; // kg/d
+
+        float LocalLoad_Con_DIN         = 0.0; // kg/d
+        float LocalLoad_Dec_DIN         = 0.0; // kg/d 
+        float LocalLoad_Mix_DIN         = 0.0; // kg/d
+        float LocalLoad_Sub_DIN         = 0.0; // kg/d
+        float LocalLoad_Agr_DIN         = 0.0; // kg/d
+        float LocalLoad_Lak_DIN         = 0.0; // kg/d
+        float LocalLoad_Wet_DIN         = 0.0; // kg/d
+        
+        float LocalConc_Con_DIN         = 0.0; // mg/L
+        float LocalConc_Dec_DIN         = 0.0; // mg/L
+        float LocalConc_Mix_DIN         = 0.0; // mg/L
+        float LocalConc_Sub_DIN         = 0.0; // mg/L
+        float LocalConc_Agr_DIN         = 0.0; // mg/L
+        float LocalConc_Lak_DIN         = 0.0; // mg/L
+        float LocalConc_Wet_DIN         = 0.0; // mg/L
+        
         float scale                     = 0.0;
         float asym                      = 0.0;
         float xMid                      = 0.0;
-        float LocalLoad_DIN_PnET        = 0.0;
-        float luForest                  = 0.0;
-        float luLak                     = 0.0;
-        float luCon                     = 0.0;
-        float luMix                     = 0.0;
-        float luDec                     = 0.0;
         float area_m2                   = 0.0;
-        float LocalConc_Sub_DIN2        = 0.0;
-        float LocalConc_Agr_DIN2        = 0.0;
-
         
 	//Output
 	float LocalLoad_DIN;
         
-        if (_MDInLandUseSubID  != MFUnset)	luSub = MFVarGetFloat (_MDInLandUseSubID,  itemID, 0.0);	//KAW 2013 05 08 Suburban Land Use
-	if (_MDInLandUseAgID   != MFUnset)	luAgr = MFVarGetFloat (_MDInLandUseAgID,   itemID, 0.0);	//KAW 2013 05 08 Agricultural Land Use
-        if (_MDInLandUseConID  != MFUnset)	luCon = MFVarGetFloat (_MDInLandUseConID,  itemID, 0.0) * 100;	//KAW 2013 05 08 Suburban Land Use
-	if (_MDInLandUseDecID  != MFUnset)	luDec = MFVarGetFloat (_MDInLandUseDecID,  itemID, 0.0) * 100;	//KAW 2013 05 08 Agricultural Land Use
-	if (_MDInLandUseMixID  != MFUnset)	luMix = MFVarGetFloat (_MDInLandUseMixID,  itemID, 0.0) * 100;	//KAW 2013 05 08 Agricultural Land Use
-	if (_MDInH2OFractionID != MFUnset)	luLak = MFVarGetFloat (_MDInH2OFractionID, itemID, 0.0) * 100;	//KAW 2013 05 08 Agricultural Land Use
+        if (_MDInLawnFractionID != MFUnset)	  luLawn = MFVarGetFloat (_MDInLawnFractionID,  itemID, 0.0);	
+	if (_MDInLandUseUrbForID  != MFUnset)	luUrbFor = MFVarGetFloat (_MDInLandUseUrbForID, itemID, 0.0);	
+	if (_MDInImpFractionID  != MFUnset)	   luImp = MFVarGetFloat (_MDInImpFractionID,   itemID, 0.0);	
+	if (_MDInLandUseAgID   != MFUnset)	   luAgr = MFVarGetFloat (_MDInLandUseAgID,     itemID, 0.0);	// PERCENT
+        if (_MDInLandUseConID  != MFUnset)	   luCon = MFVarGetFloat (_MDInLandUseConID,    itemID, 0.0);	
+	if (_MDInLandUseDecID  != MFUnset)	   luDec = MFVarGetFloat (_MDInLandUseDecID,    itemID, 0.0);	
+	if (_MDInLandUseMixID  != MFUnset)	   luMix = MFVarGetFloat (_MDInLandUseMixID,    itemID, 0.0);	
+	if (_MDInH2OFractionID != MFUnset)	   luLak = MFVarGetFloat (_MDInH2OFractionID,   itemID, 0.0);	
+	if (_MDInWetlandsID != MFUnset)            luWet = MFVarGetFloat (_MDInWetlandsID,   itemID, 0.0);	
 
+        luSub                  = (luLawn + luUrbFor + luImp) * 100;
         area_m2                = MFModelGetArea (itemID);
-        LocalLoad_Con_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Con_DINID,         itemID, 0.0) * area_m2 / ((luCon / 100) * area_m2); // g / m2 for Dec area only (not for entire grid cell)
-        LocalLoad_Dec_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Dec_DINID,         itemID, 0.0) * area_m2 / ((luDec / 100) * area_m2); // g / m2 for Con area only (not for entire grid cell)
-        LocalLoad_Mix_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Mix_DINID,         itemID, 0.0) * area_m2 / ((luMix / 100) * area_m2); // g / m2 for Con area only (not for entire grid cell)
-        LocalLoad_Lak_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Lak_DINID,         itemID, 0.0) * area_m2 / ((luLak) * area_m2); // g / m2 for Lak area only (not for entire grid cell)
-        
+        LocalLoad_Con_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Con_DINID,         itemID, 0.0) * area_m2 * luCon / 1000; // converting gN/m2/d to kg/d for Con area only 
+        LocalLoad_Dec_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Dec_DINID,         itemID, 0.0) * area_m2 * luDec / 1000; // converting gN/m2/d to kg/d for Dec area only
+        LocalLoad_Mix_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Mix_DINID,         itemID, 0.0) * area_m2 * luMix / 1000; // converting gN/m2/d to kg/d for Mix area only
+        LocalLoad_Lak_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Lak_DINID,         itemID, 0.0) * area_m2 * luLak / 1000; // converting gN/m2/d to kg/d for Lak area only
+        LocalLoad_Wet_DIN_in   = MFVarGetFloat (_MDInLocalLoad_Wet_DINID,         itemID, 0.0) * area_m2 * luWet / 1000; // converting gN/m2/d to kg/d for Wet area only
+       
         LocalLoad_Con_DIN_in   = luCon > 0.0 ? LocalLoad_Con_DIN_in : 0.0;
         LocalLoad_Dec_DIN_in   = luDec > 0.0 ? LocalLoad_Dec_DIN_in : 0.0;
         LocalLoad_Mix_DIN_in   = luMix > 0.0 ? LocalLoad_Mix_DIN_in : 0.0;
         LocalLoad_Lak_DIN_in   = luLak > 0.0 ? LocalLoad_Lak_DIN_in : 0.0;
+        LocalLoad_Wet_DIN_in   = luWet > 0.0 ? LocalLoad_Wet_DIN_in : 0.0;
       
-        luSub = (luSub + luAgr + luLak) > 100.0 ? luSub / (luSub + luAgr + luLak) * 100.0 : luSub;        // RJS 110813    
-        luAgr = (luSub + luAgr + luLak) > 100.0 ? luAgr / (luSub + luAgr + luLak) * 100.0 : luAgr;        // RJS 110813
+        luSub = ((luSub/100) + (luAgr/100) + luCon + luDec + luMix + luLak + luWet) > 1.0 ? (luSub/100) / ((luSub/100) + (luAgr/100) + luCon + luDec + luMix + luLak + luWet) * 100.0 : luSub;           
+        luAgr = ((luSub/100) + (luAgr/100) + luCon + luDec + luMix + luLak + luWet) > 1.0 ? (luAgr/100) / ((luSub/100) + (luAgr/100) + luCon + luDec + luMix + luLak + luWet) * 100.0 : luAgr;   
                 
         runoff             = MFVarGetFloat (_MDInRunoffID,         itemID, 0.0); 	// mm / d
 	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,      itemID, 0.0); 	// m3/sec
 
-        luForest           = 100 - luSub - luAgr - luLak;
-       
+         
         if (runoffVol > 0.0) {    
-        LocalConc_For_DIN  = (luCon + luDec + luMix) > 0.0 ? ((LocalLoad_Con_DIN_in * (luCon / 100) * area_m2 / 1000) + (LocalLoad_Dec_DIN_in * (luDec / 100) * area_m2 / 1000) + (LocalLoad_Mix_DIN_in * (luMix / 100) * area_m2 / 1000)) / (runoffVol * ((luCon / 100) + (luDec / 100) + (luMix / 100)) * 86400) * 1000 : 0.0;
-        LocalConc_Lak_DIN  = luLak > 0.0 ? (LocalLoad_Lak_DIN_in * (luLak / 100) * area_m2 / 1000) / (runoffVol * (luLak / 100) * 86400) * 1000 : 0.0;    
+        LocalConc_Con_DIN  = luCon > 0.0 ? LocalLoad_Con_DIN_in / (runoffVol * luCon * 86400) * 1000 : 0.0;
+        LocalConc_Dec_DIN  = luDec > 0.0 ? LocalLoad_Dec_DIN_in / (runoffVol * luDec * 86400) * 1000 : 0.0;
+        LocalConc_Mix_DIN  = luMix > 0.0 ? LocalLoad_Mix_DIN_in / (runoffVol * luMix * 86400) * 1000 : 0.0;
+        LocalConc_Lak_DIN  = luLak > 0.0 ? LocalLoad_Lak_DIN_in / (runoffVol * luLak * 86400) * 1000 : 0.0;
+        LocalConc_Wet_DIN  = luWet > 0.0 ? LocalLoad_Wet_DIN_in / (runoffVol * luWet * 86400) * 1000 : 0.0;
         }
         
- //       LocalLoad_DIN_PnET = ((luDec / (luDec + luCon)) * (luForest / 100) * LocalLoad_Dec_DIN_in * area_m2 / 1000) + ((luCon / (luDec + luCon)) * (luForest / 100) * LocalLoad_Con_DIN_in * area_m2 / 1000) + ((luLak / 100) * LocalLoad_Lak_DIN_in * area_m2 / 1000); // kg /day
-        
-	scale          = 12.2;
+      
+	scale          = 12.5;
 	asym           = 1.4;
 
 	if (runoff < 0.00001) {
@@ -167,16 +200,25 @@ static void _MDNitrogenInputsInput2 (int itemID) {
 	}
 
 	else {
-            xMid = 60.0 + 12.0 * log(runoff);   // RJS 110713 more accurately represents Wollheim et al. 2008 for runoff
-            LocalConc_Sub_DIN  = asym / (1 + pow(2.718281828, (xMid - luSub) / scale));
-            LocalConc_Agr_DIN  = (asym * 3.5) / (1 + pow(2.718281828, (xMid - luAgr) / scale)) - ((asym * 3.5) / (1 + pow(2.718281828, (xMid - 0.0) / scale))); 
-	
-            LocalConc_Sub_DIN2  = (asym / (1 + pow(2.718281828, (xMid - luSub) / scale))) - (asym / (1 + pow(2.718281828, (xMid - 0.0) / scale))) + LocalConc_For_DIN;
-            LocalConc_Agr_DIN2  = (asym * 3.5) / (1 + pow(2.718281828, (xMid - luAgr) / scale)) - ((asym * 3.5) / (1 + pow(2.718281828, (xMid - 0.0) / scale))); 
-	
+            xMid = 51.388 + 8.4511 * log(runoff); 
+            LocalConc_Sub_DIN  = (asym / (1 + pow(2.718281828, (xMid - luSub) / scale))) - (asym / (1 + pow(2.718281828, (xMid - 0.0) / scale)));                   // subtracting intercept from loading function
+            LocalConc_Agr_DIN  = ((asym * 3.5) / (1 + pow(2.718281828, (xMid - luAgr) / scale))) - ((asym * 3.5) / (1 + pow(2.718281828, (xMid - 0.0) / scale)));   // subtracting intercept from loading function
         }
 
-        /////// Option 1 /////////
+        /////// New PnET-FrAMES ////////
+        
+        LocalLoad_Sub_DIN = (luSub / 100) * runoffVol * 86400 * LocalConc_Sub_DIN / 1000;   // kg/d
+        LocalLoad_Agr_DIN = (luAgr / 100) * runoffVol * 86400 * LocalConc_Agr_DIN / 1000;   // kg/d
+        LocalLoad_Con_DIN = luCon * runoffVol * 86400 * LocalConc_Con_DIN / 1000;           // kg/d
+        LocalLoad_Dec_DIN = luDec * runoffVol * 86400 * LocalConc_Dec_DIN / 1000;           // kg/d
+        LocalLoad_Mix_DIN = luMix * runoffVol * 86400 * LocalConc_Mix_DIN / 1000;           // kg/d
+        LocalLoad_Lak_DIN = luLak * runoffVol * 86400 * LocalConc_Lak_DIN / 1000;           // kg/d
+        LocalLoad_Wet_DIN = luWet * runoffVol * 86400 * LocalConc_Wet_DIN / 1000;           // kg/d
+     
+        LocalLoad_DIN = LocalLoad_Sub_DIN + LocalLoad_Agr_DIN + LocalLoad_Con_DIN + LocalLoad_Dec_DIN + LocalLoad_Mix_DIN + LocalLoad_Lak_DIN + LocalLoad_Wet_DIN;
+        LocalConc_DIN = runoffVol > 0.0 ? LocalLoad_DIN / (runoffVol * 86400) * 1000 : 0.0;
+    
+        /////// Old Option 1 /////////
         
 //	LocalLoad_Sub_DIN  = (luSub / 100) * runoffVol * 86400 * LocalConc_Sub_DIN / 1000; 		// kg/day //KAW 2013 05 08 Loading from suburban part of each grid cell
 //	LocalLoad_Agr_DIN  = (luAgr / 100) * runoffVol * 86400 * LocalConc_Agr_DIN / 1000; 		// kg/day //KAW 2013 05 08 Loading from the agricultural part of each grid cell
@@ -186,31 +228,37 @@ static void _MDNitrogenInputsInput2 (int itemID) {
 //      LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN + LocalLoad_Lak_DIN + LocalLoad_For_DIN;                // kg/day //KAW 2013 05 08: Sum of all N loadings  Total point is from MMM's Code for point source N inputs
 //      LocalConc_DIN      = runoffVol > 0.0 ? LocalLoad_DIN / (runoffVol * 86400) * 1000 : 0.0;
 
-        /////// Option 2 /////////
+        /////// Old Option 2 /////////
     
-        LocalLoad_Sub_DIN = runoffVol * 86400 * LocalConc_Sub_DIN2 / 1000;                         // kg/day
-        LocalLoad_Agr_DIN = runoffVol * 86400 * LocalConc_Agr_DIN2 / 1000;                         // kg/day
-        LocalLoad_For_DIN = runoffVol * (luForest / 100) * 86400 * LocalConc_For_DIN / 1000;       // kg/day
-        LocalLoad_Lak_DIN = runoffVol * (luLak / 100) * 86400 * LocalConc_Lak_DIN / 1000;          // kg/day     
+//        LocalLoad_Sub_DIN = runoffVol * 86400 * LocalConc_Sub_DIN2 / 1000;                         // kg/day
+//        LocalLoad_Agr_DIN = runoffVol * 86400 * LocalConc_Agr_DIN2 / 1000;                         // kg/day
+//        LocalLoad_For_DIN = runoffVol * (luForest / 100) * 86400 * LocalConc_For_DIN / 1000;       // kg/day
+//        LocalLoad_Lak_DIN = runoffVol * (luLak / 100) * 86400 * LocalConc_Lak_DIN / 1000;          // kg/day     
         
-        LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN + LocalLoad_For_DIN + LocalLoad_Lak_DIN;     // kg/day 
-        LocalConc_DIN      = runoffVol > 0.0 ? LocalLoad_DIN / (runoffVol * 86400) * 1000 : 0.0;
+//        LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN + LocalLoad_For_DIN + LocalLoad_Lak_DIN;     // kg/day 
+//        LocalConc_DIN      = runoffVol > 0.0 ? LocalLoad_DIN / (runoffVol * 86400) * 1000 : 0.0;
 
         
    //     if (itemID == 7734) printf("area_m2 = %f,  luSub = %f, luAgr = %f, luForest = %f, luLak = %f, luCon = %f, luDec = %f, Load=%f, Conc=%f\n", area_m2, luSub, luAgr, luForest, luLak, luCon, luDec, LocalLoad_DIN, LocalConc_DIN);
    //     if (itemID == 7734) printf("runoffVol = %f, localConc_Lak_DIN = %f, LocalLoad_Lak_DIN = %f, LocalLoad_Lak_DIN_in = %f\n",runoffVol, LocalConc_Lak_DIN, LocalLoad_Lak_DIN, LocalLoad_Lak_DIN_in);
    //     if (itemID == 7734) printf("LocalLoad_Agr_DIN = %f, LocalLoad_Sub_DIN = %f, LocalLoad_Lak_DIN = %f, LocalLoad_For_DIN = %f\n", LocalLoad_Agr_DIN, LocalLoad_Sub_DIN, LocalLoad_Lak_DIN, LocalLoad_For_DIN);
         
-	MFVarSetFloat (_MDOutLocalLoad_DINID,         itemID, LocalLoad_DIN);	  // RJS 090308
-	MFVarSetFloat (_MDOutLocalConc_DINID,         itemID, LocalConc_DIN);	  // RJS 090308
+	MFVarSetFloat (_MDOutLocalLoad_DINID,         itemID, LocalLoad_DIN);                   // RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_DINID,         itemID, LocalConc_DIN);                   // RJS 090308
         MFVarSetFloat (_MDOutLocalLoad_Sub_DINID,     itemID, LocalLoad_Sub_DIN);	  	// RJS 090308
 	MFVarSetFloat (_MDOutLocalLoad_Agr_DINID,     itemID, LocalLoad_Agr_DIN);	  	// RJS 090308
-	MFVarSetFloat (_MDOutLocalLoad_Lak_DINID,    itemID,  LocalLoad_Lak_DIN);	  	// RJS 090308
-	MFVarSetFloat (_MDOutLocalLoad_For_DINID,    itemID,  LocalLoad_For_DIN);	  	// RJS 090308
-	MFVarSetFloat (_MDOutLocalConc_Sub_DINID,     itemID, LocalConc_Sub_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalLoad_Wet_DINID,     itemID, LocalLoad_Wet_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalLoad_Lak_DINID,     itemID, LocalLoad_Lak_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalLoad_Con_DINID,     itemID, LocalLoad_Con_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalLoad_Mix_DINID,     itemID, LocalLoad_Mix_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalLoad_Dec_DINID,     itemID, LocalLoad_Dec_DIN);	  	// RJS 090308
+        MFVarSetFloat (_MDOutLocalConc_Sub_DINID,     itemID, LocalConc_Sub_DIN);	  	// RJS 090308
 	MFVarSetFloat (_MDOutLocalConc_Agr_DINID,     itemID, LocalConc_Agr_DIN);	  	// RJS 090308
-	MFVarSetFloat (_MDOutLocalConc_Lak_DINID,    itemID,  LocalConc_Lak_DIN);	  	// RJS 090308
-	MFVarSetFloat (_MDOutLocalConc_For_DINID,    itemID,  LocalConc_For_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Wet_DINID,     itemID, LocalConc_Wet_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Lak_DINID,     itemID, LocalConc_Lak_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Con_DINID,     itemID, LocalConc_Con_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Mix_DINID,     itemID, LocalConc_Mix_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Dec_DINID,     itemID, LocalConc_Dec_DIN);	  	// RJS 090308
 
 }
 
@@ -262,7 +310,7 @@ static void _MDNitrogenInputsCalc (int itemID) {
 
 	float riverOrder;
 	float loadAdjust = 0.0;			// RJS 112211
-	float Total_point = 0.0;
+	float Total_point = 0.0;                // test
 
 // test
 
@@ -280,7 +328,7 @@ static void _MDNitrogenInputsCalc (int itemID) {
 	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,      itemID, 0.0); 	// m3/sec
 	loadAdjust	   = MFVarGetFloat (_MDInLoadAdjustID,     itemID, 1.0);	// RJS 112211, adjusts loads, keep at 1 if nodata
 
-	scale          = 12.2;
+	scale          = 12.5;      // 12.2
 	asym           = 1.4;
 
 	if (runoff < 0.00001) {
@@ -290,19 +338,25 @@ static void _MDNitrogenInputsCalc (int itemID) {
 	}
 
 	else {
-            xMid = 60.0 + 12.0 * log(runoff);   // RJS 110713 more accurately represents Wollheim et al. 2008 for runoff
-//              xMid           = 51.388 + 19.459 * log(runoff); //RJS 07-29-08	MMM changed from log10 to log 2013-03-13
-//		LocalConc_DIN  = asym / (1 + pow(2.718281828, (xMid - luSub) / scale)); // mg/L
+     //       xMid = 60.0 + 12.0 * log(runoff);                 / RJS 110713 more accurately represents Wollheim et al. 2008 for runoff
+     //         xMid           = 51.388 + 19.459 * log(runoff); //RJS 07-29-08	MMM changed from log10 to log 2013-03-13
+     //         xMid           = 60.36 + 7.27 * log(runoff);     //RJS 03-09-15	based on raw data from wollheim
+              xMid           = 51.388 + 8.4511 * log(runoff);     //RJS 03-23-15 based on raw data from wollheim and ONLY IS sites
+              //		LocalConc_DIN  = asym / (1 + pow(2.718281828, (xMid - luSub) / scale)); // mg/L
             LocalConc_Sub_DIN  = asym / (1 + pow(2.718281828, (xMid - luSub) / scale)); 		// mg/L //KAW 2013 05 08
             LocalConc_Agr_DIN  = ((asym * 3.5) / (1 + pow(2.718281828, (xMid - luAgr) / scale))) - ((asym * 3.5) / (1 + pow(2.718281828, (xMid - 0.0) / scale))); 	// mg/L //KAW 2013 05 08 (to remove double counting of natural inputs) Concentrations in Agriculture headwater stream are 3.5x the concentrations in suburban stream (Price, unpublished data)
 	}
 
 
-//	LocalLoad_DIN  = runoffVol * 86400 * LocalConc_DIN / 1000; // kg/day            // RJS commented out 110813
 	LocalLoad_Sub_DIN  = runoffVol * 86400 * LocalConc_Sub_DIN / 1000; 		// kg/day //KAW 2013 05 08 Loading from suburban part of each grid cell
 	LocalLoad_Agr_DIN  = runoffVol * 86400 * LocalConc_Agr_DIN / 1000; 		// kg/day //KAW 2013 05 08 Loading from the agricultural part of each grid cell
 	LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN;                     // kg/day //KAW 2013 05 08: Sum of all N loadings  Total point is from MMM's Code for point source N inputs
-
+       
+// 	LocalLoad_Sub_DIN  = (runoffVol * (1 - (luAgr/100))) * 86400 * LocalConc_Sub_DIN / 1000; 	// kg/day //RJS 02-15-2015
+//	LocalLoad_Agr_DIN  = (runoffVol * (luAgr/100)) * 86400 * LocalConc_Agr_DIN / 1000; 		// kg/day //RJS 02-15-2015 
+//	LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN;                                     // kg/day //RJS 02-15-2015
+      
+        
 	if (loadAdjust > 0.0) LocalLoad_DIN =  LocalLoad_DIN * loadAdjust; 	// RJS 112211
 
  //       if (itemID == 1357) printf("itemID=%d, luAgr = %f, luSub = %f, load_agr = %f, load_sub = %f, totalLoad = %f\n",itemID,luAgr,luSub,LocalLoad_Agr_DIN,LocalLoad_Sub_DIN,LocalLoad_DIN);
@@ -315,19 +369,288 @@ static void _MDNitrogenInputsCalc (int itemID) {
  //       printf("loadAdjust = %f\n", loadAdjust);
 
 	MFVarSetFloat (_MDOutLocalLoad_DINID,       itemID, LocalLoad_DIN);	  	// RJS 090308
-	MFVarSetFloat (_MDOutLocalLoad_Sub_DINID,   itemID, LocalLoad_Sub_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Sub_DINID,   itemID, LocalLoad_Sub_DIN);	  	// RJS 090308
 	MFVarSetFloat (_MDOutDINSubLoadConcID, 	    itemID, LocalConc_Sub_DIN);  	// KAW 2013/03/15
 	MFVarSetFloat (_MDOutLocalLoad_Agr_DINID,   itemID, LocalLoad_Agr_DIN);	  	// RJS 090308
 	MFVarSetFloat (_MDOutDINAgLoadConcID, 	    itemID, LocalConc_Agr_DIN);		// KAW 2013/03/15
 }
 
-enum {MDcalculate, MDinput, MDinput2, MDnone};
+
+static void _MDNitrogenInputsCalc2 (int itemID) {
+
+	// Input
+
+	float luSub     = 0.0;
+	float luAgr     = 0.0;
+	float runoff    = 0.0;		// mm/day
+	float runoffVol = 0.0;		// m3/sec
+
+	float scale     = 0.0;
+	float asym      = 0.0;
+	float xMid      = 0.0;
+        float Xmid_b    = 0.0;
+        float Xmid_m    = 0.0;
+
+	float LocalConc_DIN      = 0.0;
+	float LocalLoad_DIN      = 0.0;
+
+	float LocalConc_Sub_DIN  = 0.0;		//KAW 2013 05 08 Suburban Loading Concentration
+	float LocalLoad_Sub_DIN  = 0.0;		//KAW 2013 05 08 Suburban Loading
+
+	float LocalConc_Agr_DIN   = 0.0;		//KAW 2013 05 08 Agricultural Loading Concentration
+	float LocalLoad_Agr_DIN   = 0.0;		//KAW 2013 05 08 Agricultural Loading
+
+	float riverOrder          = 0.0;
+	float loadAdjust          = 0.0;		// RJS 112211
+	float Total_point         = 0.0;
+
+// test
+
+	riverOrder = MFVarGetFloat (_MDInRiverOrderID, itemID, 0.0);	// RJS 090508
+//	luSub = MFVarGetFloat (_MDInLandUseID,    itemID, 0.0);
+	luSub = MFVarGetFloat (_MDInLandUseSubID, itemID, 0.0);	//KAW 2013 05 08 Suburban Land Use
+	luAgr = MFVarGetFloat (_MDInLandUseAgID,  itemID, 0.0);	//KAW 2013 05 08 Agricultural Land Use
+	asym  = MFVarGetFloat (_MDInAsymID,  itemID, 0.0);	// RJS 102314
+        scale = MFVarGetFloat (_MDInScaleID,  itemID, 0.0);	// RJS 102314
+        Xmid_b = MFVarGetFloat (_MDInXmid_bID,  itemID, 0.0);	// RJS 102314
+        Xmid_m = MFVarGetFloat (_MDInXmid_mID,  itemID, 0.0);	// RJS 102314
+
+	luSub = luSub + luAgr > 100.0 ? luSub / (luSub + luAgr) * 100.0 : luSub;        // RJS 110813    
+        luAgr = luSub + luAgr > 100.0 ? luAgr / (luSub + luAgr) * 100.0 : luAgr;        // RJS 110813
+
+        runoff             = MFVarGetFloat (_MDInRunoffID,         itemID, 0.0); 	// mm / d
+	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,      itemID, 0.0); 	// m3/sec
+	loadAdjust	   = MFVarGetFloat (_MDInLoadAdjustID,     itemID, 1.0);	// RJS 112211, adjusts loads, keep at 1 if nodata
+
+	if (runoff < 0.00001) {
+		LocalConc_Sub_DIN = 0.0;		//KAW 2013 05 08
+		LocalConc_Agr_DIN = 0.0;		//KAW 2013 05 08
+	}
+
+	else {
+            xMid = Xmid_b + Xmid_m * log(runoff);   // RJS 110713 more accurately represents Wollheim et al. 2008 for runoff
+
+            LocalConc_Sub_DIN  = asym / (1 + pow(2.718281828, (xMid - luSub) / scale)); 		// mg/L //KAW 2013 05 08
+            LocalConc_Agr_DIN  = ((asym * 3.5) / (1 + pow(2.718281828, (xMid - luAgr) / scale))) - ((asym * 3.5) / (1 + pow(2.718281828, (xMid - 0.0) / scale))); 	// mg/L //KAW 2013 05 08 (to remove double counting of natural inputs) Concentrations in Agriculture headwater stream are 3.5x the concentrations in suburban stream (Price, unpublished data)
+	}
+
+//	LocalLoad_Sub_DIN  = runoffVol * 86400 * LocalConc_Sub_DIN / 1000; 		// kg/day //KAW 2013 05 08 Loading from suburban part of each grid cell
+//	LocalLoad_Agr_DIN  = runoffVol * 86400 * LocalConc_Agr_DIN / 1000; 		// kg/day //KAW 2013 05 08 Loading from the agricultural part of each grid cell
+//	LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN;                     // kg/day //KAW 2013 05 08: Sum of all N loadings  Total point is from MMM's Code for point source N inputs
+
+ 	LocalLoad_Sub_DIN  = (runoffVol * (1 - (luAgr/100))) * 86400 * LocalConc_Sub_DIN / 1000; 	// kg/day //RJS 02-15-2015
+	LocalLoad_Agr_DIN  = (runoffVol * (luAgr/100)) * 86400 * LocalConc_Agr_DIN / 1000; 		// kg/day //RJS 02-15-2015 
+	LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN;                                     // kg/day //RJS 02-15-2015
+      
+        
+	if (loadAdjust > 0.0) LocalLoad_DIN =  LocalLoad_DIN * loadAdjust; 	// RJS 112211
+
+        //if (itemID == 662) printf("itemID=%d, luAgr = %f, luSub = %f, load_agr = %f, load_sub = %f, totalLoad = %f\n",itemID,luAgr,luSub,LocalLoad_Agr_DIN,LocalLoad_Sub_DIN,LocalLoad_DIN);
+        
+        //if(LocalConc_Sub_DIN > 1.4 || LocalConc_Ag_DIN > 4.9) printf("runoff = %f, luSub = %f, luAg = %f, xMid = %f, Sub_conc = %f, Ag_conc = %f\n", runoff, luSub, luAg, xMid, LocalConc_Sub_DIN, LocalConc_Ag_DIN);
+        //if (itemID == 809) printf("**** itemID = %d, y=%d, m=%d, d=%d, runoff=%f, luSub=%f, luAg=%f, xMid=%f, Sub_conc=%f, Ag_conc=%f, Subload=%f, Agload=%f, total=%f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), runoff, luSub, luAg, xMid, LocalConc_Sub_DIN, LocalConc_Ag_DIN, LocalLoad_Sub_DIN, LocalLoad_Ag_DIN, LocalLoad_DIN);
+	//if (itemID == 662) printf("***** itemID = %d, year = %d, month = %d, day = %d, xMid = %f, luSub = %f, scale = %f, asym = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), xMid, luSub, scale, asym);
+	//if (itemID == 662) printf("runoffVol = %f, runoff = %f, LocalLoad_DIN = %f, LocalConc_DIN = %f, Total_point= %f, loadAdjust = %f\n", runoffVol, runoff, LocalLoad_DIN, LocalConc_DIN, Total_point, loadAdjust);  //mmm commented out 2013-3-13
+	//if (itemID == 662) printf("Xmid_b = %f, Xmid_m = %f, runoff = %f\n", Xmid_b, Xmid_m, runoff);  //mmm commented out 2013-3-13
+
+	MFVarSetFloat (_MDOutLocalLoad_DINID,       itemID, LocalLoad_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Sub_DINID,   itemID, LocalLoad_Sub_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutDINSubLoadConcID, 	    itemID, LocalConc_Sub_DIN);  	// KAW 2013/03/15
+	MFVarSetFloat (_MDOutLocalLoad_Agr_DINID,   itemID, LocalLoad_Agr_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutDINAgLoadConcID, 	    itemID, LocalConc_Agr_DIN);		// KAW 2013/03/15
+}
+
+
+static void _MDNitrogenInputsJordan (int itemID) {
+
+	// Input
+
+	float luSub     = 0.0;          // percent developed
+	float luAgr     = 0.0;          // percent agriculture
+	float runoff    = 0.0;		// mm/day
+	float runoffVol = 0.0;		// m3/sec
+
+	float scale     = 0.0;
+	float asym      = 0.0;
+	float xMid      = 0.0;
+        float Xmid_b    = 0.0;
+        float Xmid_m    = 0.0;
+
+	float LocalConc_DIN      = 0.0;
+	float LocalLoad_DIN      = 0.0;
+
+	float LocalConc_Sub_DIN  = 0.0;		
+	float LocalLoad_Sub_DIN  = 0.0;		
+
+	float LocalConc_Agr_DIN   = 0.0;	
+	float LocalLoad_Agr_DIN   = 0.0;	
+
+	float propGrW             = 0.0;
+        float propAgr             = 0.0;    // proportion of luAgr: luAgr / (luAgr + luSub)
+        float propSub             = 0.0;    // proportion of luSub: luSub / (luAgr + luSub)
+        float luPrist             = 0.0;    // percent of grid cell that is pristine
+        float prist_Agr           = 0.0;    // percent of grid cell that is pristine associated with Agr
+        float prist_Sub           = 0.0;    // percent of grid cell that is pristine associated with Sub
+        float new_luAgr           = 0.0;    // revised luAgr based on subcatchment
+        float new_luSub           = 0.0;    // revised luSub based on subcatchment
+
+	luSub = MFVarGetFloat (_MDInLandUseSubID, itemID, 0.0);	// 
+	luAgr = MFVarGetFloat (_MDInLandUseAgID,  itemID, 0.0);	// 
+	asym  = MFVarGetFloat (_MDInAsymID,  itemID, 0.0);	// RJS 102314
+        scale = MFVarGetFloat (_MDInScaleID,  itemID, 0.0);	// RJS 102314
+        Xmid_b = MFVarGetFloat (_MDInXmid_bID,  itemID, 0.0);	// RJS 102314
+        Xmid_m = MFVarGetFloat (_MDInXmid_mID,  itemID, 0.0);	// RJS 102314
+
+	luSub = luSub + luAgr > 100.0 ? luSub / (luSub + luAgr) * 100.0 : luSub;        // RJS 110813    
+        luAgr = luSub + luAgr > 100.0 ? luAgr / (luSub + luAgr) * 100.0 : luAgr;        // RJS 110813
+        
+        luPrist = 100 - (luSub + luAgr);    // percent of land that is pristine
+
+        runoff             = MFVarGetFloat (_MDInRunoffID,            itemID, 0.0); 	// mm / d
+	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,         itemID, 0.0); 	// m3/sec
+        propGrW            = MFVarGetFloat (_MDInPropROGroundWaterID, itemID, 0.0);     // proportion of runoff from GW
+        propAgr            = luAgr / (luAgr + luSub);
+        propSub            = luSub / (luAgr + luSub);
+        prist_Agr          = luPrist * propAgr;     // Percent of pristine area that is associated with Agr
+        prist_Sub          = luPrist * propSub;     // Percent of pristine area that is associated with Sub
+        
+        new_luAgr          = luAgr / (luAgr + prist_Agr) * 100;
+        new_luSub          = luSub / (luSub + prist_Sub) * 100;
+        
+        if ((luSub + luAgr + prist_Sub + prist_Agr) != 100) printf("ERROR %d-%d-%d, ID = %d, luSub = %f, luAgr = %f, prist_Sub = %f, prist_Agr = %f\n", MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), itemID, luSub, luAgr, prist_Sub, prist_Agr);
+        
+	if (runoff < 0.00001) {
+		LocalConc_Sub_DIN = 0.0;		
+		LocalConc_Agr_DIN = 0.0;		
+	}
+
+	else {
+            
+            xMid = Xmid_b + Xmid_m * log(runoff);   // RJS 110713 more accurately represents Wollheim et al. 2008 for runoff
+
+            LocalConc_Sub_DIN  = asym / (1 + pow(2.718281828, (xMid - new_luSub) / scale)); 		
+            LocalConc_Agr_DIN = 1.796 - (0.0501 * new_luAgr) - (1.561 * propGrW) + (0.1796 * new_luAgr * propGrW);          
+
+	}
+
+ 	LocalLoad_Sub_DIN  = runoffVol * ((prist_Sub + luSub) / 100) * 86400 * LocalConc_Sub_DIN / 1000; 	// kg/day //RJS 02-15-2015
+	LocalLoad_Agr_DIN  = runoffVol * ((prist_Agr + luAgr) / 100) * 86400 * LocalConc_Agr_DIN / 1000; 	// kg/day //RJS 02-15-2015 
+	LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN;                                     // kg/day //RJS 02-15-2015
+      
+        
+
+     	MFVarSetFloat (_MDOutLocalLoad_DINID,       itemID, LocalLoad_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Sub_DINID,   itemID, LocalLoad_Sub_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutDINSubLoadConcID, 	    itemID, LocalConc_Sub_DIN);  	// KAW 2013/03/15
+	MFVarSetFloat (_MDOutLocalLoad_Agr_DINID,   itemID, LocalLoad_Agr_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutDINAgLoadConcID, 	    itemID, LocalConc_Agr_DIN);		// KAW 2013/03/15
+}
+
+
+static void _MDNitrogenInputsRatio (int itemID) {
+
+	// Input
+
+	float luSub     = 0.0;          // percent developed
+	float luAgr     = 0.0;          // percent agriculture
+	float runoff    = 0.0;		// mm/day
+	float runoffVol = 0.0;		// m3/sec
+
+	float scale     = 0.0;
+	float asym      = 0.0;
+	float xMid      = 0.0;
+        float Xmid_b    = 0.0;
+        float Xmid_m    = 0.0;
+
+	float LocalConc_DIN      = 0.0;
+	float LocalLoad_DIN      = 0.0;
+
+	float LocalConc_Sub_DIN  = 0.0;		
+	float LocalLoad_Sub_DIN  = 0.0;		
+
+	float LocalConc_Agr_DIN   = 0.0;	
+	float LocalLoad_Agr_DIN   = 0.0;	
+
+	float BFI                 = 0.0;
+        float propAgr             = 0.0;    // proportion of luAgr: luAgr / (luAgr + luSub)
+        float propSub             = 0.0;    // proportion of luSub: luSub / (luAgr + luSub)
+        float DINadjust           = 0.0;    // value ranging from 0 to 2
+        float DINadjust2          = 0.0;    // adjusts DIN from 0.5 to 2 times
+
+	luSub = MFVarGetFloat (_MDInLandUseSubID, itemID, 0.0);	// 
+	luAgr = MFVarGetFloat (_MDInLandUseAgID,  itemID, 0.0);	// 
+	asym  = MFVarGetFloat (_MDInAsymID,  itemID, 0.0);              // RJS 102314
+        scale = MFVarGetFloat (_MDInScaleID,  itemID, 0.0);             // RJS 102314
+        Xmid_b = MFVarGetFloat (_MDInXmid_bID,  itemID, 0.0);           // RJS 102314
+        Xmid_m = MFVarGetFloat (_MDInXmid_mID,  itemID, 0.0);           // RJS 102314
+        DINadjust = MFVarGetFloat (_MDInDINadjustID,  itemID, 0.0);	// RJS 032716
+
+ /*       if (DINadjust > 0.00001) {      // new 032716 for use in MonteCarlo_2016
+            
+            if (DINadjust < 0.5) {
+                DINadjust2 = 0.5 - DINadjust;
+                DINadjust2 = 1 - DINadjust2;
+            }
+            
+            else {
+                DINadjust2 = DINadjust / 0.5;           
+            }
+        }
+*/               
+        
+        
+	luSub = luSub + luAgr > 100.0 ? luSub / (luSub + luAgr) * 100.0 : luSub;        // RJS 110813    
+        luAgr = luSub + luAgr > 100.0 ? luAgr / (luSub + luAgr) * 100.0 : luAgr;        // RJS 110813
+        
+        runoff             = MFVarGetFloat (_MDInRunoffID,            itemID, 0.0); 	// mm / d
+	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,         itemID, 0.0); 	// m3/sec
+        BFI                = MFVarGetFloat (_MDInBFIID, itemID, 0.0);     // proportion of runoff from GW
+        propAgr            = luAgr + luSub > 0.0 ? luAgr / (luAgr + luSub) : 0.0;
+        propSub            = luAgr + luSub > 0.0 ? luSub / (luAgr + luSub) : 1.0;
+
+
+	if (runoff < 0.00001) {
+		LocalConc_Sub_DIN = 0.0;		
+		LocalConc_Agr_DIN = 0.0;		
+	}
+
+	else {
+            
+            xMid = Xmid_b + Xmid_m * log(runoff);   // RJS 110713 more accurately represents Wollheim et al. 2008 for runoff
+
+            LocalConc_Sub_DIN  = asym / (1 + pow(2.718281828, (xMid - luSub) / scale)); 		
+            LocalConc_Agr_DIN = 1.796 - (0.0501 * luAgr) - (1.561 * BFI) + (0.1796 * luAgr * BFI);    
+            LocalConc_Agr_DIN = LocalConc_Agr_DIN - 0.566 >= 0.0 ? LocalConc_Agr_DIN - 0.566 : 0.0;     // using Piedmont and Coastal Plain average
+  //          LocalConc_Agr_DIN = LocalConc_Agr_DIN >= 0.0 ? LocalConc_Agr_DIN : 0.0;     // using Piedmont 
+
+	}
+
+            LocalConc_Sub_DIN = pow(10, DINadjust) * LocalConc_Sub_DIN;     // for MonteCarlo only 033116
+            LocalConc_Agr_DIN = pow(10, DINadjust) * LocalConc_Agr_DIN;     // for MonteCarlo only 033116
+        
+        
+ 	LocalLoad_Sub_DIN  = runoffVol * propSub * 86400 * LocalConc_Sub_DIN / 1000; 	// kg/day //RJS 02-15-2015
+	LocalLoad_Agr_DIN  = runoffVol * propAgr * 86400 * LocalConc_Agr_DIN / 1000; 	// kg/day //RJS 02-15-2015 
+	LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN;                                     // kg/day //RJS 02-15-2015
+      
+        
+
+     	MFVarSetFloat (_MDOutLocalLoad_DINID,       itemID, LocalLoad_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutLocalConc_Sub_DINID,   itemID, LocalLoad_Sub_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutDINSubLoadConcID, 	    itemID, LocalConc_Sub_DIN);  	// KAW 2013/03/15
+	MFVarSetFloat (_MDOutLocalLoad_Agr_DINID,   itemID, LocalLoad_Agr_DIN);	  	// RJS 090308
+	MFVarSetFloat (_MDOutDINAgLoadConcID, 	    itemID, LocalConc_Agr_DIN);		// KAW 2013/03/15
+}
+
+
+
+enum {MDcalculate, MDcalculate2, MDinput, MDinput2, MDnone, MDJordan, MDRatio};
 
 int MDNitrogenInputsDef () {
 
 			int  optID = MFUnset;													    //RJS 10-28-10
 			const char *optStr, *optName = MDOptDINInputs;								//RJS 10-28-10
-			const char *options [] = { MDCalculateStr, MDInputStr, MDInput2Str, MDNoneStr, (char *) NULL };		//RJS 10-28-10
+			const char *options [] = { MDCalculateStr, MDCalculate2Str, MDInputStr, MDInput2Str, MDNoneStr, MDJordanStr, MDRatioStr, (char *) NULL };		//RJS 10-28-10
 
 	MFDefEntering ("Nitrogen Inputs");
 
@@ -359,27 +682,36 @@ int MDNitrogenInputsDef () {
         case MDinput2:
 	if (((_MDInRunoffID   		 = MFVarGetID (MDVarRunoff,              "mm",  MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	//RJS 10-28-10
 	    ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||			// RJS 10-28-10
-            ((_MDInLandUseSubID          = MFVarGetID (MDVarLandUseSpatialSub,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
 	    ((_MDInLandUseAgID           = MFVarGetID (MDVarLandUseSpatialAg,        "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
 	    ((_MDInLandUseConID          = MFVarGetID (MDVarLandUseSpatialCon,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
 	    ((_MDInLandUseDecID          = MFVarGetID (MDVarLandUseSpatialDec,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
 	    ((_MDInLandUseMixID          = MFVarGetID (MDVarLandUseSpatialMix,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
-	    ((_MDInH2OFractionID         = MFVarGetID (MDVarH2OFracSpatial,          "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||		//commented out 082812
+            ((_MDInLawnFractionID        = MFVarGetID (MDVarLawnFraction,               "-",     MFInput,  MFState, MFBoundary)) == CMfailed) ||
+            ((_MDInImpFractionID         = MFVarGetID (MDVarImpFracSpatial,  "-",    MFInput,  MFState, MFBoundary)) == CMfailed) ||
+            ((_MDInWetlandsID            = MFVarGetID (MDVarFracWetlandArea,                             "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 112513
+            ((_MDInH2OFractionID         = MFVarGetID (MDVarH2OFracSpatial,          "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||		//commented out 082812
+            ((_MDInLandUseUrbForID       = MFVarGetID (MDVarLandUseSpatialUrbFor,    "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
             ((_MDInLocalLoad_Con_DINID   = MFVarGetID (MDVarInLocalLoadConDIN,    "g/m2",  MFInput, MFFlux, MFBoundary)) == CMfailed) || 
             ((_MDInLocalLoad_Dec_DINID   = MFVarGetID (MDVarInLocalLoadDecDIN,    "g/m2",  MFInput, MFFlux, MFBoundary)) == CMfailed) || 
             ((_MDInLocalLoad_Mix_DINID   = MFVarGetID (MDVarInLocalLoadMixDIN,    "g/m2",  MFInput, MFFlux, MFBoundary)) == CMfailed) || 
             ((_MDInLocalLoad_Lak_DINID   = MFVarGetID (MDVarInLocalLoadLakDIN,    "g/m2",  MFInput, MFFlux, MFBoundary)) == CMfailed) || 
+            ((_MDInLocalLoad_Wet_DINID   = MFVarGetID (MDVarInLocalLoadWetDIN,    "g/m2",  MFInput, MFFlux, MFBoundary)) == CMfailed) || 
             ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,         "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
             ((_MDOutLocalConc_DINID      = MFVarGetID (MDVarLocalConcDIN,         "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
-	    ((_MDOutLocalLoad_PnET_DINID = MFVarGetID (MDVarLocalLoadPnETDIN,      "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
-	    ((_MDOutLocalLoad_Sub_DINID  = MFVarGetID (MDVarLocalLoadSubDIN,      "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+	    ((_MDOutLocalLoad_Con_DINID  = MFVarGetID (MDVarLocalLoadConDIN,      "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
 	    ((_MDOutLocalLoad_Agr_DINID  = MFVarGetID (MDVarLocalLoadAgDIN,      "kg/day",  MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
             ((_MDOutLocalLoad_Lak_DINID  = MFVarGetID (MDVarLocalLoadLakDIN,      "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
-	    ((_MDOutLocalLoad_For_DINID  = MFVarGetID (MDVarLocalLoadForDIN,      "kg/day",  MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
-   	    ((_MDOutLocalConc_Sub_DINID  = MFVarGetID (MDVarLocalConcSubDIN,      "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
+            ((_MDOutLocalLoad_Dec_DINID  = MFVarGetID (MDVarLocalLoadDecDIN,      "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+            ((_MDOutLocalLoad_Mix_DINID  = MFVarGetID (MDVarLocalLoadMixDIN,      "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+            ((_MDOutLocalLoad_Wet_DINID  = MFVarGetID (MDVarLocalLoadWetDIN,      "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+            ((_MDOutLocalLoad_Sub_DINID  = MFVarGetID (MDVarLocalLoadSubDIN,      "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
+	    ((_MDOutLocalConc_Sub_DINID  = MFVarGetID (MDVarLocalConcSubDIN,      "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
 	    ((_MDOutLocalConc_Agr_DINID  = MFVarGetID (MDVarLocalConcAgDIN,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
             ((_MDOutLocalConc_Lak_DINID  = MFVarGetID (MDVarLocalConcLakDIN,      "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
-	    ((_MDOutLocalConc_For_DINID  = MFVarGetID (MDVarLocalConcForDIN,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
+            ((_MDOutLocalConc_Dec_DINID  = MFVarGetID (MDVarLocalConcDecDIN,      "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
+            ((_MDOutLocalConc_Mix_DINID  = MFVarGetID (MDVarLocalConcMixDIN,      "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
+            ((_MDOutLocalConc_Wet_DINID  = MFVarGetID (MDVarLocalConcWetDIN,      "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
+            ((_MDOutLocalConc_Con_DINID  = MFVarGetID (MDVarLocalConcConDIN,      "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) ||	//RJS 050511
      (MFModelAddFunction (_MDNitrogenInputsInput2) == CMfailed)) return (CMfailed);
 		break;
 
@@ -392,7 +724,7 @@ int MDNitrogenInputsDef () {
 	    ((_MDInLandUseAgID             	= MFVarGetID (MDVarLandUseSpatialAg,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
 //	    ((_MDInTotalPointID			 = MDPointSourceDef ()) == CMfailed) ||															//MMM Added this so that Nitrogeninputs knows it must run MDPointSource in order to calculate localload
 	    ((_MDInLoadAdjustID          = MFVarGetID (MDVarLoadAdjust,           "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 112211
-	    ((_MDOutLocalLoad_Sub_DINID     = MFVarGetID (MDVarLocalLoadSubDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutLocalConc_Sub_DINID     = MFVarGetID (MDVarLocalLoadSubDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
 	    ((_MDOutLocalLoad_Agr_DINID      = MFVarGetID (MDVarLocalLoadAgDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
 	    ((_MDOutDINSubLoadConcID        = MFVarGetID (MDVarDINSubLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
 	    ((_MDOutDINAgLoadConcID        	= MFVarGetID (MDVarDINAgLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
@@ -401,7 +733,63 @@ int MDNitrogenInputsDef () {
 	    ((_MDInRiverOrderID          = MFVarGetID (MDVarRiverOrder,           "-", MFInput,  MFState, MFBoundary)) == CMfailed) ||  //RJS 10-29-10
 	    (MFModelAddFunction (_MDNitrogenInputsCalc) == CMfailed)) return (CMfailed);
 	   break;
-
+           
+        case MDcalculate2:
+	if (((_MDInRunoffID   			 = MFVarGetID (MDVarRunoff,              "mm",  MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	//RJS 10-28-10
+	    ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||			// RJS 10-28-10
+            ((_MDInLandUseSubID             = MFVarGetID (MDVarLandUseSpatialSub,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInLandUseAgID             	= MFVarGetID (MDVarLandUseSpatialAg,       "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInLoadAdjustID          = MFVarGetID (MDVarLoadAdjust,           "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 112211
+	    ((_MDInAsymID               = MFVarGetID (MDVarAsym,           "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInScaleID               = MFVarGetID (MDVarScale,           "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInXmid_bID               = MFVarGetID (MDVarXmid_b,           "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInXmid_mID               = MFVarGetID (MDVarXmid_m,           "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDOutLocalConc_Sub_DINID     = MFVarGetID (MDVarLocalLoadSubDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutLocalLoad_Agr_DINID      = MFVarGetID (MDVarLocalLoadAgDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutDINSubLoadConcID        = MFVarGetID (MDVarDINSubLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
+	    ((_MDOutDINAgLoadConcID        	= MFVarGetID (MDVarDINAgLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
+	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//RJS 10-28-10
+	    ((_MDOutDINLoadConcID        = MFVarGetID (MDVarDINLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	// KYLE
+	    ((_MDInRiverOrderID          = MFVarGetID (MDVarRiverOrder,           "-", MFInput,  MFState, MFBoundary)) == CMfailed) ||  //RJS 10-29-10
+	    (MFModelAddFunction (_MDNitrogenInputsCalc2) == CMfailed)) return (CMfailed);
+	   break;
+           case MDJordan:
+	if (((_MDInRunoffID   		 = MFVarGetID (MDVarRunoff,              "mm",  MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	//RJS 10-28-10
+	    ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||			// RJS 10-28-10
+            ((_MDInLandUseSubID          = MFVarGetID (MDVarLandUseSpatialSub,  "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInLandUseAgID           = MFVarGetID (MDVarLandUseSpatialAg,   "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInAsymID                = MFVarGetID (MDVarAsym,               "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInScaleID               = MFVarGetID (MDVarScale,              "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInXmid_bID              = MFVarGetID (MDVarXmid_b,             "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInXmid_mID              = MFVarGetID (MDVarXmid_m,             "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInPropROGroundWaterID   = MFVarGetID (MDVarPropROGroundWater,  "-",     MFInput, MFState, MFBoundary)) == CMfailed) ||  
+            ((_MDOutLocalConc_Sub_DINID  = MFVarGetID (MDVarLocalLoadSubDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutLocalLoad_Agr_DINID  = MFVarGetID (MDVarLocalLoadAgDIN,     "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutDINSubLoadConcID     = MFVarGetID (MDVarDINSubLoadConc,     "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
+	    ((_MDOutDINAgLoadConcID      = MFVarGetID (MDVarDINAgLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
+	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,       "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//RJS 10-28-10
+	    ((_MDOutDINLoadConcID        = MFVarGetID (MDVarDINLoadConc,        "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	// KYLE
+	    (MFModelAddFunction (_MDNitrogenInputsJordan) == CMfailed)) return (CMfailed);
+	   break;
+           case MDRatio:
+	if (((_MDInRunoffID   		 = MFVarGetID (MDVarRunoff,              "mm",  MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	//RJS 10-28-10
+	    ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||			// RJS 10-28-10
+            ((_MDInLandUseSubID          = MFVarGetID (MDVarLandUseSpatialSub,  "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInLandUseAgID           = MFVarGetID (MDVarLandUseSpatialAg,   "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInAsymID                = MFVarGetID (MDVarAsym,               "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInScaleID               = MFVarGetID (MDVarScale,              "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInXmid_bID              = MFVarGetID (MDVarXmid_b,             "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInXmid_mID              = MFVarGetID (MDVarXmid_m,             "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInBFIID                 = MFVarGetID (MDVarBFI,                "-", MFInput, MFState, MFBoundary)) == CMfailed) ||  
+	    ((_MDInDINadjustID           = MFVarGetID (MDVarDINadjust,          "-", MFInput, MFState, MFBoundary)) == CMfailed) ||  
+            ((_MDOutLocalConc_Sub_DINID  = MFVarGetID (MDVarLocalLoadSubDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutLocalLoad_Agr_DINID  = MFVarGetID (MDVarLocalLoadAgDIN,     "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
+	    ((_MDOutDINSubLoadConcID     = MFVarGetID (MDVarDINSubLoadConc,     "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
+	    ((_MDOutDINAgLoadConcID      = MFVarGetID (MDVarDINAgLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	//KAW 2013 05 08
+	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,       "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//RJS 10-28-10
+	    ((_MDOutDINLoadConcID        = MFVarGetID (MDVarDINLoadConc,        "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	// KYLE
+	    (MFModelAddFunction (_MDNitrogenInputsRatio) == CMfailed)) return (CMfailed);
+	   break;
 	default: MFOptionMessage (optName, optStr, options); return (CMfailed);
 	}
 

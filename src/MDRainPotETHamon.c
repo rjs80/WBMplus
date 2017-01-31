@@ -37,7 +37,7 @@ static void _MDRainPotETHamon (int itemID) {
    rhoSat  = 2.167 * MDPETlibVPressSat (airT) / (airT + 273.15);
    pet     = 165.1 * 2.0 * dayLen * rhoSat; // 2 * DAYLEN = daylength as fraction of 12 hours
    MFVarSetFloat (_MDOutPetID,itemID,pet);
-  // printf ("End Hamon\n");
+   // if (itemID == 5460) printf ("%d-%d-%d, dayLen = %f, airT = %f\n",MFDateGetCurrentYear(),MFDateGetCurrentMonth(),MFDateGetCurrentDay(),dayLen,airT);
    }
 
 int MDRainPotETHamonDef () {

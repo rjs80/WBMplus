@@ -107,8 +107,7 @@ OBJS = $(OBJ)/WBMMain.o\
        $(OBJ)/MDHydropower.o\
        $(OBJ)/MDSpecCond.o\
        $(OBJ)/MDChloride.o\
-       $(OBJ)/MDDOCv2.o
-
+       $(OBJ)/MDNEP.o
 
 all: ${TARGET}
 

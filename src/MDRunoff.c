@@ -123,7 +123,7 @@ static void _MDRunoffInput2 (int itemID) {														// RJS 061312  ADDED THI
 
 	MFVarSetFloat (_MDOutRunoffID,          itemID, (baseFlow + surfaceRO) * runoffCorr);
 	MFVarSetFloat (_MDOutTotalSurfRunoffID, itemID, surfaceRO);                                     // RJS 082812
-        MFVarSetFloat (_MDOutPropROStormWaterID,  itemID, propStW);                                       // RJS 100313
+        MFVarSetFloat (_MDOutPropROStormWaterID,  itemID, propStW);                                     // RJS 100313
         MFVarSetFloat (_MDOutPropROSurfaceWaterID,   itemID, propSuW);                                       // RJS 100313
         MFVarSetFloat (_MDOutPropROGroundWaterID, itemID, propGrW); 
         MFVarSetFloat (_MDOutStormRunoffTotalID,  itemID, stormRunoffTotal);

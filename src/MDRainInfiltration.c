@@ -29,6 +29,7 @@ static float _MDInfiltrationFrac = 0.5;
 static int  _MDInfiltrationFractionID   = MFUnset;
 static int _MDInSaturationExcessRunoffID = MFUnset;
 static int _MDInRainInfiltrationID = MFUnset;
+
 static void _MDRainInfiltrationSimple (int itemID) {
 
 	float surplus;
@@ -43,7 +44,7 @@ static void _MDRainInfiltrationSimple (int itemID) {
 	infiltration = surplus *_MDInfiltrationFrac;
 	MFVarSetFloat (_MDOutRainSurfRunoffID,       itemID, surfRunoff);
 	MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, infiltration);
-   //     printf("Gamma = %f, Infiltraction %f surfRunoff %f \n",_MDInfiltrationFrac, infiltration,surfRunoff);
+//   if (itemID == 1)     printf("SIMPLE Gamma = %f, surplus = %f, Infiltraction %f surfRunoff %f \n",_MDInfiltrationFrac, surplus, infiltration,surfRunoff);
    //     if (itemID == 1) printf("Gamma = %f\n", _MDInfiltrationFrac);
 }
 
@@ -65,13 +66,14 @@ static void _MDRainInfiltrationSimple2 (int itemID) {
 	infiltration = (surplusC + surplusD + surplusM) *_MDInfiltrationFrac;
 	MFVarSetFloat (_MDOutRainSurfRunoffID,       itemID, surfRunoff);
 	MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, infiltration);
- //  if ((itemID == 8640) || (itemID == 4596))   printf("id = %d, Gamma = %f, Infiltration %f surfRunoff %f \n",itemID, _MDInfiltrationFrac, infiltration,surfRunoff);
+ //  if ((itemID == 1)) printf("SIMPLE2 id = %d, Gamma = %f, Infiltration %f surfRunoff %f \n",itemID, _MDInfiltrationFrac, infiltration,surfRunoff);
    //     if (itemID == 1) printf("Gamma = %f\n", _MDInfiltrationFrac);
 }
 
 static void _MDRainInfiltrationSaturation (int itemID){
 		MFVarSetFloat (_MDOutRainSurfRunoffID,       itemID, MFVarGetFloat(_MDInSaturationExcessRunoffID, itemID,0.0));
 		MFVarSetFloat (_MDOutRainInfiltrationID,     itemID, MFVarGetFloat(_MDOutRainInfiltrationID, itemID,0.0));
+ //  if ((itemID == 1))  printf("Saturation  \n");
 }
 
 enum { MDinput, MDinput2, MDsimple, MDvarying,MDSpatially};

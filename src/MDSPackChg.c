@@ -84,6 +84,7 @@ static void _MDSPackChg (int itemID) {
 		MFVarSetFloat (_MDOutSPackChgID, itemID, sPackChg);
 		MFVarSetFloat (_MDOutSnowPackID, itemID, sPack + sPackChg);
 	}
+        
 	else { /* No change when air temperature is in [-1.0,1.0] range */
 		MFVarSetFloat (_MDOutSnowFallID, itemID, 0.0);
 		MFVarSetFloat (_MDOutSnowMeltID, itemID, 0.0);

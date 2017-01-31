@@ -60,7 +60,7 @@ static void _MDGrossRadianceOtto (int itemID) {
 	day    = MFDateGetDayOfYear ();
    lambda = MFModelGetLatitude (itemID) * DTOR;
 
-	sp = 1360.0 * 3600.0 * 24.0 * 0.041841 / 41860.0; // FBM  0.041841 conversion from cal/cm2 to MJ/m2
+	sp = 1360.0 * 3600.0 * 24.0 * 0.041841 / 41860.0; // FBM  0.041841 conversion from cal/cm2 to MJ/m2/d
 	grossRad = 0.0;
 	sigma = -23.4856 * cos (2.0 * M_PI * (day + 11.0) / 365.25) * DTOR;
 	for (hour = 0;hour < 24;hour++) {
@@ -70,7 +70,7 @@ static void _MDGrossRadianceOtto (int itemID) {
 		sbb = sp * sinphi / pow (sotd,2.0);
 		if (sbb >= 0) grossRad += sbb;
 	}
-	MFVarSetFloat (_MDOutGrossRadID,  itemID, grossRad / 24.0);
+	MFVarSetFloat (_MDOutGrossRadID,  itemID, grossRad / 24.0);     // MJ/m2/d
 }
 
 enum { MDinput, MDstandard,  MDOtto }; 

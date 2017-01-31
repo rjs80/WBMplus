@@ -43,6 +43,18 @@ static int _MDInRemovalOrderID                  = MFUnset;              // RJS 1
 static int _MDInWWTPpointSrcID                  = MFUnset;              // RJS 100413
 static int _MDInLakeYesNoID                     = MFUnset;              // RJS 100413
 static int _MDInLakePointAreaID                 = MFUnset;              // RJS 100413
+static int _MDInEtaID                           = MFUnset;              // RJS 011316
+static int _MDInNuID                            = MFUnset;              // RJS 011316
+static int _MDInTauID                           = MFUnset;              // RJS 011316
+static int _MDInPhi2ID                           = MFUnset;              // RJS 033116
+static int _MDInTau2ID                           = MFUnset;              // RJS 033116
+static int _MDInPhiID                           = MFUnset;              // RJS 011316
+static int _MDInDischMeanID                     = MFUnset;              // RJS 011316
+static int _MDInRbID                            = MFUnset;              // RJS 011316
+static int _MDInRlID                            = MFUnset;              // RJS 011316
+static int _MDInOrd1DirectID                    = MFUnset;              // RJS 011316
+static int _MDInOrd2DirectID                    = MFUnset;              // RJS 011316
+static int _MDInBasinID                         = MFUnset;              // RJS 033116
 
 static int _MDInWetlandsID                      = MFUnset;              // RJS 112513
 static int _MDInHCWAID                          = MFUnset;              // RJS 112513
@@ -58,6 +70,11 @@ static int _MDInLandUseAgrID                    = MFUnset;              // RJS 0
 static int _MDInWidthAdjustID                   = MFUnset;              // RJS 041114
 //static int _MDInRandomNumberID                  = MFUnset;              // RJS 041114
 static int _MDInTransferAdjustID		= MFUnset;		// RJS 041314
+static int _MDInVf_bID                          = MFUnset;		// RJS 102314
+static int _MDInVf_mID                          = MFUnset;		// RJS 102314
+static int _MDInDO2ID                           = MFUnset;		// RJS 072315
+static int _MDInSinuosityID			= MFUnset;
+static int _MDInWTempRiverID                    = MFUnset;
 
 // output
 
@@ -126,7 +143,8 @@ static int _MDOutBackCalcR_assimID              = MFUnset; // RJS 100413
 static int _MDOutBackCalcVf_assimID             = MFUnset; // RJS 100413
 static int _MDOutRiparianRemovalID		= MFUnset; // RJS 040714
 static int _MDOutPercentDINIncreaseID           = MFUnset; // RJS 080614
-
+static int _MDOutTotalNLoadtoRiverID            = MFUnset; // RJS 101215
+static int _MDOutPropRemovedCellID              = MFUnset; // RJS 011316
 static float _MDUptakeKtMC   = 0.60;		// RJS 033009
 static float _MDUptakeKtSTS  = 0.60;		// RJS 033009
 static float _MDUptakeKtHTS  = 0.60;		// RJS 033009
@@ -287,9 +305,57 @@ float TransferCoef		= 0.0;
 float DINTotalIn_denit2         = 0.0;
 float preConcDIN_denit2         = 0.0;
 float percentIncrease           = 0.0;
+float DO2_trigger               = 0.0;
+float TotalNLoadtoRiver         = 0.0;
+float sinuosity			= 0.0;
+float eta                       = 0.0;
+float nu                        = 0.0;
+float tau                       = 0.0;
+float phi                       = 0.0;
+float tau2                      = 0.0;
+float phi2                      = 0.0;
+float meanQ                     = 0.0;
+float Rb                        = 0.0;
+float Rl                        = 0.0;
+float TotalMassRemoved_cell     = 0.0;             
+float localLoad_DIN_cell        = 0.0;  
+float PropRemoved_cell          = 0.0;     
+float Ord1_Direct               = 0.0;
+float Ord2_Direct               = 0.0;
+float Ord3_Direct               = 0.0;
+float Ord3_MeanLength           = 0.0;             
+float Ord2_MeanLength           = 0.0;
+float Ord1_MeanLength           = 0.0;
+float Ord3_Numbers              = 0.0;                     // based on Ipswich network statistics, on average there are 2.4 3rd order streams in a 3 min grid cell (Wollheim et al. 2008 has mean area of 3rd order as 9.6 km2)
+float Ord2_Numbers              = 0.0;
+float Ord1_Numbers              = 0.0;       
+float Ord1_Mass                 = 0.0;  // kg/d
+float Ord2_Mass                 = 0.0;  // kg/d
+float Ord3_Mass                 = 0.0;  // kg/d
+float Ord1_Width                = 0.0;
+float Ord2_Width                = 0.0;
+float Ord3_Width                = 0.0;
+float Ord1_Depth                = 0.0;
+float Ord2_Depth                = 0.0;
+float Ord3_Depth                = 0.0;           
+float Ord1_HL                   = 0.0;
+float Ord2_HL                   = 0.0;
+float Ord3_HL                   = 0.0;
+float DIN_Vf_ref_cell           = 0.0;	
+float DIN_Vf_cell               = 0.0;                         
+float Ord1_Rem                  = 0.0; 
+float Ord2_Rem                  = 0.0; 
+float Ord3_Rem                  = 0.0; 
+float Ord1_MassRemoved          = 0.0;
+float Ord1_MassRemain           = 0.0;
+float Ord2_MassRemoved          = 0.0;
+float Ord2_MassRemain           = 0.0;
+float Ord3_MassRemoved          = 0.0;
+float Ord3_MassRemain           = 0.0;
+float runoffTemp                = 0.0;
+float basinID                   = 0.0;
 
-
-	riverOrder           = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);	 //RJS 112211
+	riverOrder           = MFVarGetFloat (_MDInRiverOrderID,         itemID, 0.0);	 // RJS 112211
         removalOrder         = MFVarGetFloat (_MDInRemovalOrderID,       itemID, 0.0);   // RJS 100213
 	localLoad_DIN  	     = MFVarGetFloat (_MDInLocalLoad_DINID,      itemID, 0.0);	 // kg/day RJS 091108
         WWTPpointSrc         = MFVarGetFloat (_MDInWWTPpointSrcID,       itemID, 0.0);   // kg/day RJS 100413
@@ -324,7 +390,27 @@ float percentIncrease           = 0.0;
 	luAgr                = MFVarGetFloat (_MDInLandUseAgrID,         itemID, 0.0) / 100;	//KAW 2013 05 08 Agricultural Land Use
         widthAdjust          = MFVarGetFloat (_MDInWidthAdjustID,        itemID, 0.0);  // width adjust
         transferAdjust	     = MFVarGetFloat (_MDInTransferAdjustID,     itemID, 0.0);  // RipTrans adjust
-	
+	denit_int_vf         = MFVarGetFloat (_MDInVf_bID,               itemID, 0.0);  // Vf intercept 
+        denit_slope          = MFVarGetFloat (_MDInVf_mID,               itemID, 0.0);  // Vf slope 
+ //       DO2_trigger          = MFVarGetFloat (_MDInDO2ID,                itemID, 0.0);  // Triggers DO2 Code 072315
+ 	sinuosity	     = MFVarGetFloat (_MDInSinuosityID,               itemID, 0.0);  // River sinuosity
+ 	eta     	     = MFVarGetFloat (_MDInEtaID,               itemID, 0.0);  // River 
+ 	nu                   = MFVarGetFloat (_MDInNuID,               itemID, 0.0);  // River 
+ 	tau                  = MFVarGetFloat (_MDInTauID,               itemID, 0.0);  // River 
+ 	phi                  = MFVarGetFloat (_MDInPhiID,               itemID, 0.0);  // River 
+// 	tau2                  = MFVarGetFloat (_MDInTau2ID,               itemID, 0.0);  // River 
+// 	phi2                  = MFVarGetFloat (_MDInPhi2ID,               itemID, 0.0);  // River 	
+        meanQ                = fabs(MFVarGetFloat(_MDInDischMeanID,  itemID, 0.0));
+	Rb                   = MFVarGetFloat(_MDInRbID,  itemID, 0.0);  // Numbers ratio
+	Rl                   = MFVarGetFloat(_MDInRlID,  itemID, 0.0);  // Length ratio
+	runoffTemp           = MFVarGetFloat(_MDInWTempRiverID,  itemID, 0.0);  // runoff temperature (gw + sw))
+        Ord1_Direct          = MFVarGetFloat(_MDInOrd1DirectID,  itemID, 0.0);  // Direct drainage to order 1
+        Ord2_Direct          = MFVarGetFloat(_MDInOrd2DirectID,  itemID, 0.0);  // Direct drainage to order 1
+ 	basinID              = MFVarGetFloat (_MDInBasinID,               itemID, 0.0);  // River 
+
+      tau2 = tau;
+      phi2 = phi;
+        
  // Final Riparian calcs:       
  //     RiparianRemCoef      = (-0.6737 * pow(luSub + luAgr, 2)) - (0.272 * (luSub + luAgr)) + 0.9867;	// original, REMOVAL, not transfer
  //     TransferCoef	   = (1.0 - RiparianRemCoef) * transferAdjust > 1.0 ? 1.0 : (1.0 - RiparianRemCoef) * transferAdjust;
@@ -339,8 +425,10 @@ float percentIncrease           = 0.0;
    //	 RiparianRemCoef      = 0.4994 * pow(luSub + luAgr,1.5909);			// power law (r2=0.42), this is a transfer coefficient
    // 	 RiparianRemCoef      = 0.0113 * pow(2.7182818,(4.8511 * (luSub + luAgr)));	// exponential law (r2=0.39), this is a transfer coefficient
      
+       	runoffConc	     = runoffVol > 0.0 ? (localLoad_DIN * 1000000) / (runoffVol * 86400 * 1000) : 0.0;												
+        waterTotalVolume     = (waterStoragePrev + dischargePre) * 86400;     // RJS 100213 waterStorage is in m3/s
         
-        dL                   = MFModelGetLength (itemID);               // km converted to m
+        dL                   = MFModelGetLength (itemID) * sinuosity;   // km converted to m
 	waterStoragePrev     = waterStorage - waterStorageChg;		// m3/sec!!! RJS 100213
 	aA		     = width * depth;                           // m2	
         
@@ -356,15 +444,79 @@ float percentIncrease           = 0.0;
         if (scaleAlpha > 0.0) {
             alphaDZ          = scaleAlpha * discharge > alphaDZ ? alphaDZ : scaleAlpha * discharge;
         }
+                
+        /****  Sub-Cell DIN Removal  ****/
         
-	DINTotalIn_denit     = localLoad_DIN + preFlux_DIN_denit + storeWater_DIN_denit + WWTPpointSrc;  // kg/day  RJS 100413
-        DINTotalIn_assim     = localLoad_DIN + preFlux_DIN_assim + storeWater_DIN_assim + WWTPpointSrc;  // kg/day  RJS 110413
-	DINTotalInMixing     = localLoad_DIN + preFluxMixing_DIN + storeWaterMixing_DIN + WWTPpointSrc;  // kg/day  RJS 100413
+        if (basinID == 2) { // if basin == 1, keep tau and phi (because they are for basin1)
+            tau = tau2;
+            phi = phi2;
+        }
+        
+   	if (runoffVol > 0.000001) {			//
+  
+  //          Ord1_Direct = 0.7839;       // based on Conn 1st and 2nd STN order - commented out 012016 (read in now)
+  //          Ord2_Direct = 0.2161;       // based on Conn 1st and 2nd STN order - commented out 012016 (read in now)
+            
+            Ord2_MeanLength = 6.049 * sinuosity / Rl;                               // 6.049 km is the mean length of a STN 1st order grid cell in CT
+            Ord1_MeanLength = Ord2_MeanLength / Rl;                                 // RJS 011516 removed 'sinuosity' from here
+    
+            Ord2_Numbers = (dL / 1000) / (6.049 * sinuosity) * Rb;                           // RJS 011516 dL might be less than 6.049, in which case there will be less number of sub orders 1 and 2 in the grid cell
+            Ord1_Numbers = Ord2_Numbers * Rb;       
+        
+            Ord1_Mass = runoffVol * Ord1_Direct * runoffConc * 86.4;  // kg/d
+            Ord2_Mass = runoffVol * Ord2_Direct * runoffConc * 86.4;  // kg/d
+        
+            Ord1_Width    = tau * pow ((meanQ * Ord1_Direct) / Ord1_Numbers, phi);
+            Ord2_Width    = tau * pow (meanQ / Ord2_Numbers, phi);
+            
+            Ord1_Depth    = eta * pow ((meanQ * Ord1_Direct) / Ord1_Numbers, nu);
+            Ord2_Depth    = eta * pow (meanQ / Ord2_Numbers, nu);           
+            
+ //           if ((itemID == 1500) || (itemID == 5)) printf("%d, tau=%f, phi=%f\n",itemID,tau,phi);
+            
+            Ord1_HL      = (runoffVol * Ord1_Direct) / (Ord1_Width * Ord1_MeanLength * 1000 * Ord1_Numbers) * 86400;
+            Ord2_HL      = (runoffVol) / (Ord2_Width * Ord2_MeanLength * 1000 * Ord2_Numbers) * 86400;
+        
+            runoffTemp = runoffTemp >= waterT ? waterT : runoffTemp;        // RJS 011516
+            DIN_Vf_ref_cell = runoffConc > 0.0 ? pow(10,(denit_int_vf + (log10(runoffConc * 1000) * denit_slope)))*86400/100 : 0.0;	// no conversion to m/d neccesary - already in m/d
+            DIN_Vf_cell     = DIN_Vf_ref_cell * pow(tnQ10, (((runoffTemp) - tnTref) / 10));                             // m/d	RJS 051211
 
-	runoffConc	     = runoffVol > 0.0 ? (localLoad_DIN * 1000000) / (runoffVol * 86400 * 1000) : 0.0;												
-        waterTotalVolume     = (waterStoragePrev + dischargePre) * 86400;     // RJS 100213 waterStorage is in m3/s
+            Ord1_Rem     = Ord1_HL > 0 ? 1 - pow(2.718281828, -1 * DIN_Vf_cell / Ord1_HL) : 0.0; 
+            Ord2_Rem     = Ord2_HL > 0 ? 1 - pow(2.718281828, -1 * DIN_Vf_cell / Ord2_HL) : 0.0; 
+
+            Ord1_MassRemoved  = Ord1_Rem * Ord1_Mass;
+            Ord1_MassRemain   = Ord1_Mass - Ord1_MassRemoved;
+      
+            Ord2_MassRemoved  = Ord2_Rem * (Ord2_Mass + Ord1_MassRemain);
+            Ord2_MassRemain   = (Ord2_Mass + Ord1_MassRemain) - Ord2_MassRemoved;
         
-        DINTotalIn_denit2    = localLoad_DIN + preFlux_DIN_denit + storeWater_DIN_denit;        // Total in WITHOUT WWTP
+            TotalMassRemoved_cell = Ord1_MassRemoved + Ord2_MassRemoved;
+            localLoad_DIN_cell    = Ord2_MassRemain;
+            PropRemoved_cell      = TotalMassRemoved_cell / localLoad_DIN;
+  //         if (itemID == 10) { 
+  //          printf("ID = %d, meanQ = %f, W1 = %f, W2 = %f, W3 = %f, HL1 = %f, HL2 = %f, HL3 = %f, DIN_Vf_cell = %f, Rem1 = %f, Rem2 = %f, Rem3 = %f\n", itemID, meanQ, Ord1_Width, Ord2_Width, Ord3_Width, Ord1_HL, Ord2_HL,Ord3_HL,DIN_Vf_cell,Ord1_Rem,Ord2_Rem,Ord3_Rem);
+  //          printf("LocalLoad = %f, Mass1 = %f, Mass2 = %f, Mass3 = %f, MassRem1 = %f, MassRem2 = %f, MassRem3 = %f\n", localLoad_DIN, Ord1_Mass,Ord2_Mass,Ord3_Mass,Ord1_MassRemoved,Ord2_MassRemoved,Ord3_MassRemoved);
+  //          printf("tau = %f, phi = %f, runoffVol = %f, TotalMassRemoved_cell = %f, localLoad_DIN_cell = %f, PropRemoved_cell = %f\n", tau, phi, runoffVol, TotalMassRemoved_cell, localLoad_DIN_cell,PropRemoved_cell);
+  //         }
+        }
+        
+        else {
+
+		TotalMassRemoved_cell = 0.0;              // kg/day
+                localLoad_DIN_cell    = localLoad_DIN;    // kg/day
+		PropRemoved_cell      = 0.0;              // kg/kg
+
+	}
+        
+       /******************************************************/
+        
+        
+        TotalNLoadtoRiver    = localLoad_DIN_cell + WWTPpointSrc;                                             // kg/day RGIS 101215 - added '_cell' 011316
+	DINTotalIn_denit     = localLoad_DIN_cell + preFlux_DIN_denit + storeWater_DIN_denit + WWTPpointSrc;  // kg/day  RJS 100413 - added '_cell' 011316
+        DINTotalIn_assim     = localLoad_DIN_cell + preFlux_DIN_assim + storeWater_DIN_assim + WWTPpointSrc;  // kg/day  RJS 110413 - added '_cell' 011316
+	DINTotalInMixing     = localLoad_DIN + preFluxMixing_DIN + storeWaterMixing_DIN + WWTPpointSrc;  // kg/day  RJS 100413 - added '_cell' 011316
+
+        DINTotalIn_denit2    = localLoad_DIN_cell + preFlux_DIN_denit + storeWater_DIN_denit;                 // Total in WITHOUT WWTP - added '_cell' 011316
         
         
 //        r1                   = rand();
@@ -426,7 +578,7 @@ float percentIncrease           = 0.0;
 
 				hydLoad    = discharge / (width * dL) * 86400;	// m/day,
 				tStorMC    = dL / velocity / 86400;             // days,
-
+                     
                         if ((floodplain_switch < 1) || (bankfull_mm < (discharge / contributingArea / 1000 * 86400))) {   // enters this for floodplain_switch == 0, or when bankfull is activated
                                 
                                 asDZ       = aA * _MDASTSA;			// single value MEAN Scenario 061609    - ln transformed mean
@@ -459,22 +611,26 @@ float percentIncrease           = 0.0;
                                 
 		}
                 
-                removalTotal_denit           = removalDZ_denit + removalHZ_denit + removalMC_denit + removalLK_denit;
+                removalTotal_denit           = removalMC_denit + removalLK_denit;
+          //      removalTotal_denit           = removalDZ_denit + removalHZ_denit + removalMC_denit + removalLK_denit;
 		totalMassRemovedDZ_DIN_denit = (removalDZ_denit) * DINTotalIn_denit;                          // kg/day RJS 110308
 		totalMassRemovedHZ_DIN_denit = (removalHZ_denit) * DINTotalIn_denit;                          // kg/day RJS 110308
 		totalMassRemovedMC_DIN_denit = (removalMC_denit) * DINTotalIn_denit;                          // kg/day RJS 110308
                 totalMassRemovedLK_DIN_denit = (removalLK_denit) * DINTotalIn_denit;                          // kg/day RJS 100413
-                totalMassRemovedTS_DIN_denit = totalMassRemovedDZ_DIN_denit + totalMassRemovedHZ_DIN_denit;   // kg/day              
-                totalMassRemoved_DIN_denit   = totalMassRemovedTS_DIN_denit + totalMassRemovedMC_DIN_denit + totalMassRemovedLK_DIN_denit;
-                
+                totalMassRemovedTS_DIN_denit = totalMassRemovedDZ_DIN_denit + totalMassRemovedHZ_DIN_denit;   // kg/day   
+                totalMassRemoved_DIN_denit   = totalMassRemovedMC_DIN_denit + totalMassRemovedLK_DIN_denit;   //            
+          //      totalMassRemoved_DIN_denit   = totalMassRemovedMC_DIN_denit + totalMassRemovedLK_DIN_denit;   // commented out 011316
+          //      totalMassRemoved_DIN_denit   = totalMassRemovedTS_DIN_denit + totalMassRemovedMC_DIN_denit + totalMassRemovedLK_DIN_denit;
+               
                 removalTotal_assim           = removalDZ_assim + removalHZ_assim + removalMC_assim + removalLK_assim;
 		totalMassRemovedDZ_DIN_assim = (removalDZ_assim) * DINTotalIn_assim;                          // kg/day RJS 110308
 		totalMassRemovedHZ_DIN_assim = (removalHZ_assim) * DINTotalIn_assim;                          // kg/day RJS 110308
 		totalMassRemovedMC_DIN_assim = (removalMC_assim) * DINTotalIn_assim;                          // kg/day RJS 110308
                 totalMassRemovedLK_DIN_assim = (removalLK_assim) * DINTotalIn_assim;                          // kg/day RJS 100413
                 totalMassRemovedTS_DIN_assim = totalMassRemovedDZ_DIN_assim + totalMassRemovedHZ_DIN_assim;   // kg/day              
-                totalMassRemoved_DIN_assim   = totalMassRemovedTS_DIN_assim + totalMassRemovedMC_DIN_assim + totalMassRemovedLK_DIN_assim;
-                
+                totalMassRemoved_DIN_assim   = totalMassRemovedTS_DIN_assim + totalMassRemovedMC_DIN_assim + totalMassRemovedLK_DIN_assim;  // 
+        //        totalMassRemoved_DIN_assim   = totalMassRemovedTS_DIN_assim + totalMassRemovedMC_DIN_assim + totalMassRemovedLK_DIN_assim; // commented out 011316
+
                 
              	postConcDIN_denit      = (DINTotalIn_denit - totalMassRemoved_DIN_denit - flowPathRemoval_denit) / (waterTotalVolume - totalEvap) * 1000;  // mg/L
                 postConcDIN_assim      = (DINTotalIn_assim - totalMassRemoved_DIN_assim - flowPathRemoval_assim) / (waterTotalVolume - totalEvap) * 1000;  // mg/L
@@ -505,7 +661,7 @@ float percentIncrease           = 0.0;
 
 	}
 
-
+  //      printf("ID = %d, hydLoad = %f", itemID, hydLoad);
 
         postFluxDIN_denit        = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcDIN_denit / 1000;  	// kg/day
         postFluxDIN_assim        = (discharge * MDConst_m3PerSecTOm3PerDay) * postConcDIN_assim / 1000;  	// kg/day
@@ -518,11 +674,11 @@ float percentIncrease           = 0.0;
         DINDeltaStorageMixing 	 = postStoreWaterMixing_DIN - storeWaterMixing_DIN;				// kg/day
 
 
-        massBalance_DIN_denit 	 = ((localLoad_DIN + WWTPpointSrc + preFlux_DIN_denit + storeWater_DIN_denit) - (totalMassRemoved_DIN_denit + postFluxDIN_denit + postStoreWater_DIN_denit + flowPathRemoval_denit)) / (localLoad_DIN + WWTPpointSrc + storeWater_DIN_denit + preFlux_DIN_denit);		// RJS 111411
-        massBalance_DIN_assim 	 = ((localLoad_DIN + WWTPpointSrc + preFlux_DIN_assim + storeWater_DIN_assim) - (totalMassRemoved_DIN_assim + postFluxDIN_assim + postStoreWater_DIN_assim + flowPathRemoval_assim)) / (localLoad_DIN + WWTPpointSrc + storeWater_DIN_assim + preFlux_DIN_assim);		// RJS 111411
+        massBalance_DIN_denit 	 = ((localLoad_DIN + WWTPpointSrc + preFlux_DIN_denit + storeWater_DIN_denit) - (totalMassRemoved_DIN_denit + TotalMassRemoved_cell + postFluxDIN_denit + postStoreWater_DIN_denit + flowPathRemoval_denit)) / (localLoad_DIN + WWTPpointSrc + storeWater_DIN_denit + preFlux_DIN_denit);		// RJS 111411
+        massBalance_DIN_assim 	 = ((localLoad_DIN + WWTPpointSrc + preFlux_DIN_assim + storeWater_DIN_assim) - (totalMassRemoved_DIN_assim + TotalMassRemoved_cell + postFluxDIN_assim + postStoreWater_DIN_assim + flowPathRemoval_assim)) / (localLoad_DIN + WWTPpointSrc + storeWater_DIN_assim + preFlux_DIN_assim);		// RJS 111411
         massBalanceMixing_DIN	 = ((localLoad_DIN + WWTPpointSrc + preFluxMixing_DIN + storeWaterMixing_DIN) - (postFluxDINMixing + postStoreWaterMixing_DIN + flowPathRemovalMixing)) / (localLoad_DIN + WWTPpointSrc + storeWaterMixing_DIN + preFluxMixing_DIN);
 
-if (((massBalance_DIN_denit > 0.0003) || (massBalance_DIN_assim > 0.0003)) && (localLoad_DIN + storeWater_DIN_denit + preFlux_DIN_denit > 0.000001)) printf("******\n itemID = %d, y = %d, m = %d, d = %d, massBalance_DIN_denit = %f, MB_assim = %f, MB_mixing = %f\n, postConcDIN_denit = %f, postConcDIN_assim = %f, waterStorage = %f, localLoad_DIN = %f, preFlux_DIN_denit = %f, storeWater_DIN_denit = %f, storeWater_DIN_assim = %f\n totalMassRemovedTS_DIN_denit = %f, totalMassRemovedMC_DIN_denit = %f, postFluxDIN_denit = %f, postStoreWater_DIN_denit = %f, flowPathRemoval_denit = %f\n, totalMassRemovedTS_DIN_assim = %f, totalMassRemovedMC_DIN_assim = %f, postFluxDIN_assim = %f, postStoreWater_DIN_assim = %f, flowPathRemoval_assim = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_DIN_denit, massBalance_DIN_assim, massBalanceMixing_DIN, postConcDIN_denit, postConcDIN_assim, waterStorage, localLoad_DIN, preFlux_DIN_denit, storeWater_DIN_denit, storeWater_DIN_assim, totalMassRemovedTS_DIN_denit, totalMassRemovedMC_DIN_denit, postFluxDIN_denit, postStoreWater_DIN_denit, flowPathRemoval_denit, totalMassRemovedTS_DIN_assim, totalMassRemovedMC_DIN_assim, postFluxDIN_assim, postStoreWater_DIN_assim, flowPathRemoval_assim);
+if (((massBalance_DIN_denit > 0.0003) || (massBalance_DIN_assim > 0.0003)) && (localLoad_DIN + storeWater_DIN_denit + preFlux_DIN_denit > 0.000001)) printf("******\n itemID = %d, y = %d, m = %d, d = %d, massBalance_DIN_denit = %f, MB_assim = %f, MB_mixing = %f\n, Q = %f, runoffVol = %f, TotalMassRemoved_cell = %f, localLoadDIN_cell = %f, PropRemoved_cell = %f\n, postConcDIN_denit = %f, postConcDIN_assim = %f, waterStorage = %f, localLoad_DIN = %f, preFlux_DIN_denit = %f, storeWater_DIN_denit = %f, storeWater_DIN_assim = %f\n totalMassRemovedTS_DIN_denit = %f, totalMassRemovedMC_DIN_denit = %f, postFluxDIN_denit = %f, postStoreWater_DIN_denit = %f, flowPathRemoval_denit = %f\n, totalMassRemovedTS_DIN_assim = %f, totalMassRemovedMC_DIN_assim = %f, postFluxDIN_assim = %f, postStoreWater_DIN_assim = %f, flowPathRemoval_assim = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_DIN_denit, massBalance_DIN_assim, massBalanceMixing_DIN, discharge, runoffVol, TotalMassRemoved_cell, localLoad_DIN_cell, PropRemoved_cell, postConcDIN_denit, postConcDIN_assim, waterStorage, localLoad_DIN, preFlux_DIN_denit, storeWater_DIN_denit, storeWater_DIN_assim, totalMassRemovedTS_DIN_denit, totalMassRemovedMC_DIN_denit, postFluxDIN_denit, postStoreWater_DIN_denit, flowPathRemoval_denit, totalMassRemovedTS_DIN_assim, totalMassRemovedMC_DIN_assim, postFluxDIN_assim, postStoreWater_DIN_assim, flowPathRemoval_assim);
 
 //if (itemID==809) printf ("***** itemID=%d, month=%d, day=%d, year=%d, Q=%f, hydLoad=%f, waterT=%f, localLoad_DIN = %f \n",itemID,MFDateGetCurrentMonth(),MFDateGetCurrentDay(),MFDateGetCurrentYear(),discharge,hydLoad,waterT,localLoad_DIN);
 //if (itemID==809) printf ("preConcDIN=%f, postConcDIN=%f, preConcMixingDIN=%f, postConcMixingDIN=%f \n",preConcDIN,postConcDIN,preConcMixingDIN,postConcDINMixing);
@@ -538,20 +694,20 @@ if (((massBalance_DIN_denit > 0.0003) || (massBalance_DIN_assim > 0.0003)) && (l
 //        if (isnan(preFlux_DIN_denit)) printf("ID = %d, %d-%d-%d\n", itemID,MFDateGetCurrentYear(),MFDateGetCurrentMonth(),MFDateGetCurrentDay());
 
 //        printf("m = %d, d = %d, ID = %d, randomNum = %f, VfAdjust = %f, VfAdjust2 = %f, WidthAdjust = %f\n",MFDateGetCurrentMonth(),MFDateGetCurrentDay(),itemID, randomNumber, VfAdjust, VfAdjust2, widthAdjust);
-    /*    
-//if (MFDateGetCurrentYear() >= 2000) {
-if ((itemID == 1063) || (itemID == 1063)) {
+/*        
+if (MFDateGetCurrentYear() >= 2000) {
+if ((itemID == 13) || (itemID == 12)) {
    printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), discharge, dischargePre, waterStoragePrev, waterStorage, waterStorageChg, waterTotalVolume, runoffVol, depth, width, aA, dL,localLoad_DIN, runoffConc);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,",  storeWater_DIN_denit, storeWater_DIN_assim, storeWaterMixing_DIN, preFlux_DIN_denit, preFlux_DIN_assim, preFluxMixing_DIN, DINTotalIn_denit, DINTotalIn_assim, DINTotalInMixing, preConcDIN_denit, preConcDIN_assim, preConcMixingDIN);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", waterT, denit_int_vf, denit_slope, assim_int_vf, assim_slope, tnQ10, tnTref, VfAdjust, DIN_Vf_ref_denit, DIN_Vf_denit, DIN_Vf_ref_assim, DIN_Vf_assim, STS_Umax, STS_UmaxT, STS_Ks, STS_U, ktHTS, DIN_Kt_denit, DIN_Kt_assim, alphaDZ, alphaHZ, transferDZ, transferHZ, tStorHZ, wetlands, HCWA, wetlandArea, wetland_HL, hydLoad, uptakeMC_denit, uptakeDZ_denit, uptakeHZ_denit, removalMC_denit, removalDZ_denit, removalHZ_denit, removalTotal_denit, totalMassRemovedMC_DIN_denit, totalMassRemovedDZ_DIN_denit, totalMassRemovedHZ_DIN_denit, flowPathRemoval_denit, uptakeMC_assim, removalMC_assim, removalTotal_assim, totalMassRemovedMC_DIN_assim, flowPathRemoval_assim);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", postFluxDIN_denit, postFluxDIN_assim, postFluxDINMixing, postConcDIN_denit, postConcDIN_assim, postConcDINMixing, postStoreWater_DIN_denit, postStoreWater_DIN_assim, postStoreWaterMixing_DIN, DINDeltaStorage_denit, DINDeltaStorage_assim, DINDeltaStorageMixing, massBalance_DIN_denit, massBalance_DIN_assim, massBalanceMixing_DIN);
-//}
+}
 }  
 */
 
         
-MFVarSetFloat (_MDOutPreFlux_DIN_denitID,            itemID, preFlux_DIN_denit);				// RJS 050911
-MFVarSetFloat (_MDOutTotalMassRemoved_DIN_denitID,   itemID, totalMassRemoved_DIN_denit);		// RJS 032509
+MFVarSetFloat (_MDOutPreFlux_DIN_denitID,            itemID, preFlux_DIN_denit);                                                // RJS 050911
+MFVarSetFloat (_MDOutTotalMassRemoved_DIN_denitID,   itemID, totalMassRemoved_DIN_denit + TotalMassRemoved_cell);		// RJS 011316
 MFVarSetFloat (_MDStoreWater_DIN_denitID,            itemID, postStoreWater_DIN_denit);
 MFVarSetFloat (_MDFlux_DIN_denitID,           	     itemID, postFluxDIN_denit);		// changed from MDOutFlux_DINID 091408
 MFVarSetFloat (_MDOutTotalMassRemovedTS_DIN_denitID, itemID, totalMassRemovedTS_DIN_denit);
@@ -575,6 +731,7 @@ MFVarSetFloat (_MDOutBackCalcR_denitID,              itemID, R_denit);
 MFVarSetFloat (_MDOutBackCalcVf_denitID,             itemID, vf_denit);
 MFVarSetFloat (_MDOutRiparianRemovalID,              itemID, RiparianRemoval);					// RJS 040714
 MFVarSetFloat (_MDOutLocalLoad_Rip_DINID,	     itemID, localLoad_Rip_DIN);
+MFVarSetFloat (_MDOutPropRemovedCellID,              itemID, PropRemoved_cell);                                 // RJS 011316
 
 MFVarSetFloat (_MDOutPreFlux_DIN_assimID,            itemID, preFlux_DIN_assim);				// RJS 050911
 MFVarSetFloat (_MDOutTotalMassRemoved_DIN_assimID,   itemID, totalMassRemoved_DIN_assim);		// RJS 032509
@@ -617,6 +774,7 @@ MFVarSetFloat (_MDOutTransferHZID,        	     itemID, transferHZ);
 MFVarSetFloat (_MDOutWaterDZID, 		     itemID, waterDZ);
 MFVarSetFloat (_MDOutWaterHZID, 		     itemID, waterHZ);
 MFVarSetFloat (_MDOutPercentDINIncreaseID, 	     itemID, percentIncrease);
+MFVarSetFloat (_MDOutTotalNLoadtoRiverID, 	     itemID, TotalNLoadtoRiver);
 
 }
 
@@ -653,6 +811,7 @@ int MDDINDef () {
             ((_MDInRiverWidthID             = MDRiverWidthDef ())     == CMfailed) ||
             ((_MDInLocalLoad_DINID	    = MDNitrogenInputsDef())  == CMfailed) ||	// RJS 091108
             ((_MDInWWTPpointSrcID           = MDPointSourceDef())     == CMfailed) ||   // RJS 100413
+            ((_MDInDO2ID                    = MDDO2Def())             == CMfailed) ||   // RJS 072315            
             ((_MDInDischarge0ID             = MFVarGetID (MDVarDischarge0,                               "m3/s",    MFRoute,  MFState, MFBoundary))   == CMfailed) ||					// RJS 01-06-09     includes local cells runoff
 	    ((_MDInDischargeID              = MFVarGetID (MDVarDischarge,                                "m3/s",    MFRoute,  MFState, MFBoundary))   == CMfailed) ||
 	    ((_MDInRiverStorageID           = MFVarGetID (MDVarRiverStorage,                           "m3/day",    MFInput,  MFState, MFInitial))    == CMfailed) ||		// RJS 01-06-09		m3/day instead of m3/s
@@ -663,6 +822,8 @@ int MDDINDef () {
             ((_MDInRemovalOrderID           = MFVarGetID (MDVarRemovalOrder,                                "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
 	    ((_MDInRiverDepthID		    = MFVarGetID (MDVarRiverDepth,   	   	                    "m",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
 	    ((_MDInVfAdjustID               = MFVarGetID (MDVfAdjust,                                       "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDInVf_bID                   = MFVarGetID (MDVarVf_b,                                           "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDInVf_mID                   = MFVarGetID (MDVarVf_m,                                           "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
 	    ((_MDInWidthAdjustID            = MFVarGetID (MDVarWidthAdjust,                                 "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 041114
  //           ((_MDInRandomNumberID           = MFVarGetID (MDVarRandomNumber,                                "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDInTransferAdjustID         = MFVarGetID (MDVarTransferAdjust,                              "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
@@ -683,6 +844,21 @@ int MDDINDef () {
             ((_MDInFloodplainSwitchID       = MFVarGetID (MDVarFloodplainSwitch,                            "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120213
             ((_MDInScaleAlphaID             = MFVarGetID (MDVarScaleAlpha,                                  "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120413
             ((_MDInTotalEvaporationID           = MFVarGetID (MDVarTotalEvaporation,                           "m3",    MFInput,  MFFlux,  MFBoundary)) == CMfailed) ||
+            ((_MDInSinuosityID           = MFVarGetID (MDVarSinuosity,                           "-",    MFInput,  MFState,  MFBoundary)) == CMfailed) ||
+            ((_MDInRlID                  = MFVarGetID (MDVarRl,                           "-",    MFInput,  MFState,  MFBoundary)) == CMfailed) ||
+            ((_MDInRbID                  = MFVarGetID (MDVarRb,                           "-",    MFInput,  MFState,  MFBoundary)) == CMfailed) ||
+            ((_MDInOrd1DirectID          = MFVarGetID (MDVarOrd1Direct,                           "-",    MFInput,  MFState,  MFBoundary)) == CMfailed) ||
+            ((_MDInOrd2DirectID          = MFVarGetID (MDVarOrd2Direct,                           "-",    MFInput,  MFState,  MFBoundary)) == CMfailed) ||
+	    ((_MDInDischMeanID           = MFVarGetID (MDVarDischMean, "m3/s", MFInput, MFState, MFInitial))  == CMfailed) ||
+            ((_MDInEtaID                   = MFVarGetID (MDVarEta,                   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
+            ((_MDInNuID                    = MFVarGetID (MDVarNu,                    "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInTauID                   = MFVarGetID (MDVarTau,                   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
+	    ((_MDInPhiID                   = MFVarGetID (MDVarPhi,                   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||  
+//	    ((_MDInTau2ID                   = MFVarGetID (MDVarTau2,                   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
+//	    ((_MDInPhi2ID                   = MFVarGetID (MDVarPhi2,                   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||  	  
+            ((_MDInWTempRiverID           = MFVarGetID (MDVarWTempRiver,    "degC", MFInput, MFState, MFBoundary)) == CMfailed) ||	
+            ((_MDInBasinID           = MFVarGetID (MDVarBasinID,    "-", MFInput, MFState, MFBoundary)) == CMfailed) ||	
+
                 
    // Output
             // denitrification    
@@ -710,6 +886,7 @@ int MDDINDef () {
             ((_MDOutBackCalcVf_denitID             = MFVarGetID (MDVarBackCalcVf_denit,                     "-",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDDeltaStoreWater_DIN_denitID       = MFVarGetID (MDVarDeltaStoreWaterDIN_denit,        "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
 	    ((_MDFlowPathRemoval_DIN_denitID       = MFVarGetID (MDVarFlowPathRemovalDIN_denit,        "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||   // RJS 112008
+	    ((_MDOutPropRemovedCellID              = MFVarGetID (MDVarPropRemovedCell,                  "-",       MFOutput,   MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
             // assimulation    
 	    ((_MDOutPostConc_DIN_assimID           = MFVarGetID (MDVarPostConcDIN_assim,	         "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
 	    ((_MDOutPreConc_DIN_assimID		   = MFVarGetID (MDVarPreConcDIN_assim,	                 "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||
@@ -754,8 +931,9 @@ int MDDINDef () {
 	    ((_MDDeltaStoreWaterMixing_DINID    = MFVarGetID (MDVarDeltaStoreWaterMixingDIN,  "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
 	    ((_MDFlowPathRemovalMixing_DINID    = MFVarGetID (MDVarFlowPathRemovalMixingDIN,  "kg/day",   MFOutput,   MFFlux, MFBoundary))   == CMfailed) ||   // RJS 112008
 	    ((_MDOutPercentDINIncreaseID        = MFVarGetID (MDVarPercentDINIncrease,             "-",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
+	    ((_MDOutTotalNLoadtoRiverID         = MFVarGetID (MDVarTotalNLoadtoRiver,         "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||   // RJS 112008
 
-
+                
 	(MFModelAddFunction (_MDNProcessing) == CMfailed)) return (CMfailed);
 
 	MFDefLeaving ("N Processing");

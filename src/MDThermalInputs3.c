@@ -187,7 +187,7 @@ float totalDaily_wdl_1			= 0.0;
 float totalHours_run_1	        = 0.0;
 float wdl_1						= 0.0;
 float wdl_coeff_1				= 0.0;
-float wetBulbT					= 0.0;
+//float wetBulbT					= 0.0;
 float drybulbT					= 0.0;
 float airT						= 0.0;
 float ITD						= 12.0;
@@ -268,7 +268,7 @@ float exp_adj				= 0.0;		// RJS 052013 experiment adjust
  	Approach				 = MFVarGetFloat (_MDInApproachID,              itemID, 0.0);
   	riverThresh_temp		 = MFVarGetFloat (_MDInRiverThreshTempID,       itemID, 0.0);		// 22, needs to be in script
   	State					 = MFVarGetFloat (_MDInStateID, 				itemID, 0.0);
-  	wetBulbT				 = MFVarGetFloat (_MDInWetBulbTempID,           itemID, 0.0);
+ // 	wetBulbT				 = MFVarGetFloat (_MDInWetBulbTempID,           itemID, 0.0);
   	LakeOcean				 = MFVarGetFloat (_MDInLakeOcean1ID,            itemID, 0.0);		// 1 is lakeOcean, 0 is nothing
 
   	year					 = MFDateGetCurrentYear();
@@ -428,6 +428,10 @@ float exp_adj				= 0.0;		// RJS 052013 experiment adjust
 	if (FuelType_1 == 5)   heat_sink_1 = other_heat_sink_oil;
 	if (FuelType_1 == 6)   heat_sink_1 = other_heat_sink_other;
 
+        float rH       = 0.75;
+        float lnEs     = log(rH * pow(10, 7.5 * airT / (237.3 + airT)));
+        float wetBulbT = 237.3 * lnEs / (17.27 - lnEs);
+                 
 	Q_in_1		= NamePlate_1 / Efficiency_1;
 	heat_sink_1	= heat_sink_1 * Q_in_1;
 	optDeltaT_1 = (Q_in_1 - NamePlate_1 - heat_sink_1) / (cond_h2o_1 * 4.18);		//MWh lost to other heat sinks
@@ -1665,7 +1669,7 @@ int MDThermalInputs3Def () {
 				((_MDInRiverThreshTempID    = MFVarGetID (MDVarRiverThreshT,        "degC", MFInput, MFState, MFBoundary)) == CMfailed) ||
 				((_MDInApproachID           = MFVarGetID (MDVarApproach,            "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||
 				((_MDInStateID         	    = MFVarGetID (MDVarState,                "-", MFInput, MFState, MFBoundary)) == CMfailed) ||
-				((_MDInWetBulbTempID        = MFVarGetID (MDVarWetBulbTemp,         "degC", MFInput, MFState, MFBoundary)) == CMfailed) ||
+//				((_MDInWetBulbTempID        = MFVarGetID (MDVarWetBulbTemp,         "degC", MFInput, MFState, MFBoundary)) == CMfailed) ||
 				((_MDInTempLimit_CTID		= MFVarGetID (MDVarTempLimitCT,         "degC", MFInput, MFState, MFBoundary)) == CMfailed) ||
 				((_MDInTempLimit_DEID		= MFVarGetID (MDVarTempLimitDE,         "degC", MFInput, MFState, MFBoundary)) == CMfailed) ||
 				((_MDInTempLimit_MAID		= MFVarGetID (MDVarTempLimitMA,         "degC", MFInput, MFState, MFBoundary)) == CMfailed) ||
