@@ -109,8 +109,6 @@ OBJS = $(OBJ)/WBMMain.o\
        $(OBJ)/MDChloride.o\
        $(OBJ)/MDNEP.o
 
-       
-
 all: ${TARGET}
 
 clean:

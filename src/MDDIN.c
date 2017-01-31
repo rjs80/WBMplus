@@ -379,9 +379,9 @@ float basinID                   = 0.0;
 	width	             = MFVarGetFloat (_MDInRiverWidthID,    	 itemID, 0.0);	 // m			// moved here 031209
         wetlands             = MFVarGetFloat (_MDInWetlandsID,           itemID, 0.0);   // proportion wetlands
         HCWA                 = MFVarGetFloat (_MDInHCWAID,               itemID, 0.0);   // hydrologically connected wetland area
-        STS_Umax             = MFVarGetFloat (_MDInSTSUptakeMaxID,       itemID, 0.0);   // mg/m2/d
-        STS_Ks               = MFVarGetFloat (_MDInSTSKsID,              itemID, 0.0);   // mg N/l
-        contributingArea     = MFVarGetFloat (_MDInContributingAreaID,   itemID, 0.0);   // km2
+//        STS_Umax             = MFVarGetFloat (_MDInSTSUptakeMaxID,       itemID, 0.0);   // mg/m2/d
+//        STS_Ks               = MFVarGetFloat (_MDInSTSKsID,              itemID, 0.0);   // mg N/l
+//        contributingArea     = MFVarGetFloat (_MDInContributingAreaID,   itemID, 0.0);   // km2
         bankfull_mm          = MFVarGetFloat (_MDInBankFullID,           itemID, 0.0);   // mm/d (1.2 yr = 5.0 mm/d or 18.7 m3/s, 1.5 yr = 6.5 mm/d or 24.4 m3/s)
         floodplain_switch    = MFVarGetFloat (_MDInFloodplainSwitchID,   itemID, 0.0);   // 1 = on, 0 = off
         scaleAlpha           = MFVarGetFloat (_MDInScaleAlphaID,         itemID, 0.0);   // 0 = off, value indicates: alpha = X * Discharge
@@ -837,9 +837,9 @@ int MDDINDef () {
 	    ((_MDInLakePointAreaID          = MFVarGetID (MDVarLakePointArea, 		                  "km2",    MFInput,  MFState, MFBoundary))   == CMfailed) ||		// RJS 091108
             ((_MDInWetlandsID               = MFVarGetID (MDVarFracWetlandArea,                             "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 112513
             ((_MDInHCWAID                   = MFVarGetID (MDVarHCWA,                                        "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 112513 
-            ((_MDInSTSUptakeMaxID           = MFVarGetID (MDVarSTSUptakeMax,                          "mg/m2/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 112513
-            ((_MDInSTSKsID                  = MFVarGetID (MDVarSTSKs,                                    "mg/l",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 112513
-            ((_MDInContributingAreaID       = MFVarGetID (MDVarContributingArea,                          "km2",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120213
+//            ((_MDInSTSUptakeMaxID           = MFVarGetID (MDVarSTSUptakeMax,                          "mg/m2/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 112513
+//            ((_MDInSTSKsID                  = MFVarGetID (MDVarSTSKs,                                    "mg/l",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 112513
+//            ((_MDInContributingAreaID       = MFVarGetID (MDVarContributingArea,                          "km2",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120213
             ((_MDInBankFullID               = MFVarGetID (MDVarBankFullDepth,                            "mm/d",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120213
             ((_MDInFloodplainSwitchID       = MFVarGetID (MDVarFloodplainSwitch,                            "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120213
             ((_MDInScaleAlphaID             = MFVarGetID (MDVarScaleAlpha,                                  "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||           // RJS 120413

@@ -271,10 +271,11 @@ static void _MDWaterBalance(int itemID) {
 //	printf("d = %d, m = %d, y = %d, waterbalance = %f\n", MFDateGetCurrentDay(), MFDateGetCurrentMonth(), MFDateGetCurrentYear(), balance2);
 
 /*
-        if (MFDateGetCurrentYear() >= 2000) {
-        if ((itemID == 13) || (itemID == 12)) {
-//	if (fabs (balance2) > 0.0001 ) {
-		printf ("TIEM %i %d %d %d WaterBalance! %f precip %f etp = %f runoff = %f grdWaterChg = %f snowPackChg = %f soilMoistChg = %f runoffPoolChg %f\n runoffPool = %f, runoffPoolRecharge = %f, runoffPoolRelease = %f\n", itemID, MFDateGetCurrentMonth(), MFDateGetCurrentDay(), MFDateGetCurrentYear(), balance2,precip,etp,runoff,grdWaterChg,snowPackChg,soilMoistChg,runoffPoolChg,runoffPool, runoffPoolRecharge, runoffPoolRelease);
+
+ //       if (MFDateGetCurrentYear() >= 2000) {
+ //       if ((itemID == 1063) || (itemID == 1063)) {
+  	  if (fabs (balance2) > 0.0001 ) {
+//		printf ("TIEM %i %d %d %d WaterBalance! %f precip %f etp = %f runoff = %f grdWaterChg = %f snowPackChg = %f soilMoistChg = %f runoffPoolChg %f\n runoffPool = %f, runoffPoolRecharge = %f, runoffPoolRelease = %f\n", itemID, MFDateGetCurrentMonth(), MFDateGetCurrentDay(), MFDateGetCurrentYear(), balance2,precip,etp,runoff,grdWaterChg,snowPackChg,soilMoistChg,runoffPoolChg,runoffPool, runoffPoolRecharge, runoffPoolRelease);
 		printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), balance2b, balance2, awCap, impAreaFrac, h2oAreaFrac, precip);
 		printf ("%f, %f, %f, %f,", snowPackChg, snowfall, snowmelt, snowpack);
 		printf ("%f, %f, %f, %f, %f,", stormRunoffImp, stormRunoffH2O, stormRunoffTotal, precipPerv, runoffToPerv);
@@ -285,8 +286,10 @@ static void _MDWaterBalance(int itemID) {
 		printf ("%f, %f,", totalSurfRunoff, runoff);
                 printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", C0, C1, C2, runoffVol, discharge, QPre, QCur, QOut_initial, QOut, storage, storageChg);
                 printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", propStW_RO, propSuW_RO, propGrW_RO, propStW_Qin, propSuW_Qin, propGrW_Qin, propStW_RSin, propSuW_RSin, propGrW_RSin, StW_Qout, SuW_Qout, GrW_Qout, propStW_RSout, propSuW_RSout, propGrW_RSout, propFlag_RO, propFlag_Qin, propFlag_RSin, Flag_Qout, propFlag_RSout);
-        }
+        	}
         }  
+
+      }  
 */
    
 	MFVarSetFloat (_MDOutWaterBalanceID, itemID , balance);

@@ -24,6 +24,7 @@ static int _MDInDischargeID            = MFUnset;
 static int _MDInPostConc_SCID         = MFUnset;
 static int _MDInFlux_SCID             = MFUnset;
 static int _MDInConc_SCID             = MFUnset;
+static int _MDInFlux_DOCID            = MFUnset;
 
 // Chloride conc and flux
 static int _MDOutPostConc_ClID          = MFUnset;
@@ -35,9 +36,10 @@ static void _MDChloride (int itemID) {
     float postConc_SC                   = 0.0; // ionic strength uS/cm
     float postConc_Cl                   = 0.0; // chloride conc. (mg / L )
     float postFlux_Cl                   = 0.0; // chloride flux (in streamflow from cell) (kg/day)
-   
+    
     discharge            = MFVarGetFloat (_MDInDischargeID,          itemID, 0.0); // m3/sec, discharge leaving the grid cell, after routing!
     postConc_SC          = MFVarGetFloat (_MDInPostConc_SCID,  itemID, 0.0); // uS/cm       
+    
     
     // RELATION BETWEEN SPECIFIC CONDUCTANCE AND CHLORIDE CONCENTRATION
     //  FROM 2013 LOVOTECS SNAPSHOTS
@@ -59,7 +61,8 @@ int MDChlorideDef () {
         // TODO: Add option to calculate with specific conductance or via previous method (in DIN?)
         if (
 	    ((_MDInFlux_SCID                    = MDSpecCondDef ()) == CMfailed) ||	
-	    ((_MDInDischargeID                  = MFVarGetID (MDVarDischarge,                  "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+	    ((_MDInFlux_DOCID                   = MDDOCv2Def ()) == CMfailed) ||
+            ((_MDInDischargeID                  = MFVarGetID (MDVarDischarge,                  "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDInPostConc_SCID                = MFVarGetID (MDVarPostSpecCond,              "uS/cm",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	               
             ((_MDOutPostConc_ClID         	= MFVarGetID (MDVarPostConcCl,    	       "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	               
             ((_MDOutFlux_ClID              	= MFVarGetID (MDVarFluxCl,                   "kg/day",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	               
