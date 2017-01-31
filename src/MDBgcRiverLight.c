@@ -25,9 +25,9 @@ static int _MDRiverLightID          = MFUnset;
 // Input
 static int _MDInDischargeID         = MFUnset;
 static int _MDInFluxDOCID           = MFUnset; // here to get function call only
-static int _MDInRiverWidthID        = MFUnset;
 static int _MDInRiverbedWidthMeanID = MFUnset;
 static int _MDInRiverDepthID        = MFUnset;
+static int _MDInRiverWidthID        = MFUnset;
 static int _MDInSolarRadID          = MFUnset;
 static int _MDInResStorageChangeID  = MFUnset;
 static int _MDInResStorageID        = MFUnset;
@@ -155,6 +155,7 @@ static void _MDRiverLightInput (int itemID) {
     float orderSwitch        = 0.0;
     
     depth                    = MFVarGetFloat (_MDInRiverDepthID,  itemID, 0.0);			// meters
+    width                    = MFVarGetFloat (_MDInRiverWidthID,  itemID, 0.0);			// meters
     canopy_cover             = MFVarGetFloat (_MDInCanopyCoverID, itemID, 0.0);			// proportion
     TotalPAR                 = MFVarGetFloat (_MDInTotalPARID,    itemID, 0.0);                 // micromol/m2/second
     SCALER_BasinID           = MFVarGetFloat (_MDInSCALERBasinID, itemID, 0.0);                 // BNZ = 1, CWT = 2, KNZ = 3, LUQ = 4, MER = 5, TLK = 6
@@ -165,11 +166,10 @@ static void _MDRiverLightInput (int itemID) {
     riverOrder               = MFVarGetFloat (_MDInRiverOrderID,   itemID, 0.0);
     orderSwitch              = MFVarGetFloat (_MDInOrderSwitchID,   itemID, 0.0);
     
-//printf("itemID = %d, order = %f, switch = %f\n", itemID, riverOrder, orderSwitch);
+//printf("#1 itemID = %d, order = %f, switch = %f\n", itemID, riverOrder, orderSwitch);
 
     if (riverOrder >= orderSwitch) {
     
-    width = tau * pow (Q_out, phi);     // river width in m
     PAR   = TotalPAR / 1000000 * 86400; // converts TotalPAR to mol/m2/day from micromol/m2/second
           
  //    if (MFDateGetCurrentYear() > 2000)  printf("itemID = %d, tau = %f, phi = %f, width = %f\n", itemID, tau, phi, width);
@@ -213,9 +213,10 @@ static void _MDRiverLightInput (int itemID) {
 //	PAR_benthic		= (Ecan * (1 - canopy_cover) * refl * exp(-Kd * depth)) / 24 / 0.0036; //<-- Coweeta Function for Benthic PAR
 
 	
-//      if (itemID == 1)  printf("ID = %d, %d-%d-%d, depth = %f, Kd = %f, canopy_cover = %f, DA = %f, PAR = %f, PAR_surface = %f, PAR_benthic = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), depth, -Kd, canopy_cover, DA, PAR, PAR_surface, PAR_benthic);
+//       printf("#2 ID = %d, %d-%d-%d, depth = %f, Kd = %f, canopy_cover = %f, DA = %f, PAR = %f, PAR_surface = %f, PAR_benthic = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), depth, -Kd, canopy_cover, DA, PAR, PAR_surface, PAR_benthic);
     }
-    
+//       printf("#3 ID = %d, %d-%d-%d, depth = %f, Kd = %f, canopy_cover = %f, DA = %f, PAR = %f, PAR_surface = %f, PAR_benthic = %f\n", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), depth, -Kd, canopy_cover, DA, PAR, PAR_surface, PAR_benthic);
+
         PAR_surface_MJm2d       = PAR_surface * 1000000 / 2.0513;   // MJ/m2/d
         PAR_benthic_MJm2d       = PAR_benthic * 1000000 / 2.0513;   // MJ/m2/d
         PAR                     = PAR * 1000000 / 2.0513;           // MJ/m2/d
@@ -269,14 +270,15 @@ int MDBgcRiverLightDef () {
           case MDinput:
      if (((_MDInCanopyCoverID       = MFVarGetID (MDVarCanopyCover,        "-",   MFInput, MFState, MFBoundary)) == CMfailed) ||
       	 ((_MDInRiverDepthID        = MFVarGetID (MDVarRiverDepth,         "m",   MFInput, MFState, MFBoundary)) == CMfailed) ||
+      	 ((_MDInRiverWidthID        = MFVarGetID (MDVarRiverWidth,         "m",   MFInput, MFState, MFBoundary)) == CMfailed) ||
       	 ((_MDInTotalPARID          = MFVarGetID (MDVarTotalPAR,   "um/m2/sec",   MFInput, MFState, MFBoundary)) == CMfailed) ||
       	 ((_MDInSCALERBasinID       = MFVarGetID (MDVarSCALERBasinID,   "-",      MFInput, MFState, MFBoundary)) == CMfailed) ||
        	 ((_MDInDrainageAreaID      = MFVarGetID (MDVarDrainageArea,  "km2",      MFInput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDInDischargeID         = MFVarGetID (MDVarDischarge,    "m3/s",      MFInput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDInTauID               = MFVarGetID (MDVarTau,             "-",      MFInput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDInPhiID               = MFVarGetID (MDVarPhi,             "-",      MFInput, MFState, MFBoundary)) == CMfailed) ||                             
-         ((_MDInRiverOrderID        = MFVarGetID (MDVarRiverOrder,                  "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
-         ((_MDInOrderSwitchID                   = MFVarGetID (MDVarOrderSwitch,                  "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||    
+         ((_MDInRiverOrderID        = MFVarGetID (MDVarRiverOrder,      "-",      MFInput, MFState, MFBoundary)) == CMfailed) ||
+         ((_MDInOrderSwitchID       = MFVarGetID (MDVarOrderSwitch,     "-",      MFInput, MFState, MFBoundary)) == CMfailed) ||    
          ((_MDOutPARBenthicID       = MFVarGetID (MDVarPARBenthic,   "MJ/m2/d",  MFOutput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDOutPARSurfaceID       = MFVarGetID (MDVarPARSurface,   "MJ/m2/d",  MFOutput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDOutPARID              = MFVarGetID (MDVarPAR,          "MJ/m2/d",  MFOutput, MFState, MFBoundary)) == CMfailed) ||

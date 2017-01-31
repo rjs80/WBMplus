@@ -516,7 +516,13 @@ extern "C" {
 #define MDVarSWrunoffDOsat                               "SWrunoffDOsat"                // RJS 12/02/16
 #define MDVarGWrunoffDOsat                               "GWrunoffDOsat"                // RJS 12/02/16
 #define MDVarTref                                        "Tref"                         // RJS 12/19/16
-    
+#define MDVarAtaSiteWidthCoef                            "AtaSiteWidthCoef"             // RJS 01/23/16
+#define MDVarAtaSiteDepthCoef                            "AtaSiteDepthCoef"             // RJS 01/23/16
+#define MDVarAtaSiteVelocityCoef                         "AtaSiteVelocityCoef"          // RJS 01/23/16
+#define MDVarAtaSiteWidthExp                            "AtaSiteWidthExp"             // RJS 01/23/16
+#define MDVarAtaSiteDepthExp                            "AtaSiteDepthExp"             // RJS 01/23/16
+#define MDVarAtaSiteVelocityExp                         "AtaSiteVelocityExp"          // RJS 01/23/16
+     
 // for MDDO2.c
 #define MDVarRiverMassDO2				 "RiverMassDO2"			//KRS November 16, 2012
 #define MDVarRiverConcDO2				 "RiverConcDO2"			//KRS November 16, 2012
@@ -681,12 +687,11 @@ extern "C" {
 #define MDVarPostSpecCond                               "PostSpecCond"
 #define MDVarStoreWaterSC                               "StoreWaterSC"
 #define MDVarFluxSC                                     "FluxSC"
-    
-    
+        
 #define MDVarRiverStorage                    "RiverStorage"
 #define MDVarRiverStorageChg                 "RiverStorageChange"
 #define MDVarRiverWidth                      "RiverbedWidth"
-
+#define MDVarRiverVelocity                   "RiverVelocity"
 
 #define MDVarRiverThreshT					 "RiverThreshT"				// RJS 062012
 
