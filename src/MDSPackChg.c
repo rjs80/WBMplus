@@ -8,11 +8,7 @@ MDSPackChg.c
 
 balazs.fekete@unh.edu
 
- * Zuidema (9/2014) Updates to provide option of melt factor definition and include development.
- * TODO:
- *  Separate melt factor definition functions
- *  Provide options for: 1) Melt factor definition, 2) Including development snowpack
- *  Provide separate calculation for development snowpack.
+ * Zuidema (2014) Updates to provide option of melt factor definition and include development.
 *******************************************************************************/
 
 #include <stdio.h>
@@ -27,7 +23,7 @@ static int _MDInPrecipID    = MFUnset;
 static int _MDInWinterOnsetID = MFUnset;
 static int _MDInForestCoverID = MFUnset;
 static int _MDInImpFractionID = MFUnset;
-static int _MDInHCIAID        =MFUnset;
+static int _MDInWinterHCIAID        =MFUnset;
 // Output
 static int _MDOutSnowPackID = MFUnset;
 static int _MDOutSPackChgID = MFUnset;
@@ -90,18 +86,20 @@ static void _MDSPackChg (int itemID) {
                 if (precip > 0.0) {
                     MFVarSetFloat(_MDOutSnowPackAgeID,itemID, 1.0); // New fallen Snow. 
                 } else {
-                    MFVarSetFloat(_MDOutSnowPackAgeID,itemID,packAge+1.0); // Age the snow.
+                    MFVarSetFloat(_MDOutSnowPackAgeID,itemID,packAge + 1.0 ); // Age the snow
 	}
 	}
 	else if (airT > _MDSnowMeltThreshold) { /* Melting snow pack */
-		sPackChg = MFVarGetFloat (_MDOutSnowMeltFactorID, itemID, 0.0); //2.63 + 2.55 * airT + 0.0912 * airT * precip;
-		sPackChg = - (sPack < sPackChg ? sPack : sPackChg);
-		MFVarSetFloat (_MDOutSnowFallID, itemID, 0.0);
+
+
+		sPackChg =  2.63 + 2.55 * airT + 0.0912 * airT * precip; // MFVarGetFloat (_MDOutSnowMeltFactorID, itemID, 0.0); //2.63 + 2.55 * airT + 0.0912 * airT * precip;
+		sPackChg = - ( sPack < sPackChg ? sPack : sPackChg) ;
+		 MFVarSetFloat (_MDOutSnowFallID, itemID, 0.0);
 		MFVarSetFloat (_MDOutSnowMeltID, itemID, fabs(sPackChg));
 		MFVarSetFloat (_MDOutSPackChgID, itemID, sPackChg);
-		MFVarSetFloat (_MDOutSnowPackID, itemID, sPack + sPackChg);
-                if ((sPack + sPackChg) > 0.0) {
-                    MFVarSetFloat(_MDOutSnowPackAgeID,itemID,packAge+1.0);
+		MFVarSetFloat (_MDOutSnowPackID, itemID, MDMaximum(sPack + sPackChg,0.0) );
+                if ((sPack ) > 0.0) {
+                    MFVarSetFloat(_MDOutSnowPackAgeID,itemID,packAge+1.0 );
                 } else {
                     MFVarSetFloat(_MDOutSnowPackAgeID,itemID,0.0);
 	}
@@ -111,7 +109,7 @@ static void _MDSPackChg (int itemID) {
 		MFVarSetFloat (_MDOutSnowMeltID, itemID, 0.0);
 		MFVarSetFloat (_MDOutSnowPackID, itemID, sPack);	
 		MFVarSetFloat (_MDOutSPackChgID, itemID, 0.0);
-                MFVarSetFloat (_MDOutSnowPackAgeID, itemID, packAge+1.0);
+                MFVarSetFloat (_MDOutSnowPackAgeID, itemID, packAge < 14 ? packAge+1.0 : 14);
 	}
 	
 		sDensity = (initialDensity + (snowAge * sDensitySlope));
@@ -141,7 +139,7 @@ void _MDDingmanMeltFactor (int itemID) {
         float age = MDMinimum(14.,MFVarGetFloat( _MDOutSnowPackAgeID,itemID,0.0));
         albedo = 0.7854-0.037946*age+0.0014*pow(age,2); // From Dingman 2002
         float fsl = 1.0;
-        MFVarSetFloat(_MDOutSnowMeltFactorID,itemID,4.0*(1-albedo)*exp(-4.*F)*fsl*(airT-_MDSnowMeltThreshold));
+        MFVarSetFloat(_MDOutSnowMeltFactorID,itemID,4.0*(1-albedo <= 1.0 ? albedo : 0.999)*exp(-4.*F)*fsl*(airT-_MDSnowMeltThreshold));
     } else {
         MFVarSetFloat(_MDOutSnowMeltFactorID,itemID,(0.74 + 0.007 * precip )*(airT -_MDSnowMeltThreshold));
     }
@@ -159,21 +157,21 @@ void _MDWilmontMeltFactor (int itemID) {
 
 void _MDDevelopedSnowFallRunoff (int itemID) {
     // Snow falling on impervious areas (or a percentage thereof?) is directed straight to runoff
-    float hcia;
+    float whcia;
     
     float snowfall;
     float snowPackChange;
     float snowPack;
     float snowMelt;
     float impervSnowFallRunoff;
-    hcia = MFVarGetFloat(_MDInImpFractionID,itemID,0.0) * MFVarGetFloat(_MDInHCIAID,itemID,0.0);
+    whcia = MFVarGetFloat(_MDInImpFractionID,itemID,0.0) * MFVarGetFloat(_MDInWinterHCIAID,itemID,0.0);
     snowfall = MFVarGetFloat(_MDOutSnowFallID,itemID,0.0);
     snowPack = MFVarGetFloat(_MDOutSnowPackID,itemID,0.0);
     snowPackChange = MFVarGetFloat(_MDOutSPackChgID,itemID,0.0);
     snowMelt = MFVarGetFloat(_MDOutSnowMeltID,itemID,0.0);
         
     // Calculate the volume of snow-falling on impervious area
-    impervSnowFallRunoff = snowfall > 0.0 ? snowfall*hcia : 0.0;
+    impervSnowFallRunoff = snowfall > 0.0 ? snowfall*whcia : 0.0;
     
     // Remove this portion from the (whole-cell-averaged) snow-pack SWE depth
     snowPack = MDMaximum(snowPack - impervSnowFallRunoff,0.0);
@@ -226,6 +224,7 @@ int MDSPackChgDef () {
             ((_MDOutSnowMeltFactorID= MFVarGetID (MDVarSnowMeltFactor, "-",  MFOutput, MFState, MFBoundary)) == CMfailed)
             ) return (CMfailed);
         //Choose appropriate function for melt calculation.
+	MFDefEntering("Snow Melt Calculation");
         enum { MFcalculate, MFcalculate2 };
         const char *snowMeltCalculationOptions [] = {MDCalculateStr,MDCalculate2Str,(char *) NULL };
         int snowMeltCalcID;
@@ -250,6 +249,7 @@ int MDSPackChgDef () {
                 break;
             default: MFOptionMessage (MDOptSnowMeltCalculation, optStr, snowMeltCalculationOptions); return (CMfailed);
         }
+	MFDefLeaving("Snow Melt Calculation");
 
         if (MFModelAddFunction (_MDSPackChg) == CMfailed) return (CMfailed);
         
@@ -271,10 +271,11 @@ int MDSPackChgDef () {
                 // Nothing to be done
                 break;
             case MFcalcImpRO:
+                // Should probably provide check - if no WinterHCIA is provided use HCIA and warn.
                 if ( 
                     ((_MDOutImpSnowFallROID    = MFVarGetID ( MDVarImpSnowFallRunoff,"mm",   MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
                     ((_MDInImpFractionID        = MFVarGetID (MDVarImpFracSpatial,  "-",    MFInput,  MFState, MFBoundary)) == CMfailed) ||
-                    ((_MDInHCIAID               = MFVarGetID (MDVarHCIA,            "-",    MFInput,  MFState, MFBoundary)) == CMfailed) ||
+                    ((_MDInWinterHCIAID               = MFVarGetID (MDVarWinterHCIA,            "-",    MFInput,  MFState, MFBoundary)) == CMfailed) ||
                     (MFModelAddFunction(_MDDevelopedSnowFallRunoff) == CMfailed)
                     ) return (CMfailed);
                 break;

@@ -207,9 +207,9 @@ static void _MDDischLevel3Muskingum (int itemID) {
         MFVarSetFloat (_MDOutQinStormWaterID,        itemID, StW_Qin);      // RJS 100313 Documentation of incoming prop from upstream
         MFVarSetFloat (_MDOutQinSurfaceWaterID,      itemID, SuW_Qin);      // RJS 100313 Documentation of incoming prop from upstream
         MFVarSetFloat (_MDOutQinGroundWaterID,       itemID, GrW_Qin);      // RJS 100313 Documentation of incoming prop from upstream
-        MFVarSetFloat (_MDOutPropRSinStormWaterID,   itemID, propStW_RSin);     // RJS 100313 Documentation of initial prop for storage
-        MFVarSetFloat (_MDOutPropRSinSurfaceWaterID, itemID, propSuW_RSin);     // RJS 100313 Documentation of initial prop for storage
-        MFVarSetFloat (_MDOutPropRSinGroundWaterID,  itemID, propGrW_RSin);     // RJS 100313 Documentation of initial prop for storage
+        MFVarSetFloat (_MDOutPropRSinStormWaterID,   itemID, propStW_out);     // RJS 100313 Documentation of initial prop for storage
+        MFVarSetFloat (_MDOutPropRSinSurfaceWaterID, itemID, propSuW_out);     // RJS 100313 Documentation of initial prop for storage
+        MFVarSetFloat (_MDOutPropRSinGroundWaterID,  itemID, propGrW_out);     // RJS 100313 Documentation of initial prop for storage
 
 
 }

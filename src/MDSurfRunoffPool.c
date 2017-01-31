@@ -73,7 +73,7 @@ static void _MDNoSurfRunoffPool (int itemID) {
 }
 
 
-static void _MDSurfRunoffPoolInput2 (int itemID) {      // RJS 060214
+static void _MDSurfRunoffPoolInput (int itemID) {      // RJS 060214 // Renamed as Input SZ 081215
 
 // Output
 	float runoffPool          = 0.0; 	// Pool size   [mm]
@@ -106,7 +106,7 @@ static void _MDSurfRunoffPoolInput2 (int itemID) {      // RJS 060214
 	
 }
 
-enum { MDnone, MDcalculate, MDinput2, MDspatial };
+enum { MDnone, MDcalculate, MDinput, MDspatial };
 
 int MDSurfRunoffPoolDef () {
  
@@ -114,7 +114,7 @@ int MDSurfRunoffPoolDef () {
 	float par;
 	int  optID = MFUnset;
 	const char *optStr, *optName = MDOptSurfRunoffPool;
-	const char *options [] = { MDNoneStr, MDCalculateStr, MDInput2Str, "spatially", (char *) NULL };             // RJS 060214 added input2 // SZ 092914 added spatially
+	const char *options [] = { MDNoneStr, MDCalculateStr, MDInputStr, "spatially", (char *) NULL };             // RJS 060214 added input2 // SZ 092914 added spatially
         if (_MDOutRunoffPoolReleaseID != MFUnset) return (_MDOutRunoffPoolReleaseID);
         
 if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);
@@ -148,14 +148,20 @@ if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (opti
 			((_MDOutRunoffPoolReleaseID      = MFVarGetID (MDVarRunoffPoolRelease,  "mm", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
 			(MFModelAddFunction (_MDNoSurfRunoffPool) == CMfailed)) return (CMfailed);
 			break;
-        case MDinput2:
-
+        case MDinput:
+            if (_MDInSurfWaterBETA2 == MFUnset){
+             if (((optStr = MFOptionGet (MDParSurfWaterBETA2))   != (char *) NULL) && (sscanf (optStr,"%f",&par) == 1)) {
+                 _MDSurfRunoffPoolBETA = par;
+             } else {
+                 CMmsgPrint(CMmsgWarning,"MDParSurfWaterBETA2 not set or not set correctly.  Defaulting to %f\n",_MDSurfRunoffPoolBETA);
+             }
+            } 
 	if 	   (((_MDInRainSurfRunoffID              = MFVarGetID (MDVarRainSurfRunoff,     "mm", MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
 			((_MDOutRunoffPoolID             = MFVarGetID (MDVarRunoffPool,         "mm", MFOutput, MFState, MFInitial))  == CMfailed) ||
 			((_MDOutRunoffPoolChgID          = MFVarGetID (MDVarRunoffPoolChg,      "mm", MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
 			((_MDOutRunoffPoolRechargeID     = MFVarGetID (MDVarRunoffPoolRecharge, "mm", MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
 			((_MDOutRunoffPoolReleaseID      = MFVarGetID (MDVarRunoffPoolRelease,  "mm", MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
-			(MFModelAddFunction (_MDSurfRunoffPoolInput2) == CMfailed)) return (CMfailed);
+			(MFModelAddFunction (_MDSurfRunoffPoolInput) == CMfailed)) return (CMfailed);
 			break;
 	default: MFOptionMessage (optName, optStr, options); return (CMfailed);
 	}

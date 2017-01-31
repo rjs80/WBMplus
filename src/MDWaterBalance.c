@@ -275,7 +275,7 @@ static void _MDWaterBalance(int itemID) {
  //       if ((itemID == 1063) || (itemID == 1063)) {
 	if (fabs (balance2) > 0.0001 ) {
 //		printf ("TIEM %i %d %d %d WaterBalance! %f precip %f etp = %f runoff = %f grdWaterChg = %f snowPackChg = %f soilMoistChg = %f runoffPoolChg %f\n runoffPool = %f, runoffPoolRecharge = %f, runoffPoolRelease = %f\n", itemID, MFDateGetCurrentMonth(), MFDateGetCurrentDay(), MFDateGetCurrentYear(), balance2,precip,etp,runoff,grdWaterChg,snowPackChg,soilMoistChg,runoffPoolChg,runoffPool, runoffPoolRecharge, runoffPoolRelease);
-		printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), balance2b, balance2, awCap, impAreaFrac, h2oAreaFrac, precip);
+		printf ("\n \n %i, %d, %d, %d, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), balance2b, balance2, awCap, impAreaFrac, h2oAreaFrac, precip);
 		printf ("%f, %f, %f, %f,", snowPackChg, snowfall, snowmelt, snowpack);
 		printf ("%f, %f, %f, %f, %f,", stormRunoffImp, stormRunoffH2O, stormRunoffTotal, precipPerv, runoffToPerv);
 		printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f,", soilMoistChg, soilMoistChgNotScaled, soilMoist, soilMoistNotScaled, pet, etp, etpNotScaled, excess, excessNotScaled);
@@ -307,10 +307,10 @@ int MDWaterBalanceDef() {
         const char *Roptions [] = { "accumulate", "muskingum", "cascade", (char *) NULL };
         if ((RoptStr = MFOptionGet (RoptName)) != (char *) NULL) RoptID = CMoptLookup (Roptions, RoptStr, true);
         
-        enum { MDinput, MDcalculate, MDinput2, MDspatial };
+        enum { MDinput, MDcalculate, MDPnET, MDspatial };
         int  optID = MFUnset;
 	const char *optStr, *optName = MDVarRunoff;
-	const char *options [] = { MDInputStr, MDCalculateStr, MDInput2Str, "spatially",(char *) NULL };
+	const char *options [] = { MDInputStr, MDCalculateStr, MDPnETStr, "spatially",(char *) NULL };
         
 	MFDefEntering ("WaterBalance");
         if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);
@@ -415,7 +415,7 @@ int MDWaterBalanceDef() {
             ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
             (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
         break;	
-        case MDinput2: 																										       			// RJS 061312
+        case MDPnET: 																										       			// RJS 061312
         if (((_MDInRunoffID               = MDRunoffDef           ()) == CMfailed) ||			
             ((_MDOutWaterBalanceID        = MFVarGetID (MDVarWaterBalance,      "mm",    MFOutput, MFFlux,  MFBoundary)) == CMfailed) ||
             (MFModelAddFunction (_MDWaterBalanceInput) == CMfailed)) return (CMfailed);														// RJS 061312
