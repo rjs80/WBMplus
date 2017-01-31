@@ -21,7 +21,13 @@ extern "C" {
 #define MDInputStr     "input"
 #define MDLookupStr    "lookup"
 #define MDCalculateStr "calculate"
+#define MDCalculate2Str "calculate2"
+#define MDCalculate3Str "calculate3"
 #define MDInput2Str     "input2"
+#define MDInput3Str     "input3"
+#define MDPnETStr	"PnET"
+#define MDRychteckaStr	"Rychtecka"
+#define MDVanDrechtStr	"VanDrecht"
 
 // Options
 #define MDOptDINInputs						 "DINInputs"		// RJS 042513
@@ -44,6 +50,7 @@ extern "C" {
 #define MDOptAllWithdrawals					 "AllWithdrawals"
 #define MDOptSpecConductance                "SpecificConductance"               // SZ 08212014 (Only calculate implemented)
 #define MDOptCascade                        "Cascade"
+#define MDOptWWTP                           "WWTP"
 
 #define MDOptIrrigatedAreaMap                "IrrigatedAreaMap"
 #define MDOptSoilAvailableWaterCapacity		 "SoilWaterCapacity"
@@ -51,6 +58,9 @@ extern "C" {
 #define MDOptThermalInputs2					 "ThermalInputs2"		// RJS 062012
 #define MDOptThermalInputs3					 "ThermalInputs3"		// RJS 112712
 #define MDOptHydroPower                                 "HydroPower"
+
+#define MDOptSnowMeltCalculation            "SnowMeltCalculation"   // SZ 09222014
+#define MDOptImperviousMeltCalc             "ImperviousSnowMelt"    // SZ 09242014
 
 #define MDVarAccBalance                      "AccumBalance"
 #define MDVarAccPrecipitation                "AccumPrecipitation"
@@ -149,6 +159,7 @@ extern "C" {
 #define MDVarLeafAreaIndex                   "LeafAreaIndex"
 
 #define MDVarHCIA							 "HCIA"					// RJS 082812
+#define MDVarWinterHCIA                                                 "WinterHCIA"                            // SZ 20141112
 
 #define MDVarHeatToRiv						 "HeatToRiv"			// RJS 112712
 #define MDVarHeatToSink						 "HeatToSink"			// RJS 112712
@@ -312,9 +323,13 @@ extern "C" {
 #define MDVarRainSurfRunoff                  "RainSurfRunoff"
 #define MDVarRainTranspiration               "RainTranspiration"
 #define MDVarRainWaterSurplus                "RainWaterSurplus"
-#define MDVarRainWaterSurplusC                "RainWaterSurplusC"
-#define MDVarRainWaterSurplusD                "RainWaterSurplusD"
-#define MDVarRainWaterSurplusM                "RainWaterSurplusM"
+#define MDVarRainWaterSurplusConif                "RainWaterSurplusConif"
+#define MDVarRainWaterSurplusDecid                "RainWaterSurplusDecid"
+#define MDVarRainWaterSurplusMixed                "RainWaterSurplusMixed"
+#define MDVarRainWaterSurplusLawn               "RainWaterSurplusLawn" // SZ 033015
+#define MDVarRainWaterSurplusAg                 "RainWaterSurplusAg" // SZ 033015
+#define MDVarRainWaterSurplusUrbFor             "RainWaterSurplusUrbFor" // /SZ 033015
+#define MDVarRainWaterSurplusWet                "RainWaterSurplusWet"   // SZ 033015    
 
 #define MDVarRemovalOrder                    "RemovalOrder"                     // RJS 100213    
 #define MDVarReservoirCapacity               "ReservoirCapacity"
@@ -422,24 +437,31 @@ extern "C" {
 #define MDVarLoadAdjust					 "LoadAdjust"
 #define MDVarLocalLoadDIN				 "LocalLoadDIN"
 #define MDVarLocalConcDIN				 "LocalConcDIN"
+#define MDVarLocalConcPnETDIN                            "LocalConcPnETDIN"                     // SZ 20150421
 #define MDVarInLocalLoadDIN                              "InLocalLoadDIN"                       // RJS 011414
-#define MDVarInLocalLoadConDIN                           "InLocalLoadConDIN"
-#define MDVarInLocalLoadDecDIN                           "InLocalLoadDecDIN"
-#define MDVarInLocalLoadMixDIN                           "InLocalLoadMixDIN"
-#define MDVarInLocalLoadLakDIN                           "InLocalLoadLakDIN"
+#define MDVarInLocalLoadConDIN                           "InLocalLoadConifDIN"
+#define MDVarInLocalLoadDecDIN                           "InLocalLoadDecidDIN"
+#define MDVarInLocalLoadMixDIN                           "InLocalLoadMixedDIN"
+#define MDVarInLocalLoadLakDIN                           "InLocalLoadH2ODIN"
+#define MDVarInLocalLoadImpDIN                           "InLocalLoadImpDIN"            // SZ 20150421
+#define MDVarInLocalLoadUrbForDIN                        "InLocalLoadUrbForDIN"         // SZ 20150421
+#define MDVarInLocalLoadLawnDIN                          "InLocalLoadLawnDIN"           // SZ 20150421
+#define MDVarInLocalLoadAgDIN                            "InLocalLoadAgDIN"             // SZ 20150421
 #define MDVarLocalLoadDINnew				 "LocalLoadDINnew"
 #define MDVarGroundWaterMassRel				 "GroundWaterMassRel"
 #define MDVarRunoffPoolMassRel				 "RunoffPoolMassRel"
-#define MDVarDINLoadConc				 "DINLoadConc"
-    
- #define MDVarLocalConcSubDIN                            "LocalConcSubDIN"
+#define MDVarDINLoadConc				 "DINLoadConc" 
+#define MDVarToralRiparianRemDIN  			 "TotalRiparianRemoval"
+
+#define MDVarLocalConcSubDIN                            "LocalConcSubDIN"
  #define MDVarLocalConcAgDIN                             "LocalConcAgDIN"
  #define MDVarLocalConcLakDIN                            "LocalConcLakDIN"
  #define MDVarLocalLoadLakDIN                            "LocalLoadLakDIN"
  #define MDVarLocalConcForDIN                            "LocalConcForDIN"
  #define MDVarLocalLoadForDIN                            "LocalLoadForDIN"
-    
-#define MDVarLocalLoadPnETDIN				 "LocalLoadSubDIN"
+#define MDVarLocalLoadWetDIN                             "LocalLoadWetDIN"
+#define MDVarLocalConcWetDIN                             "LocalConcWetDIN"
+#define MDVarLocalLoadPnETDIN				 "LocalLoadPnETDIN"
 #define MDVarLocalLoadSubDIN				 "LocalLoadSubDIN"
 #define MDVarLocalLoadAgDIN				 "LocalLoadAgDIN"
 #define MDVarDINSubLoadConc				 "DINSubLoadConc"
@@ -450,6 +472,14 @@ extern "C" {
 #define MDVarLandUseSpatialCon                           "LandUseSpatialCon"
 #define MDVarLandUseSpatialMix                           "LandUseSpatialMix"
 #define MDVarPercentDINIncrease                          "PercentDINIncrease"
+#define MDVarLandUseSpatialUrbFor                        "LandUseSpatialUrbFor"
+#define MDVarAgMultiplier                               "AgMultiplier" // 
+#define MDVarAsym                                       "Asym" // 
+#define MDVarScale                                      "Scale"
+#define MDVarXmid_b                                     "Xmid_b"
+#define MDVarXmid_m                                     "Xmid_m"
+#define MDVarVf_b                                       "Vf_b"
+#define MDVarVf_m                                       "Vf_m"
     
     // DOC Variables //
     
@@ -512,9 +542,34 @@ extern "C" {
 #define MDVarLocalLoadSC                                "LocalLoadSC"
 #define MDVarPostSpecCond                               "PostSpecCond"
 #define MDVarStoreWaterSC                               "StoreWaterSC"
+#define MDVarSurfRunoffPoolSC                           "SurfRunoffPoolSC"
 #define MDVarFluxSC                                     "FluxSC"
-    
-    
+// Total Dissolved Ions Variables // SZ 10102014
+#define MDVarAtmChloride                            "AtmChloride"
+#define MDVarSnowPackCl                                "SnowPackCl"
+#define MDVarRootZoneCl                              "RootZoneCl"
+#define MDVarGrdWatCl                                "GroundWaterCl"
+#define MDVarSurfROPoolCl                            "SurfaceRunoffPoolCl"
+#define MDVarFluxCl                                    "FluxCl"    // implies stream flux
+#define MDVarStoreWaterCl                            "StoreWaterCl" // implies stream routed flux
+#define MDVarLocalLoadCl                              "LocalLoadCl" // load to stream
+#define MDVarPostConcCl                                "PostConcCl" // Conc in stream
+#define MDVarConcClimmPre                          "PreConcClimm" // Conc in groundwater immobile zone (kg/m3)
+#define MDVarConcClgwPre                          "PreConcClgw" // Conc in groundwater zone (kg/m3)
+#define MDVarPopulationDensity                      "PopulationDensity"    
+#define MDVarFluxClimpInput                        "DeicerImpFlux" // Flux into cell from deicer inputs (sum of runoff and snowpack)
+#define MDVarFluxCltotalInput                      "TotalClFlux" // Sum of all salt fluxes into cell (deicer+precip+ag+pop+wxing)
+#define MDVarImperviousSnowMelt                     "ImperviousSnowMelt" // Snowmelt from just impervious areas (scaled to impervious area (not cell))
+    //PnET integration 2015
+#define MDVarInLocalLoadWetDIN                    "InLocalLoadWetDIN"
+#define MDVarLocalLoadConDIN                    "LocalLoadConDIN"
+#define MDVarLocalLoadDecDIN                    "LocalLoadDecDIN"
+#define MDVarLocalLoadMixDIN                    "LocalLoadMixDIN"
+#define MDVarLocalConcDecDIN                    "LocalConcDecDIN"
+#define MDVarLocalConcMixDIN                    "LocalConcMixDIN"
+#define MDVarLocalConcWetDIN                    "LocalConcWetDIN"
+#define MDVarLocalConcConDIN                    "LocalConcConDIN"
+
 #define MDVarRiverStorage                    "RiverStorage"
 #define MDVarRiverStorageChg                 "RiverStorageChange"
 #define MDVarRiverWidth                      "RiverbedWidth"
@@ -547,6 +602,9 @@ extern "C" {
 #define MDVarSnowPack                        "SnowPack"
 #define MDVarSnowPackChange                  "SnowPackChange"
 #define MDVarSnowPackDays                    "SnowPackDays"
+#define MDVarSnowMeltFactor                  "SnowMeltFactor"                   // SZ 09222014
+#define MDVarSnowPackAge                     "SnowPackAge"                      // SZ 09222014 
+#define MDVarImpSnowFallRunoff               "ImpSnowFallRunoff"                // SZ 09242014
 #define MDVarSoilAvailWaterCap               "AvailableWaterCapacity"
 #define MDVarSoilAvailWaterCapInput	     "AWCInput"                         // RJS 091713
 #define MDVarSoilFieldCapacity               "FieldCapacity"
@@ -556,6 +614,7 @@ extern "C" {
 #define MDVarSoilWiltingPoint                "WiltingPoint"
 #define MDVarSoilBulkDensity                 "SoilBulkDensity"
 #define MDVarSoilPermeability                "SaturatedSoilPermeabilityInput"                        // SZ 08212014
+#define MDVarSoilPercolation                 "SoilPercolation"
 
 #define MDVarSoilTotalVol					 "SoilTotalVol"			// RJS 082812
 
@@ -709,12 +768,17 @@ extern "C" {
 #define MDVarWTempDeltaT_QxT                 "QxT_deltaT"
 
 #define MDVarWithdrawal_QxT					 "Withdrawal_QxT"	//081311
+#define MDVarOrderSwitch					 "OrderSwitch" // WTempRiverRoute 
 
 #define MDVarWWTPInKgPerDay                  "WWTPInKgPerDay"           // 100113
+#define MDVarWWTPInKgPerDay2                  "WWTPInKgPerDay2"           // RJS distant past
 #define MDVarWWTPPopServed                   "WWTPPopServed"            // 100113
 #define MDVarWWTPTreatment                   "WWTPTreatment"            // 100113
 #define MDVarWWTPOutKgPerDay                 "WWTPOutKgPerDay"          // 100113
 #define MDVarWWTPFracDIN                     "WWTPFracDIN"              // 110713
+#define MDVarWWTPDeterioration					"WWTPDeterioration" // RJS
+#define MDVarWWTPKgTNperPerson				"WWTPKgTNperPerson" //
+#define MDVarWWTPMaxRemoval					"WWTPMaxRemoval"	//
     
 #define MDVarFluxMixing_QxT                  "QxT_FluxMixing"
 #define MDVarStorageMixing_QxT               "QxT_StorageMixing"
@@ -784,7 +848,8 @@ extern "C" {
 
 #define MDParGrossRadTAU                     "GrossRadTAU"
 #define MDParGroundWatBETA                   "GroundWaterBETA"
-#define MDParSurfWaterBETA2					 "SurfWaterBETA2"			//RJS 042612
+#define MDParSurfWaterBETA2		 "SurfWaterBETA2"			//RJS 042612
+#define MDVarSurfWaterBETA2                  "SurfWaterBETA2"                                           //SZ - Spatially varying parameterization
 #define MDParSoilMoistALPHA                  "SoilMoistureALPHA"
 #define MDParInfiltrationFrac                "InfiltrationFraction"
 #define MDParSurfRunoffPoolBETA			 	 "SurfacePoolBETA"			//RJS 042012
@@ -811,6 +876,18 @@ extern "C" {
 #define MDParUptakeKtMC						 "UptakeKtMC"
 #define MDParUptakeKtSTS					 "UptakeKtSTS"
 #define MDParUptakeKtHTS					 "UptakeKtHTS"
+#define MDParPassiveSoilStoreFactor                            "PassiveSoilStoreFactor"
+#define MDParDeicerClconc                                      "DeicerClconcentration"
+#define MDParDeicerClconcInput                                  "DeicerClconcInput"
+#define MDParClWxRate                                          "ClweatheringRate"
+#define MDParDevelopClWxRate                                   "DevelopClweatheringRate"
+#define MDParAgricultureClRate                                 "AgricultureClloadingRate"
+#define MDParDeepGroundWater                                    "DeepGroundWater"
+#define MDParDeepGroundWaterALPHA                               "DeepGroundWaterALPHA"
+#define MDParSoilPercolationBETA                                "PercolationBETA"
+        // Future Sensitivity (Zuidema Chloride)
+#define MDParCleanTransitionYear                "CleanTransitionYear"
+#define MDParCleanTransitionConc                "CleanTransitionConc"
 
 #define MDConst_m3PerSecTOm3PerDay    86400.0
 #define MDConst_m3PerSecTOmmKm2PerDay 86400000.0 // TODO Not Used!
@@ -882,6 +959,7 @@ int MDDischLevel2Def();
 int MDDischLevel3Def();
 int MDDischLevel3AccumulateDef();
 int MDDischLevel3CascadeDef();
+int MDDischLevel3CascadeCoeffDef();     // SZ 2014-09-12
 int MDDischLevel3MuskingumDef();
 int MDDischLevel3MuskingumCoeffDef();
 int MDDischMeanDef();

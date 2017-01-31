@@ -123,8 +123,8 @@ static void _MDSolarRadiationCloud (int itemID) {
 
 	solarRad = MFVarGetFloat (_MDGrossRadID, itemID, 0.0);
 	cloud    = MFVarGetFloat (_MDInputID,    itemID, 0.0) ;
-	if (fabs(cloud) > 100.0) printf ("cloud cover item %i  %f VarID %i \n",itemID, cloud, _MDInputID);
-	cloud = cloud / 100.0;
+	if (fabs(cloud) > 1.0) printf ("cloud cover item %i  %f VarID %i \n",itemID, cloud, _MDInputID);
+	//cloud = cloud / 100.0;
 		 
 	solarRad = solarRad * (0.803 - (0.340 * cloud) - (0.458 * (float) pow ((double) cloud,(double) 2.0)));
     MFVarSetFloat (_MDOutSolarRadID,  itemID, solarRad);
