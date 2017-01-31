@@ -56,7 +56,7 @@ static void _MDWTempRiver (int itemID) {
 
 }
 
-enum { MDcalculate, MDinput, MDinput2 , MDspatial };         // RJS 060214 // SZ 10012014
+enum { MDcalculate, MDinput, MDPnET , MDspatial };         // RJS 060214 // SZ 10012014
 int MDWTempRiverDef () {
 	const char *optStr;
         
@@ -66,7 +66,7 @@ int MDWTempRiverDef () {
         
         int  optID = MFUnset;                                                                                   // RJS 060214
 	const char *optName = MDVarRunoff;                                                                      // RJS 060214
-	const char *options [] = { MDCalculateStr, MDInputStr, MDInput2Str, "spatially", (char *) NULL };                    // RJS 060214
+	const char *options [] = { MDCalculateStr, MDInputStr, MDPnETStr, "spatially", (char *) NULL };                    // RJS 060214
     
         if ((optStr  = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);    // RJS 060214
 
@@ -96,7 +96,7 @@ int MDWTempRiverDef () {
 	    ((_MDOutWTempRiverID     = MFVarGetID (MDVarWTempRiver,    "degC", MFOutput, MFState, MFBoundary)) == CMfailed) ||	
 	    (MFModelAddFunction (_MDWTempRiver) == CMfailed)) return (CMfailed);
                 break;
-         case MDinput2:
+         case MDPnET:
         if (
             ((_MDInSurfRunoffID      = MFVarGetID (MDVarRainSurfRunoff, "mm",    MFInput,  MFFlux, MFBoundary)) == CMfailed) ||
             ((_MDInBaseFlowID        = MFVarGetID (MDVarBaseFlow,       "mm",    MFInput,  MFFlux, MFBoundary)) == CMfailed) ||     
