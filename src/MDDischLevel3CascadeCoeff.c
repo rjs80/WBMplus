@@ -35,7 +35,8 @@ static void _MDDischRouteCascadeCoeff (int itemID) {
 	
 	dL        = MFModelGetLength (itemID);
         Si        = MFVarGetFloat (_MDInSinuosityID,            itemID, 0.0);	
-	vMean     = MFVarGetFloat (_MDInRiverbedVelocityMeanID,  itemID, 0.0);	
+	vMean     = 2.18 * (1.024 -0.077*log(1e-06*MFModelGetArea(itemID)/0.5))/3.6; // Wave velocity (m/s) from same source as Alex (wbm_trans).  Other numbers include 0.4 (m/s))
+        // SZ added factor of 10 for testing ... 2016-12-15.  Cascade routing too strong of an effect - trying to reduce the dampening
 	if (CMmathEqualValues (vMean,     0.0)) {
             // Can't have mean velocity defining a zero storage coefficient.
             // Need to default to something ... 1.0=accumulation, 0.95 is fairly reasonable

@@ -806,7 +806,7 @@ int MDDINDef () {
 
    // Input
 	if (
-	    ((_MDWTemp_QxTID 		    = MDThermalInputs3Def ()) == CMfailed) ||		// comment out for no plants
+	    ((_MDWTemp_QxTID 		    = MDThermalInputs3Def ()) == CMfailed) ||		// DON'T comment out for no plants - specify no demand in inputs
 //          ((_MDWTemp_QxTID 		    = MDWTempRiverRouteDef()) == CMfailed) ||
             ((_MDInRiverWidthID             = MDRiverWidthDef ())     == CMfailed) ||
             ((_MDInLocalLoad_DINID	    = MDNitrogenInputsDef())  == CMfailed) ||	// RJS 091108
