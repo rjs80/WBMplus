@@ -61,7 +61,6 @@ int MDChlorideDef () {
         // TODO: Add option to calculate with specific conductance or via previous method (in DIN?)
         if (
 	    ((_MDInFlux_SCID                    = MDSpecCondDef ()) == CMfailed) ||	
-	    ((_MDInFlux_DOCID                   = MDDOCv2Def ()) == CMfailed) ||
             ((_MDInDischargeID                  = MFVarGetID (MDVarDischarge,                  "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDInPostConc_SCID                = MFVarGetID (MDVarPostSpecCond,              "uS/cm",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	               
             ((_MDOutPostConc_ClID         	= MFVarGetID (MDVarPostConcCl,    	       "mg/L",   MFOutput,  MFState, MFBoundary))   == CMfailed) ||	               
