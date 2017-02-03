@@ -49,7 +49,6 @@ static int _MDInXmid_mID                = MFUnset;              //RJS 102314
 static int _MDInLandUseUrbForID         = MFUnset;
 static int _MDInImpFractionID           = MFUnset;
 static int _MDInWetlandsID              = MFUnset;
-static int _MDInPropROGroundWaterID     = MFUnset;
 static int _MDInBFIID                   = MFUnset;
 static int _MDInDINadjustID             = MFUnset;
 static int _MDInAgMultiplierID		= MFUnset;		//RJS 051815

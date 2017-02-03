@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /******************************************************************************
 GHAAS Water Balance/Transport Model V3.0
 Global Hydrologic Archive and Analysis System
