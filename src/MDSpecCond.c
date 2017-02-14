@@ -453,7 +453,7 @@ static void _MDTotalDissIons(int itemID){
 
     C0 = riverbedVelocity != riverbedVelocity ? 1.0 : 1.0 / (1.0 + (sinuosity*dL/riverbedVelocity/86400.0)); //
 
-    postFlux_Cl = discharge <= 0.00000001 ? 0.0 : C0 * ClTotalIn;
+    postFlux_Cl = discharge > 0.00 ? C0 * ClTotalIn : 0.0;
     postFlux_Cl = postFlux_Cl < 0.0 ? local_load + preFlux_Cl : postFlux_Cl;
     float storageCl_Chg  = 0.0; //
     postStoreWater_Cl = ClTotalIn * (1.0 - C0); 
@@ -465,13 +465,13 @@ static void _MDTotalDissIons(int itemID){
     }
 
    // ClTotalIn = discharge <= 0.0000001 ? 0.0 : ClTotalIn;   // kg/day Cl // eliminate ionic mass flux on negiglible flow days
-    postConc_Cl = discharge <= 0.0000001 ? 0.0 : (1000.) * postFlux_Cl / (discharge * 86400.); // mg/L Cl 
+    postConc_Cl = discharge > 0.0 ? (1000.) * postFlux_Cl / (discharge * 86400.) : 0.0; // mg/L Cl 
     //Calculates the fluxes/storage for the mixing (appropriate for speccond) case
     //postFlux_Cl  = (discharge * MDConst_m3PerSecTOm3PerDay) * (0.001) * postConc_Cl ;         // kg/day Cl
     //postStoreWater_Cl  = (waterStorage * MDConst_m3PerSecTOm3PerDay ) * (0.001) * postConc_Cl ;      // kg/day Cl
     
     // Calculates the mass balances
-    massBalance_Cl  = (ClTotalIn - (postFlux_Cl + postStoreWater_Cl ))/MDMaximum(ClTotalIn,0.0000001);
+    massBalance_Cl  = (ClTotalIn - (postFlux_Cl + postStoreWater_Cl ));
   
 
     if ( ClTotalIn == 999.999e3 ) {
@@ -484,10 +484,10 @@ static void _MDTotalDissIons(int itemID){
 
     // Print mass balance errors
     if (MFDateGetCurrentYear() > 0) {
-        if  (massBalance_Cl > 0.001)  {
+        if  ( (fabs(massBalance_Cl) > 0.001) && ((fabs(massBalance_Cl)/ClTotalIn) > 0.001) ) {
 	   printf("itemID = %d, %d-%d-%d, MB_SC = %f\n",itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_Cl);
-           printf("\tTotalIn: %f, Local: %f , UpFlux: %f, InStore: %f CO: %f v: %f dL: %f \n",ClTotalIn,local_load,preFlux_Cl,storeWater_Cl,C0,riverbedVelocity,dL);
-           printf("\tDownFlux: %f, discharge; %f, OutStore: %f , storage: %f\n",postFlux_Cl,discharge, postStoreWater_Cl,waterStorage);
+           printf("\tTotalIn: %g, Local: %g , UpFlux: %g, InStore: %g CO: %f v: %f dL: %f \n",ClTotalIn,local_load,preFlux_Cl,storeWater_Cl,C0,riverbedVelocity,dL);
+           printf("\tDownFlux: %g, discharge; %g, OutStore: %g , storage: %g\n",postFlux_Cl,discharge, postStoreWater_Cl,waterStorage);
         } 
    }
     

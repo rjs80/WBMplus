@@ -609,13 +609,11 @@ static void _MDNitrogenInputsCalc (int itemID) {
 	luSub = luSub + luAgr > 100.0 ? luSub / (luSub + luAgr) * 100.0 : luSub;        // RJS 110813    
         luAgr = luSub + luAgr > 100.0 ? luAgr / (luSub + luAgr) * 100.0 : luAgr;        // RJS 110813
 
-        
 	runoff             = MFVarGetFloat (_MDInRunoffID,         itemID, 0.0); 	// mm / d
 	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,      itemID, 0.0); 	// m3/sec
 	loadAdjust	   = MFVarGetFloat (_MDInLoadAdjustID,     itemID, 1.0);	// RJS 112211, adjusts loads, keep at 1 if nodata
 	multiplier	   = MFVarGetFloat (_MDInAgMultiplierID,   itemID, 1.0);	// RJS 051815
 	asym		   = MFVarGetFloat (_MDInAsymID,   	   itemID, 1.0);	// RJS 051815
-		
 
 	scale          = 12.5;      // 12.2
 	asym           = 1.4;
@@ -774,7 +772,6 @@ static void _MDNitrogenInputsJordan (int itemID) {
 	float LocalConc_Agr_DIN   = 0.0;	
 	float LocalLoad_Agr_DIN   = 0.0;	
 
-	float propGrW             = 0.0;
         float propAgr             = 0.0;    // proportion of luAgr: luAgr / (luAgr + luSub)
         float propSub             = 0.0;    // proportion of luSub: luSub / (luAgr + luSub)
         float luPrist             = 0.0;    // percent of grid cell that is pristine
@@ -783,6 +780,8 @@ static void _MDNitrogenInputsJordan (int itemID) {
         float new_luAgr           = 0.0;    // revised luAgr based on subcatchment
         float new_luSub           = 0.0;    // revised luSub based on subcatchment
 
+    	float BFI                 = 0.0;
+	
 	luSub = MFVarGetFloat (_MDInLandUseSubID, itemID, 0.0);	// 
 	luAgr = MFVarGetFloat (_MDInLandUseAgID,  itemID, 0.0);	// 
 	asym  = MFVarGetFloat (_MDInAsymID,  itemID, 0.0);	// RJS 102314
@@ -790,6 +789,8 @@ static void _MDNitrogenInputsJordan (int itemID) {
         Xmid_b = MFVarGetFloat (_MDInXmid_bID,  itemID, 0.0);	// RJS 102314
         Xmid_m = MFVarGetFloat (_MDInXmid_mID,  itemID, 0.0);	// RJS 102314
 
+        BFI                = MFVarGetFloat (_MDInBFIID, itemID, 0.0);     // proportion of runoff from G
+        
 	luSub = luSub + luAgr > 100.0 ? luSub / (luSub + luAgr) * 100.0 : luSub;        // RJS 110813    
         luAgr = luSub + luAgr > 100.0 ? luAgr / (luSub + luAgr) * 100.0 : luAgr;        // RJS 110813
         
@@ -797,16 +798,15 @@ static void _MDNitrogenInputsJordan (int itemID) {
 
         runoff             = MFVarGetFloat (_MDInRunoffID,            itemID, 0.0); 	// mm / d
 	runoffVol          = MFVarGetFloat (_MDInRunoffVolID,         itemID, 0.0); 	// m3/sec
-        propGrW            = MFVarGetFloat (_MDInPropROGroundWaterID, itemID, 0.0);     // proportion of runoff from GW
-        propAgr            = luAgr / (luAgr + luSub);
-        propSub            = luSub / (luAgr + luSub);
+        propAgr            = luAgr + luSub > 0.0 ? luAgr / (luAgr + luSub) : 0.0 ;
+        propSub            = luAgr + luSub > 0.0 ? luSub / (luAgr + luSub) : 1.0 ; // assign all of nothing to suburban in this case
         prist_Agr          = luPrist * propAgr;     // Percent of pristine area that is associated with Agr
         prist_Sub          = luPrist * propSub;     // Percent of pristine area that is associated with Sub
         
         new_luAgr          = luAgr / (luAgr + prist_Agr) * 100;
         new_luSub          = luSub / (luSub + prist_Sub) * 100;
         
-        if ((luSub + luAgr + prist_Sub + prist_Agr) != 100) printf("ERROR %d-%d-%d, ID = %d, luSub = %f, luAgr = %f, prist_Sub = %f, prist_Agr = %f\n", MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), itemID, luSub, luAgr, prist_Sub, prist_Agr);
+        if (round(luSub + luAgr + prist_Sub + prist_Agr) != 100) printf("ERROR %d-%d-%d, ID = %d, luSub = %f, luAgr = %f, prist_Sub = %f, prist_Agr = %f\n", MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), itemID, luSub, luAgr, prist_Sub, prist_Agr);
         
 	if (runoff < 0.00001) {
 		LocalConc_Sub_DIN = 0.0;		
@@ -818,15 +818,15 @@ static void _MDNitrogenInputsJordan (int itemID) {
             xMid = Xmid_b + Xmid_m * log(runoff);   // RJS 110713 more accurately represents Wollheim et al. 2008 for runoff
 
             LocalConc_Sub_DIN  = asym / (1 + pow(2.718281828, (xMid - new_luSub) / scale)); 		
-            LocalConc_Agr_DIN = 1.796 - (0.0501 * new_luAgr) - (1.561 * propGrW) + (0.1796 * new_luAgr * propGrW);          
-
+            LocalConc_Agr_DIN = 1.796 - (0.0501 * luAgr) - (1.561 * BFI) + (0.1796 * luAgr * BFI);    
 	}
 
  	LocalLoad_Sub_DIN  = runoffVol * ((prist_Sub + luSub) / 100) * 86400 * LocalConc_Sub_DIN / 1000; 	// kg/day //RJS 02-15-2015
 	LocalLoad_Agr_DIN  = runoffVol * ((prist_Agr + luAgr) / 100) * 86400 * LocalConc_Agr_DIN / 1000; 	// kg/day //RJS 02-15-2015 
 	LocalLoad_DIN      = LocalLoad_Agr_DIN + LocalLoad_Sub_DIN;                                     // kg/day //RJS 02-15-2015
       
-        
+    if ( LocalLoad_DIN  < 0.0) { printf("%d-%d-%d %d load %g agr %g sub %g \n",MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), itemID,
+            LocalLoad_DIN,LocalLoad_Agr_DIN,LocalLoad_Sub_DIN); }
 
      	MFVarSetFloat (_MDOutLocalLoad_DINID,       itemID, LocalLoad_DIN);	  	// RJS 090308
 	MFVarSetFloat (_MDOutLocalConc_Sub_DINID,   itemID, LocalLoad_Sub_DIN);	  	// RJS 090308
@@ -898,7 +898,7 @@ static void _MDNitrogenInputsRatio (int itemID) {
         propSub            = luAgr + luSub > 0.0 ? luSub / (luAgr + luSub) : 1.0;
 
 
-	if (runoff < 0.00001) {
+    if (runoff < 0.00001) {
 		LocalConc_Sub_DIN = 0.0;		
 		LocalConc_Agr_DIN = 0.0;		
 	}
@@ -939,7 +939,7 @@ int MDNitrogenInputsDef () {
 
 			int  optID = MFUnset;													    //RJS 10-28-10
 			const char *optStr, *optName = MDOptDINInputs;								//RJS 10-28-10
-			const char *options [] = { MDCalculateStr, MDCalculate2Str, MDInputStr, MDInput2Str, MDNoneStr, MDJordanStr, MDRatioStr, (char *) NULL };		//RJS 10-28-10
+			const char *options [] = { MDCalculateStr, MDCalculate2Str, MDInputStr, MDPnETStr, MDInput2Str, MDNoneStr, MDJordanStr, MDRatioStr, (char *) NULL };		//RJS 10-28-10
 
 	MFDefEntering ("Nitrogen Inputs");
 
@@ -967,7 +967,7 @@ int MDNitrogenInputsDef () {
 	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,         "kg/day", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||	//RJS 050511
 	    (MFModelAddFunction (_MDNitrogenInputsInput) == CMfailed)) return (CMfailed);
 		break;
-        case MDPnET:
+    case MDPnET:
 	if (((_MDInRunoffID   		 = MFVarGetID (MDVarRunoff,              "mm",  MFInput,  MFFlux, MFBoundary)) == CMfailed) ||	//RJS 10-28-10
 	    ((_MDInRunoffVolID           = MDRunoffVolumeDef ()) == CMfailed) ||			// RJS 10-28-10
 	    ((_MDInLandUseAgID           = MFVarGetID (MDVarLandUseSpatialAg,        "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
@@ -1065,6 +1065,8 @@ int MDNitrogenInputsDef () {
 	    ((_MDOutLocalLoad_DINID      = MFVarGetID (MDVarLocalLoadDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//RJS 10-28-10
 	    ((_MDOutDINLoadConcID        = MFVarGetID (MDVarDINLoadConc,      "mg/L",  MFOutput, MFState, MFBoundary)) == CMfailed) || 	// KYLE
 	    ((_MDInRiverOrderID          = MFVarGetID (MDVarRiverOrder,           "-", MFInput,  MFState, MFBoundary)) == CMfailed) ||  //RJS 10-29-10
+	    ((_MDInAsymID                = MFVarGetID (MDVarAsym,           "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 051815           
+	    ((_MDInAgMultiplierID        = MFVarGetID (MDVarAgMultiplier,         "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 051815           
 	    (MFModelAddFunction (_MDNitrogenInputsCalc) == CMfailed)) return (CMfailed);
 	   break;
            
@@ -1096,6 +1098,7 @@ int MDNitrogenInputsDef () {
 	    ((_MDInScaleID               = MFVarGetID (MDVarScale,              "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
 	    ((_MDInXmid_bID              = MFVarGetID (MDVarXmid_b,             "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
 	    ((_MDInXmid_mID              = MFVarGetID (MDVarXmid_m,             "-", MFInput, MFState, MFBoundary)) == CMfailed)  ||  // RJS 102314
+	    ((_MDInBFIID                 = MFVarGetID (MDVarBFI,                "-", MFInput, MFState, MFBoundary)) == CMfailed) ||  
 	    ((_MDInPropROGroundWaterID   = MFVarGetID (MDVarPropROGroundWater,  "-",     MFInput, MFState, MFBoundary)) == CMfailed) ||  
             ((_MDOutLocalConc_Sub_DINID  = MFVarGetID (MDVarLocalLoadSubDIN,    "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
 	    ((_MDOutLocalLoad_Agr_DINID  = MFVarGetID (MDVarLocalLoadAgDIN,     "kg/day", MFOutput, MFFlux, MFBoundary))  == CMfailed) ||	//KAW 2013 05 08
