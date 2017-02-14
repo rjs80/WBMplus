@@ -98,21 +98,14 @@ static void _MDDischLevel3Cascade(int itemID) {
         float balance1           = 0.0;
         float balance2           = 0.0;
 
-        float propFlag_RO        = 0.0;       // RJS 012214
-        float propFlag_RSin      = 0.0;       // RJS 012214
-        float propFlag_out       = 0.0;       // RJS 012214
-        
-        float Flag_Qin           = 0.0;       // RJS 012214
-        float Flag_Qout          = 0.0;       // RJS 012214
-        float Flag_RO            = 0.0;       // RJS 012214
-        float Flag_RSin          = 0.0;       // RJS 012214
-              
+	//Note: Flagged (source mapping) discharge is not implemented in Cascade (linear reservoir) routing
+
 	C0 = MFVarGetFloat (_MDInCascadeC0ID,   itemID, 1.0);
 
 	runoff          = MFVarGetFloat (_MDInRunoffVolumeID,     itemID, 0.0);
  	//inDischPrevious = MFVarGetFloat (_MDOutDischAux0ID,       itemID, 0.0);
 	outDisch        = MFVarGetFloat (_MDOutDischAux1ID,       itemID, 0.0);
-	inDischCurrent  = MFVarGetFloat (_MDInDischargeID,        itemID, 0.0) + runoff;
+	inDischCurrent  = MFVarGetFloat (_MDInDischargeID,        itemID, 0.0) + 0.5 * runoff;
 	storage         = MFVarGetFloat (_MDOutRiverStorageID,    itemID, 0.0);
         
         propStW_RO      = MFVarGetFloat (_MDInPropROStormWaterID,   itemID, 0.0);
@@ -127,34 +120,26 @@ static void _MDDischLevel3Cascade(int itemID) {
         propSuW_RSin    = MFVarGetFloat (_MDPropRSSurfaceWaterID,   itemID, 0.0);
         propGrW_RSin    = MFVarGetFloat (_MDPropRSGroundWaterID,    itemID, 0.0);
 
-        Flag_Qin	= MFVarGetFloat (_MDQFlagID,            itemID, 0.0);	// RJS 011714
-	propFlag_RO	= MFVarGetFloat (_MDInPropROFlagID,     itemID, 0.0);	// RJS 011714
-	propFlag_RSin	= MFVarGetFloat (_MDPropRSFlagID,       itemID, 0.0);   // RJS 011714
-
-	Flag_RO   = runoff * propFlag_RO; 			// m3/s
-	Flag_RSin = storage * propFlag_RSin;			// m3/s
-	
-	propFlag_out = (inDischCurrent + storage) > 0.0 ? (Flag_RO + Flag_Qin + Flag_RSin) / (inDischCurrent + storage) : 0.5;
-                
-        StW_RO = runoff * propStW_RO;                           // m3/s 
-        SuW_RO = runoff * propSuW_RO;                           // m3/s
-        GrW_RO = runoff * propGrW_RO;                           // m3/s
+        StW_RO = 0.5*runoff * propStW_RO;                           // m3/s 
+        SuW_RO = 0.5*runoff * propSuW_RO;                           // m3/s
+        GrW_RO = 0.5*runoff * propGrW_RO;                           // m3/s
             
         StW_RSin = storage * propStW_RSin;                      // m3/s 
         SuW_RSin = storage * propSuW_RSin;                      // m3/s
         GrW_RSin = storage * propGrW_RSin;                      // m3/s
         
-        propStW_out = (inDischCurrent + storage) > 0.0 ? (StW_RO + StW_Qin + StW_RSin) / (inDischCurrent + storage) : 0.33333;
-        propSuW_out = (inDischCurrent + storage) > 0.0 ? (SuW_RO + SuW_Qin + SuW_RSin) / (inDischCurrent + storage) : 0.33333;
-        propGrW_out = (inDischCurrent + storage) > 0.0 ? (GrW_RO + GrW_Qin + GrW_RSin) / (inDischCurrent + storage) : 0.33333;
+	balance1 = (StW_RO + SuW_RO + GrW_RO + StW_Qin + SuW_Qin + GrW_Qin + StW_RSin + SuW_RSin + GrW_RSin) - (inDischCurrent + storage );
         
-        balance1 = (StW_RO + SuW_RO + GrW_RO + StW_Qin + SuW_Qin + GrW_Qin + StW_RSin + SuW_RSin + GrW_RSin) - (inDischCurrent + storage);
+        propStW_out = (inDischCurrent + storage) > 0.0 ? (StW_RO + StW_Qin + StW_RSin) / (inDischCurrent + storage ) : 0.33333;
+        propSuW_out = (inDischCurrent + storage) > 0.0 ? (SuW_RO + SuW_Qin + SuW_RSin) / (inDischCurrent + storage ) : 0.33333;
+        propGrW_out = (inDischCurrent + storage) > 0.0 ? (GrW_RO + GrW_Qin + GrW_RSin) / (inDischCurrent + storage ) : 0.33333;
         
+       	
         outDisch_RJS = outDisch;   // RJS 100213
         
         // Routing Calc
-	outDisch = C0 * (inDischCurrent+storage); 
-        outDisch = outDisch < 0.0 ? inDischCurrent : outDisch;                  // RJS 100213 needed for storm water routing (impervious + lakes)
+	outDisch = C0 * (inDischCurrent+storage) + 0.5 * runoff; 
+        outDisch = outDisch < 0.0 ? inDischCurrent + 0.5 * runoff: outDisch;                  // RJS 100213 needed for storm water routing (impervious + lakes)
 	storagePre = storage; 
         storage  = (inDischCurrent+storage)*(1-C0);
         if (storage < 0.0){
@@ -164,23 +149,20 @@ static void _MDDischLevel3Cascade(int itemID) {
             storChg = storage - storagePre;
         }
         
-        StW_Qout = propStW_out * outDisch;
-        SuW_Qout = propSuW_out * outDisch;
-        GrW_Qout = propGrW_out * outDisch;
+       StW_Qout = propStW_out * (outDisch - 0.5*runoff) + StW_RO; // Add The other half of runoff disaggregated by flowpath
+        SuW_Qout = propSuW_out * (outDisch - 0.5*runoff) + SuW_RO;
+        GrW_Qout = propGrW_out * (outDisch - 0.5*runoff) + GrW_RO;
 
-	Flag_Qout = propFlag_out * outDisch;
-        
         balance2 = (StW_Qout + SuW_Qout + GrW_Qout) - outDisch;
      
-/*        
-//if (MFDateGetCurrentYear() >= 2000) {        
-        if ((itemID == 1063) || (itemID == 1063)) {
-            printf("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,",inDischCurrent, runoff, storage, StW_RO, SuW_RO, GrW_RO, StW_Qin, SuW_Qin, GrW_Qin, StW_RSin, SuW_RSin, GrW_RSin);
-            printf("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, ", StW_Qin, SuW_Qin, GrW_Qin, propStW_RSin, propSuW_RSin, propGrW_RSin, propStW_out, propSuW_out, propGrW_out, balance1, StW_Qout, SuW_Qout, GrW_Qout, outDisch, balance2, propFlag_RO, Flag_Qin, propFlag_RSin, Flag_Qout, propFlag_out);
+        
+        if (((inDischCurrent > 0.00001)&&(fabs(balance1/inDischCurrent) > 0.00001)) || ((outDisch >0.00001)&&(fabs(balance2/outDisch) > 0.00001))) {
+            printf("\n\n itemID: %i [%i-%i-%i] %f:  %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f \n",itemID,MFDateGetCurrentYear(),MFDateGetCurrentMonth(),MFDateGetCurrentDay(),balance1, inDischCurrent, runoff, storagePre, StW_RO, SuW_RO, GrW_RO, StW_Qin, SuW_Qin, GrW_Qin, StW_RSin, SuW_RSin, GrW_RSin);
+            printf("%f, %f, %f, %f, %f,  \n", balance2, StW_Qout, SuW_Qout, GrW_Qout, outDisch );
         }
-//}
-*/
-       
+
+
+        
 //	if (itemID == 0 || itemID == 9245 || itemID == 11090) printf("**Discharge Cascade** itemID=%d, day = %d, outDisch = %f, inDischCurrent = %f, C0 = %f, storage = %f, storagePre = %f, storChg = %f\n", itemID, MFDateGetCurrentDay(), outDisch, inDischCurrent, C0,storage,storagePre,storChg);
 //	if (itemID == 33 || itemID == 32) printf("C0 = %f, C1 = %f, C2 = %f, storage = %f, storChg = %f\n", C0, C1, C2, storage, storChg);
 
@@ -190,10 +172,6 @@ static void _MDDischLevel3Cascade(int itemID) {
 	MFVarSetFloat (_MDOutDischLevel3ID,          itemID, outDisch);
 	MFVarSetFloat (_MDOutRiverStorChgID,         itemID, storChg);
 	MFVarSetFloat (_MDOutRiverStorageID,         itemID, storage);
-        MFVarSetFloat (_MDQFlagID,                   itemID, Flag_Qout);                 // RJS 012214   Volume of Flag routed downstream
-        MFVarSetFloat (_MDPropRSFlagID,              itemID, propFlag_out);              // RJS 012214   Proportion of Flag remaining in storage
-        MFVarSetFloat (_MDOutQinFlagID,              itemID, Flag_Qin);                  // RJS 012214   Documentation of incoming prop from upstream
-        MFVarSetFloat (_MDOutPropRSinFlagID,         itemID, propFlag_RSin);             // RJS 012214   Documentation of intial prop for storage
         MFVarSetFloat (_MDOutQOutID,                 itemID, outDisch);                  // RJS 100213 documentation for water balance
         MFVarSetFloat (_MDOutQCurID,                 itemID, inDischCurrent);            // RJS 100213 documentation for water balance
         MFVarSetFloat (_MDOutDischRJSID,             itemID, outDisch_RJS);              // RJS 100213 documentation for water balance
@@ -206,9 +184,9 @@ static void _MDDischLevel3Cascade(int itemID) {
         MFVarSetFloat (_MDOutQinStormWaterID,        itemID, StW_Qin);      // RJS 100313 Documentation of incoming prop from upstream
         MFVarSetFloat (_MDOutQinSurfaceWaterID,      itemID, SuW_Qin);      // RJS 100313 Documentation of incoming prop from upstream
         MFVarSetFloat (_MDOutQinGroundWaterID,       itemID, GrW_Qin);      // RJS 100313 Documentation of incoming prop from upstream
-        MFVarSetFloat (_MDOutPropRSinStormWaterID,   itemID, propStW_RSin);     // RJS 100313 Documentation of initial prop for storage
-        MFVarSetFloat (_MDOutPropRSinSurfaceWaterID, itemID, propSuW_RSin);     // RJS 100313 Documentation of initial prop for storage
-        MFVarSetFloat (_MDOutPropRSinGroundWaterID,  itemID, propGrW_RSin);     // RJS 100313 Documentation of initial prop for storage    
+        MFVarSetFloat (_MDOutPropRSinStormWaterID,   itemID, propStW_out);     // RJS 100313 Documentation of initial prop for storage
+        MFVarSetFloat (_MDOutPropRSinSurfaceWaterID, itemID, propSuW_out);     // RJS 100313 Documentation of initial prop for storage
+        MFVarSetFloat (_MDOutPropRSinGroundWaterID,  itemID, propGrW_out);     // RJS 100313 Documentation of initial prop for storage    
 }
 
 int MDDischLevel3CascadeDef () {

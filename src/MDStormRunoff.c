@@ -22,6 +22,7 @@ static int _MDInH2OFractionID       = MFUnset;
 static int _MDInPrecipID            = MFUnset;
 static int _MDInSPackChgID          = MFUnset;
 static int _MDInHCIAID		    = MFUnset;
+static int _MDInImpSnowFallROID     = MFUnset;
 
 // Output
 static int _MDOutStormRunoffH2OID 	= MFUnset;
@@ -46,6 +47,7 @@ static void _MDStormRunoff (int itemID) {
 	float snowpackChg	= 0.0;
 	float precipPerv	= 0.0;
 	float cell			= 689;
+        float impSnowFallRO     = 0.0;
 
 	snowpackChg = MFVarGetFloat (_MDInSPackChgID, 	 itemID, 0.0);
 	precip      = MFVarGetFloat (_MDInPrecipID,  	 itemID, 0.0);
@@ -57,6 +59,7 @@ static void _MDStormRunoff (int itemID) {
 
 	if (snowpackChg >  0.0) precip = 0.0; //Snow Accumulation, no liquid precipitation
 	if (snowpackChg <= 0.0) precip = precip + fabs (snowpackChg); //Add Snowmelt
+        impSnowFallRO = (_MDInImpSnowFallROID != MFUnset) ? MFVarGetFloat(_MDInImpSnowFallROID,itemID,0.0) : 0.0;
 
 	if (h2oAreaFrac + impAreaFrac > 1.0) {
 		h2oAreaFrac = h2oAreaFrac / (h2oAreaFrac + impAreaFrac);
@@ -68,7 +71,7 @@ static void _MDStormRunoff (int itemID) {
 		impAreaFrac = impAreaFrac < 0.005 ? 0.0 : impAreaFrac - 0.005;
 	}
 
-	runoffImp   = (impAreaFrac * hcia) * precip;   					// depth scaled to entire cell
+	runoffImp   = (impAreaFrac * hcia) * precip + impSnowFallRO;   					// depth scaled to entire cell // Added impervious SnowFall Runoff // SZ 09242014
 	runoffH2O   = (h2oAreaFrac * 1.00) * precip;   					// depth scaled to entire cell
 	runoffTotal = runoffImp + runoffH2O;                         	// depth scaled to entire cell
 //	runoffTotal = runoffImp;										// depth scaled to entire cell
@@ -85,13 +88,13 @@ static void _MDStormRunoff (int itemID) {
         MFVarSetFloat (_MDOutImpFractionID,      itemID, impAreaFrac);  // 10/01/13
         MFVarSetFloat (_MDOutH2OFractionID,      itemID, h2oAreaFrac);  // 10/01/13
 
-	float balance = precip - runoffTotal - runofftoPerv - precipPerv;
+	float balance = (precip+impSnowFallRO) - runoffTotal - runofftoPerv - precipPerv; // Added Impervious SnowFall Runoff // SZ 09242014
 
 //	if (itemID == cell) printf("m = %d, d = %d, precip = %f, snowpackChg = %f, FracImp = %f, FracH2o = %f\n runoffImp = %f, runoffH2O = %f, runoffTotal = %f, runofftoPerv = %f\n", MFDateGetCurrentMonth(), MFDateGetCurrentDay(), precip, snowpackChg, impAreaFrac, h2oAreaFrac, runoffImp, runoffH2O, runoffTotal, runofftoPerv);		//RJS 030510
 
 
 	if (fabs (balance) > 0.001) {
-	printf("BALANCE: FracImp = %f, FracH2o = %f, runoffImp = %f, runoffH2O = %f, runoffTotal = %f, runofftoPerv = %f\n", impAreaFrac, h2oAreaFrac, runoffImp, runoffH2O, runoffTotal, runofftoPerv);		//RJS 030510
+	printf("BALANCE: FracImp = %f, FracH2o = %f, precip = %f, runoffImp = %f, runoffH2O = %f, runoffTotal = %f, runofftoPerv = %f\n", impAreaFrac, h2oAreaFrac, precip,runoffImp, runoffH2O, runoffTotal, runofftoPerv);		//RJS 030510
 	if(itemID == cell) printf("balance = %f, precip = %f, precipPerv = %f, ImpAreaFrac = %f\n", balance, precip, precipPerv, impAreaFrac);
 	}
 
@@ -115,9 +118,34 @@ int MDStormRunoffDef () {
 	    ((_MDOutStormRunoffTotalID  = MFVarGetID (MDVarStormRunoffTotal,"mm",   MFOutput, MFFlux, MFBoundary))  == CMfailed) ||
             ((_MDOutH2OFractionID       = MFVarGetID (MDVarH2OFracSpatial,  "-",    MFOutput,  MFState, MFBoundary)) == CMfailed) ||		// RJS 100113
 	    ((_MDOutImpFractionID       = MFVarGetID (MDVarImpFracSpatial,  "-",    MFOutput,  MFState, MFBoundary)) == CMfailed) ||           // RJS 100113
-            ((_MDOutRunofftoPervID      = MFVarGetID (MDVarRunofftoPerv,    "mm",   MFOutput, MFFlux, MFBoundary))  == CMfailed) ||
-	    (MFModelAddFunction (_MDStormRunoff) == CMfailed)) return (CMfailed);
+            ((_MDOutRunofftoPervID      = MFVarGetID (MDVarRunofftoPerv,    "mm",   MFOutput, MFFlux, MFBoundary))  == CMfailed)
+            ) return (CMfailed);
 
+        // Add in check for development ... then read-in Impervious and HCIA ... then add model function
+        enum { MFnone, MFcalculate };
+        const char *optStr;
+        const char *snowImpervMeltOptions [] = { MDNoneStr, MDCalculateStr,(char *) NULL };
+        int impervSnowMeltCalcID;
+        if ((optStr = MFOptionGet (MDOptImperviousMeltCalc) ) == (char *) NULL) {
+            optStr = MDNoneStr;
+            //CMmsgPrint(CMmsgWarning," Impervious Snow Fall runoff method not specified - defaulting to none (StormRunoff).\n");
+        } 
+        if ((impervSnowMeltCalcID = CMoptLookup (snowImpervMeltOptions,optStr,true)) == CMfailed) {
+            CMmsgPrint(CMmsgUsrError," Impervious Snow Fall runoff method incorrectly specified. Options are 'none' or 'calculate'.\n");
+            return (CMfailed);
+        }
+        switch (impervSnowMeltCalcID) {
+            case MFnone:
+                // Nothing to be done
+                break;
+            case MFcalculate:
+                if (((_MDInImpSnowFallROID    = MFVarGetID ( MDVarImpSnowFallRunoff,"mm",   MFInput, MFFlux,  MFBoundary)) == CMfailed)
+                    ) return (CMfailed);
+                break;
+            default: MFOptionMessage (MDOptImperviousMeltCalc, optStr, snowImpervMeltOptions); return (CMfailed);
+        }
+	// Include StormRunoff
+        if ((MFModelAddFunction (_MDStormRunoff) == CMfailed)) return (CMfailed);
 	MFDefLeaving ("Storm Runoff");
 	return (_MDOutRunofftoPervID);
 }
