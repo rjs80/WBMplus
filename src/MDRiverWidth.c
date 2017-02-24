@@ -85,7 +85,7 @@ static void _MDRiverWidth (int itemID) {
             /**************** Wil's Approach **************/    
               
              width = Width_Coef * pow(discharge, Width_Exp);  
-             depth = Depth_Coef * pow(discharge, Depth_Exp);  
+             depth = Depth_Coef * pow(discharge, Depth_Exp) / 100.;  
              velocity = Velocity_Coef * pow(discharge, Velocity_Exp);  
             
 	}
