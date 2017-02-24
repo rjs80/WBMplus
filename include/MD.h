@@ -782,6 +782,8 @@ extern "C" {
 #define MDVarStoreWaterSC                               "StoreWaterSC"
 #define MDVarSurfRunoffPoolSC                           "SurfRunoffPoolSC"
 #define MDVarFluxSC                                     "FluxSC"
+// Chloride mass // SZ 20170223 - SpecCond v4
+#define  MDVarDeicerChlorideFlux                  "DeicerChlorideFlux"
 // Total Dissolved Ions Variables // SZ 10102014
 #define MDVarAtmChloride                            "AtmChloride"
 #define MDVarSnowPackCl                                "SnowPackCl"
