@@ -1080,7 +1080,8 @@ extern "C" {
 #define MDVarNu3                             "Nu3"
 #define MDVarTau3                            "Tau3"
 #define MDVarPhi3                            "Phi3"
-     
+#define MDVarGeomorphicVelocityCoeff         "GeomorphicVelocityCoeff"
+#define MDVarGeomorphicVelocityExp          "GeomorphicVelocityExp"
 #define MDVarBasinID			     "BasinID"     
      
 #define MDVarPoint_Fecal                     "FecalPointSources" // TODO Not used!
