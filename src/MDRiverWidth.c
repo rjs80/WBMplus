@@ -115,7 +115,7 @@ static void _MDRiverWidth (int itemID) {
           Velocity_Coef = geoVelC * pow(dischargeMean,geoVelE-Velocity_Exp); // check arithmetic rules of multiplying common bases
           // today's discharge distribution
           width = Width_Coef * pow(discharge, Width_Exp);  
-          depth = Depth_Coef * pow(discharge, Depth_Exp) / 100.;  
+          depth = Depth_Coef * pow(discharge, Depth_Exp);  
           velocity = Velocity_Coef * pow(discharge, Velocity_Exp);  
             
 	}

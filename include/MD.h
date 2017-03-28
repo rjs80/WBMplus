@@ -1136,6 +1136,7 @@ extern "C" {
 #define MDParDeepGroundWater                                    "DeepGroundWater"
 #define MDParDeepGroundWaterALPHA                               "DeepGroundWaterALPHA"
 #define MDParSoilPercolationBETA                                "PercolationBETA"
+#define MDParMIMTpowerLawSlope                                  "MIMTpowerLawSlope"
         // Future Sensitivity (Zuidema Chloride)
 #define MDParCleanTransitionYear                "CleanTransitionYear"
 #define MDParCleanTransitionConc                "CleanTransitionConc"
