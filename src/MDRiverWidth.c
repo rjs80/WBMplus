@@ -82,8 +82,8 @@ static void _MDRiverWidth (int itemID) {
         nu       = MFVarGetFloat (_MDInNuID,   itemID, 0.0);
         tau       = MFVarGetFloat (_MDInTauID,   itemID, 0.0);
         phi       = MFVarGetFloat (_MDInPhiID,   itemID, 0.0);
-        geoVelC      = MFVarGetFloat (_MDInGeomorphicVelocityCoeffID,   itemID, 0.0);
-        geoVelE      = MFVarGetFloat (_MDInGeomorphicVelocityExpID,   itemID, 0.0);
+        //        geoVelC      = MFVarGetFloat (_MDInGeomorphicVelocityCoeffID,   itemID, 0.0);
+        //        geoVelE      = MFVarGetFloat (_MDInGeomorphicVelocityExpID,   itemID, 0.0);
         
         //        Width_Coef    = MFVarGetFloat (_MDInAtaSiteWidthCoefID,        itemID, 0.0);
         //        Depth_Coef    = MFVarGetFloat (_MDInAtaSiteWidthCoefID,        itemID, 0.0);
@@ -107,8 +107,10 @@ static void _MDRiverWidth (int itemID) {
 	//	width = pow (((shapeExp + 1.0) * area) / (shapeExp * alpha), 1.0 / (shapeExp + 1));
 	//	depth = alpha * pow (width, shapeExp);
                 
-            /**************** Wil's Approach **************/    
-
+            /**************** Wil's Approach **************/
+          // Calculate downstream velocity coefficient and exponent
+          geoVelC=1.0 / eta / tau ; //
+          geoVelE=1.0 - phi - nu ; //
             // Calculate flow coefficients from geomorphic relationships:
           Width_Coef = tau * pow(dischargeMean,phi-Width_Exp) ;
           Depth_Coef = eta * pow(dischargeMean,nu - Depth_Exp) ;
@@ -147,8 +149,8 @@ int MDRiverWidthDef () {
             ((_MDInNuID   = MFVarGetID (MDVarNu,   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||            
             ((_MDInTauID   = MFVarGetID (MDVarTau,   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
             ((_MDInPhiID   = MFVarGetID (MDVarPhi,   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
-            ((_MDInGeomorphicVelocityCoeffID   = MFVarGetID (MDVarGeomorphicVelocityCoeff,   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
-            ((_MDInGeomorphicVelocityExpID   = MFVarGetID (MDVarGeomorphicVelocityExp,   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||                        
+            //            ((_MDInGeomorphicVelocityCoeffID   = MFVarGetID (MDVarGeomorphicVelocityCoeff,   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||
+            // ((_MDInGeomorphicVelocityExpID   = MFVarGetID (MDVarGeomorphicVelocityExp,   "-",      MFInput,  MFState, MFBoundary)) == CMfailed) ||                        
             ((_MDOutRiverDepthID           = MFVarGetID (MDVarRiverDepth,            "m",      MFOutput, MFState, MFBoundary)) == CMfailed) ||
             ((_MDOutRiverWidthID           = MFVarGetID (MDVarRiverWidth,            "m",      MFOutput, MFState, MFBoundary)) == CMfailed) ||
             ((_MDOutRiverVelocityID        = MFVarGetID (MDVarRiverVelocity,         "m/s",    MFOutput, MFState, MFBoundary)) == CMfailed) ||

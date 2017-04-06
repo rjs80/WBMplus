@@ -175,6 +175,80 @@ extern "C" {
 #define MDVarH2OFracSpatial					 "H2OFracSpatial"		//RJS 091213
 #define MDVarImperviousSoil					 "ImperviousSoil"		// RJS 091213
 
+// Tao's sediment variables
+
+    #define MDVarMUSLETotalInMixing       "MUSLETotalInMixing"
+
+#define MDVarRunoffConc_SOC                  "RunoffConc_SOC"
+#define MDVarRunoffConc_MUSLE                  "RunoffConc_MUSLE"    
+#define MDVarMUSLE                  "MUSLE"    
+#define MDVarLocalLoadSOC2                  "LocalLoadSOC2" 
+#define MDVarLocalLoadMUSLE                  "LocalLoadMUSLE"     
+#define MDVarConcMixingSOC                  "ConcMixingSOC"
+    #define MDVarConcMixingMUSLE                  "ConcMixingMUSLE"
+#define MDVarStoreWaterMixingSOC            "StoreWaterMixingSOC"
+#define MDVarStoreWaterMixingMUSLE            "StoreWaterMixingMUSLE"
+#define MDVarFluxMixingSOC                  "FluxMixingSOC"
+#define MDVarFluxMixingMUSLE                  "FluxMixingMUSLE"    
+#define MDVarPostConcSOC                    "PostConcSOC"
+#define MDVarPostConcMUSLE                    "PostConc_MUSLE"
+#define MDVarpostConcMixing_MUSLE                    "postConcMixing_MUSLE"
+    
+    
+#define MDVarStoreWaterSOC                  "StoreWaterSOC"
+#define MDVarStoreWaterMUSLE                  "StoreWaterMUSLE"
+#define MDVarFluxSOC                        "FluxSOC"
+#define MDVarFluxMUSLE                        "FluxMUSLE"    
+#define MDVarSOC                        "SOC"
+#define MDVarMUSLE                        "MUSLE"
+#define MDVarUSLE_K                        "USLE_K"
+#define MDVarSlope                        "Slope"
+#define MDVarUSLE_LS                        "USLE_LS"    
+#define MDVarUSLE_C                        "USLE_C"  
+    
+    // Tao's bacteria variables
+    #define MDAirTemperature                 "AirTemperature"
+    #define MDVarRunoffConc_Bacteria                 "RunoffConc_Bacteria" 
+    #define MDVarCellLength                 "CellLength" 
+     #define MDVarAPrecipitation                 "APrecipitation" 
+#define MDVarwaterTotalVolume                 "waterTotalVolume" 
+#define MDVarLocalLoad_Bacteria                       "LocalLoad_Bacteria"
+   #define  MDVarStoreWater_Bacteria       "StoreWater_Bacteria"
+   #define  MDVarStoreWaterMC_Bacteria       "StoreWaterMC_Bacteria"
+  //   #define  MDVarStoreWater_Bacteria2       "StoreWater_Bacteria2"
+// #define  MDVarStoreWaterOnlyMC_Bacteria "StoreWaterOnlyMC_Bacteria"
+   #define  MDVarFlux_Bacteria         "Flux_Bacteria"
+   #define  MDVarFluxMC_Bacteria       "FluxMC_Bacteria"
+   #define  MDVarFluxOnlyMC_Bacteria   "FluxOnlyMC_Bacteria"
+   #define  MDVarpreFlux_Bacteria      "preFlux_Bacteria"
+   #define  MDVarpreFluxMC_Bacteria      "preFluxMC_Bacteria"
+       #define  MDVarFluxMixing_Bacteria "FluxMixing_Bacteria"
+    #define MDVarConcMixing_Bacteria "ConcMixing_Bacteria"
+    #define MDVarpostConc_Bacteria        "postConc_Bacteria"
+    #define MDVarpostConcMC_Bacteria      "postConcMC_Bacteria"
+    #define MDVarpostConcOnlyMC_Bacteria  "postConcOnlyMC_Bacteria"
+    #define MDVarpostConcHTS_Bacteria     "postConcHTS_Bacteria"
+    #define MDVarpostConcMixing_Bacteria  "postConcMixing_Bacteria"
+    #define MDVarStoreWaterMixingBacteria "StoreWaterMixingBacteria" 
+    #define MDVarExport_Bacteria "Export_Bacteria" 
+#define MDVartotalMassRemoved_Bacteria  "totalMassRemoved_Bacteria"
+#define MDVarMCMassRemoved_Bacteria     "MCMassRemoved_Bacteria"
+#define MDVarOnlyMCMassRemoved_Bacteria "OnlyMCMassRemoved_Bacteria"
+#define MDVarHTSRemoval_Bacteria        "HTSRemoval_Bacteria"
+#define MDVarremoval                    "removal"
+#define MDVarVelocity                   "Velocity"
+#define MDVartResi "tResi"
+    #define MDVarKs "Ks" // Solar radiation die-off rate
+     #define MDVarPrecipitation "Precipitation"
+     #define MDVarflowPathRemoval_Bacteria "flowPathRemoval_Bacteria"
+     #define MDVarflowPathRemovalMC_Bacteria "flowPathRemovalMC_Bacteria"
+    #define MDVarflowPathRemovalMixing_Bacteria "flowPathRemovalMixing_Bacteria"
+    #define MDVarBacteriaTotalIn       "BacteriaTotalIn"
+#define MDVarBacteriaTotalInMC       "BacteriaTotalInMC"
+    #define MDVarBacteriaTotalInMixing "BacteriaTotalInMixing"
+#define MDVarTEHTS               "TEHTS"
+#define MDVarAlphaHTS            "AlphaHTS"
+#define MDVarHTSRemoval_Bacteria "HTSRemoval_Bacteria"
     
 // New Irrigation Function
 
@@ -431,6 +505,7 @@ extern "C" {
 #define MDVarAsDZ					 "AsDZ"
 #define MDVarAsHZ					 "AsHZ"
 #define MDVarAa						 "Aa"
+#define MDVarcross_A						 "cross_A"    
 #define MDVarVelocity					 "Velocity"
 #define MDVarMassBalanceMixingDIN			 "MassBalanceMixingDIN"    
 #define MDVarConcMixing					 "ConcMixing"
@@ -575,7 +650,7 @@ extern "C" {
 #define MDVarCanopyCover2				 "CanopyCover2"                 //RJS August 29, 2016
 #define MDVarAerationApproach				 "AerationApproach"		//RJS December 3, 2016
 #define MDVarAerationAdjust                              "AerationAdjust"               // RJS January 5, 2017
-    
+#define MDVarRiparianOverHang                            "RiparianOverHang"             // SZ 2017 04 06
     
 // For MDDO2.c 
 #define MDVarOrderSwitch                                 "OrderSwitch"                  //RJS September 28, 2016
@@ -1180,6 +1255,7 @@ int MDAccumGrdWatChgDef();
 int MDAccumRunoffDef();
 int MDAccumBalanceDef();
 int MDAvgNStepsDef();
+int MDBACDef();
 int MDBaseFlowDef();
 
 int MDBgcRoutingDef();
@@ -1206,6 +1282,7 @@ int MDSpecCondDef();                    // SZ 061014
 int MDChlorideDef();                    // SZ 061614
 int MDNitrgoenInputsDef();		// RJS 042513
 int MDDischargeDef();
+int MDContributingAreaDef();
 int MDDischLevel1Def();
 int MDDischLevel2Def();
 int MDDischLevel3Def();

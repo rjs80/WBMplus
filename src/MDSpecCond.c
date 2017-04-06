@@ -44,7 +44,7 @@ static int _MDInWTempRiverID            = MFUnset;
 static int _MDInRiverWidthID            = MFUnset;
 static int _MDInLitterFall_POCID        = MFUnset;
 static int _MDInLocalLoad_DOCID         = MFUnset;
-
+static int _MDInFlux_BacteriaID         = MFUnset;
 //Parameters
 static float _MDparPassiveSoilStoreFactor = 0.1  ; // Factor.  Multiplied by AWC to define passive storage in soil pool 
 static float _MDSnowFallThreshold      = -0.29; // deg C where snowfall occurs
@@ -1252,11 +1252,12 @@ int MDSpecCondDef () {
     if (
         //((_MDInDischargeID                  = MDDischargeDef()) == CMfailed ) ||
             ((_MDInDINFluxID                    = MDDINDef ()) == CMfailed) ||     // Needed for merging with upstream
-            ((_MDInWTempRiverID               =   MDWTempRiverRouteDef ()) == CMfailed)  ||
-                //     ((_MDInWTempRiverID                 = MFVarGetID (MDVarWTemp_QxT,              "degC",      MFInput, MFState, MFBoundary)) == CMfailed)   ||
-                   ((_MDInRiverWidthID                 = MDRiverWidthDef ())     == CMfailed) ||
+            //            ((_MDInWTempRiverID               =   MDWTempRiverRouteDef ()) == CMfailed)  ||
+            ((_MDInWTempRiverID                 = MFVarGetID (MDVarWTemp_QxT,              "degC",      MFInput, MFState, MFBoundary)) == CMfailed)   ||
+            //((_MDInRiverWidthID                 = MDRiverWidthDef ())     == CMfailed) ||
 //          ((_MDInLitterFall_POCID             = MDLitterFallDef ()) == CMfailed) ||
 //          ((_MDInLocalLoad_DOCID              = MFVarGetID (MDVarLocalLoadDOC,                             "kg/d",    MFInput,  MFFlux,  MFBoundary))   == CMfailed) ||
+            ((_MDInFlux_BacteriaID              = MDBACDef ())     == CMfailed) ||
             ((_MDInDischargeID                  = MFVarGetID (MDVarDischarge,                                "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDInRiverStorageID               = MFVarGetID (MDVarRiverStorage,                           "m3/s",    MFInput,  MFState, MFInitial))    == CMfailed) ||	
 	    ((_MDInRiverStorageChgID		= MFVarGetID (MDVarRiverStorageChg,			   "m3/s",    MFInput,  MFState, MFInitial))    == CMfailed) ||		

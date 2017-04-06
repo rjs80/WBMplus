@@ -694,16 +694,17 @@ if (((massBalance_DIN_denit > 0.0003) || (massBalance_DIN_assim > 0.0003)) && (l
 //        if (isnan(preFlux_DIN_denit)) printf("ID = %d, %d-%d-%d\n", itemID,MFDateGetCurrentYear(),MFDateGetCurrentMonth(),MFDateGetCurrentDay());
 
 //        printf("m = %d, d = %d, ID = %d, randomNum = %f, VfAdjust = %f, VfAdjust2 = %f, WidthAdjust = %f\n",MFDateGetCurrentMonth(),MFDateGetCurrentDay(),itemID, randomNumber, VfAdjust, VfAdjust2, widthAdjust);
-/*        
-if (MFDateGetCurrentYear() >= 2000) {
-if ((itemID == 13) || (itemID == 12)) {
+       
+//if (MFDateGetCurrentYear() >= 2000) {
+
+  if (runoffConc >= 20.0 ) {
    printf ("%i, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), discharge, dischargePre, waterStoragePrev, waterStorage, waterStorageChg, waterTotalVolume, runoffVol, depth, width, aA, dL,localLoad_DIN, runoffConc);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,",  storeWater_DIN_denit, storeWater_DIN_assim, storeWaterMixing_DIN, preFlux_DIN_denit, preFlux_DIN_assim, preFluxMixing_DIN, DINTotalIn_denit, DINTotalIn_assim, DINTotalInMixing, preConcDIN_denit, preConcDIN_assim, preConcMixingDIN);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,", waterT, denit_int_vf, denit_slope, assim_int_vf, assim_slope, tnQ10, tnTref, VfAdjust, DIN_Vf_ref_denit, DIN_Vf_denit, DIN_Vf_ref_assim, DIN_Vf_assim, STS_Umax, STS_UmaxT, STS_Ks, STS_U, ktHTS, DIN_Kt_denit, DIN_Kt_assim, alphaDZ, alphaHZ, transferDZ, transferHZ, tStorHZ, wetlands, HCWA, wetlandArea, wetland_HL, hydLoad, uptakeMC_denit, uptakeDZ_denit, uptakeHZ_denit, removalMC_denit, removalDZ_denit, removalHZ_denit, removalTotal_denit, totalMassRemovedMC_DIN_denit, totalMassRemovedDZ_DIN_denit, totalMassRemovedHZ_DIN_denit, flowPathRemoval_denit, uptakeMC_assim, removalMC_assim, removalTotal_assim, totalMassRemovedMC_DIN_assim, flowPathRemoval_assim);
    printf ("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", postFluxDIN_denit, postFluxDIN_assim, postFluxDINMixing, postConcDIN_denit, postConcDIN_assim, postConcDINMixing, postStoreWater_DIN_denit, postStoreWater_DIN_assim, postStoreWaterMixing_DIN, DINDeltaStorage_denit, DINDeltaStorage_assim, DINDeltaStorageMixing, massBalance_DIN_denit, massBalance_DIN_assim, massBalanceMixing_DIN);
 }
-}  
-*/
+  //}  
+
 
         
 MFVarSetFloat (_MDOutPreFlux_DIN_denitID,            itemID, preFlux_DIN_denit);                                                // RJS 050911

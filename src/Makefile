@@ -17,6 +17,7 @@ OBJS = $(OBJ)/WBMMain.o\
        $(OBJ)/MDAccumulate.o\
        $(OBJ)/MDAvgNSteps.o\
        $(OBJ)/MDBaseFlow.o\
+       $(OBJ)/MDBAC.o\
        $(OBJ)/MDBgc.o\
        $(OBJ)/MDBgcDOC.o\
        $(OBJ)/MDBgcDIN.o\

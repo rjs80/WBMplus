@@ -911,7 +911,7 @@ static void _MDNitrogenInputsRatio (int itemID) {
             LocalConc_Agr_DIN = 1.796 - (0.0501 * luAgr) - (1.561 * BFI) + (0.1796 * luAgr * BFI);    
             LocalConc_Agr_DIN = LocalConc_Agr_DIN - 0.566 >= 0.0 ? LocalConc_Agr_DIN - 0.566 : 0.0;     // using Piedmont and Coastal Plain average
   //          LocalConc_Agr_DIN = LocalConc_Agr_DIN >= 0.0 ? LocalConc_Agr_DIN : 0.0;     // using Piedmont 
-
+            
 	}
 
             LocalConc_Sub_DIN = pow(10, DINadjust) * LocalConc_Sub_DIN;     // for MonteCarlo only 033116

@@ -47,7 +47,7 @@ static int _MDInPhiID                    = MFUnset;
 static int _MDInOrderSwitchID            = MFUnset;
 static int _MDInRiverOrderID            = MFUnset;
 static int _MDInKFactorID                = MFUnset;
-static int _MDInSlopeID                = MFUnset;
+static int _MDInRiverbedSlopeID          = MFUnset;
 static int _MDInSWrunoffDOsatID         = MFUnset;
 static int _MDInGWrunoffDOsatID         = MFUnset;
 static int _MDInAerationApproachID	= MFUnset;
@@ -203,7 +203,7 @@ static void _MDDO2 (int itemID) {
     GWrunoff_T                                  = MFVarGetFloat (_MDInWTempGrdWaterID, itemID, 0.0);		// GWrunoff temperature (degC) for KNZ Runs, set this parameter to 9.722
     SWrunoff_T                                  = MFVarGetFloat (_MDInWTempSurfROID,   itemID, 0.0);		// SWrunoff temperature (degC) for KNZ Runs, set this parameter to 9.722
     Kfactor                                    = MFVarGetFloat (_MDInKFactorID,   itemID, 0.0);		//  K value correction term
-    Slope                                      = MFVarGetFloat (_MDInSlopeID,   itemID, 0.0);		//  River Slope
+    Slope                                      = MFVarGetFloat (_MDInRiverbedSlopeID,   itemID, 0.0);		//  River Slope
 
 	do2_Riv_mass_in       			= MFVarGetFloat (_MDOutRiverMassDO2ID,    itemID, 0.0); 			// mass of do2 coming from the upstream grid cell
 //	do2_RivStor_mass_post 			= MFVarGetFloat (_MDOutRiverStorMassDO2ID, itemID, 0.0);			// is always 0, unless routing is activated
@@ -452,7 +452,7 @@ if  (  // ((_MDInPARBenthicID                    = MDBgcRiverLightDef())        
         ((_MDInOrderSwitchID                   = MFVarGetID (MDVarOrderSwitch,                  "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
         ((_MDInAerationApproachID              = MFVarGetID (MDVarAerationApproach,             "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
         ((_MDInKFactorID                       = MFVarGetID (MDVarKFactor,                      "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
-        ((_MDInSlopeID                         = MFVarGetID (MDVarRiverbedSlope2,                      "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
+        ((_MDInRiverbedSlopeID                 = MFVarGetID (MDVarRiverbedSlope,                      "-",  MFInput, MFState, MFBoundary)) == CMfailed) ||
         ((_MDOutRiverMassDO2ID 		       = MFVarGetID (MDVarRiverMassDO2,              "kg/d",   MFRoute,   MFFlux, MFBoundary)) 	== CMfailed) 	||
 	((_MDOutRiverConcDO2ID 		       = MFVarGetID (MDVarRiverConcDO2,              "mg/l",  MFOutput,  MFState, MFBoundary)) 	== CMfailed) 	||
 	((_MDOutRiverStorMassDO2ID             = MFVarGetID (MDVarRiverStorMassDO2,            "kg",  MFOutput,  MFState,  MFInitial)) 	== CMfailed) 	||
