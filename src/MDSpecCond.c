@@ -28,7 +28,7 @@ static int _MDInStormRunoffTotalID     = MFUnset;
 static int _MDInDischargeID            = MFUnset;
 static int _MDInRiverStorageID         = MFUnset;
 static int _MDInRiverStorageChgID      = MFUnset;
-static int _MDInRiverbedVelocityMeanID = MFUnset;
+static int _MDInRiverbedVelocityID     = MFUnset;
 static int _MDInSinuosityID	       = MFUnset;
 static int _MDInAirTemperatureID       = MFUnset;
 static int _MDInAvailableWaterCapacityID = MFUnset;
@@ -44,7 +44,7 @@ static int _MDInWTempRiverID            = MFUnset;
 static int _MDInRiverWidthID            = MFUnset;
 static int _MDInLitterFall_POCID        = MFUnset;
 static int _MDInLocalLoad_DOCID         = MFUnset;
-
+static int _MDInFlux_BacteriaID         = MFUnset;
 //Parameters
 static float _MDparPassiveSoilStoreFactor = 0.1  ; // Factor.  Multiplied by AWC to define passive storage in soil pool 
 static float _MDSnowFallThreshold      = -0.29; // deg C where snowfall occurs
@@ -58,6 +58,9 @@ static float _MDparGreaterGroundWaterMixing = 100.0; // Added depth of the groun
 static float _MDparGreaterGroundWaterExchange = 0.015; // Exchange rate of deep groundwater pool with baseflow generating groundwater (d-1)
 static float _MDparDevelop_ClWx_Rate   = 2.74e-2; // Development scaled Cl loading rate (kg / m2 / day / developed area fraction)
 static float _MDparAg_ClWx_Rate        = 1.36619e-4; // Agriculture scaled Cl (Cl) loading rate (kg Cl / m2 /day / agriculture area fraction)
+// TODO add this as an option ...
+static float _MDparMIMTexp_powerlaw    = 2.5; // exponent of the power-law distribution of the MIMT zone
+static float _MDGroundWatBETA          = 0.0; // groundwater/baseflow response time [ t-1]
 // For future sensitivity tests
 static float _MDparCleanTransitionYear     = 9999.0; // If present - year in which a switch to a different deicer concentration occurs
 static float _MDparCleanTransitionConc     = 0.0; //  If present - the new concentration of deicer.
@@ -71,7 +74,7 @@ static int _MDInPopulationDensityID    = MFUnset;
 static int _MDInAtmChlorideID           = MFUnset;
 static int _MDInPnET_Imp_MeltID         = MFUnset;
 static int _MDInPnET_Imp_StormflowID    = MFUnset;
-
+static int _MDInDeicerChlorideFluxID    = MFUnset; // Version 4 _MDChlorideMass
 // output  - SC = Specific Conductance (uS / cm)
 static int _MDOutLocalLoadSCID      = MFUnset;
 static int _MDOutFlux_SCID          = MFUnset; 
@@ -93,6 +96,473 @@ static int _MDOutConcClimmPreID      = MFUnset;
 static int _MDOutCldeicerInputID     = MFUnset;
 static int _MDOutCltotalInputID      = MFUnset;
 
+// More Mobile-Immobile Mass Transfer
+// Going to hard-code size of MIMT arrays at __ .  Could get into malloc if needed
+static int N_MIMT=50;
+
+const char* MDVarConcMIMT[50] = {"Conc00", "Conc01", "Conc02", "Conc03", "Conc04", "Conc05", "Conc06", "Conc07", "Conc08", "Conc09", "Conc10", "Conc11", "Conc12", "Conc13", "Conc14", "Conc15", "Conc16", "Conc17", "Conc18", "Conc19", "Conc20", "Conc21", "Conc22", "Conc23", "Conc24", "Conc25", "Conc26", "Conc27", "Conc28", "Conc29", "Conc30", "Conc31", "Conc32", "Conc33", "Conc34", "Conc35", "Conc36", "Conc37", "Conc38", "Conc39", "Conc40", "Conc41", "Conc42", "Conc43", "Conc44", "Conc45", "Conc46", "Conc47", "Conc48", "Conc49"};
+static int _MDImmobilConc_ID[50] = { MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset,MFUnset, MFUnset};
+
+
+static float _imm_exchange( float Cimm[], float *Cmob, float alpha[], double beta[] ) {
+  int i;
+  float Flux_immobile=0.0;
+  for (i=0;i<N_MIMT;i++) {
+    Flux_immobile += beta[i] * alpha[i] * Cimm[i] * exp(- alpha[i]) - beta[i] * alpha[i] * *Cmob * exp(- alpha[i]);
+  }
+  return Flux_immobile;
+}
+
+static float _day_immGWbeta (float alpha[], double beta[] ) {
+  int i;
+  float beta_star=0.0;
+  for (i=0;i<N_MIMT;i++) {
+    beta_star += beta[i] * (1.-exp(- alpha[i] ));
+  }
+  return beta_star;
+}
+
+static void _update_imm_Conc (float Cimm[], float *Cmob_last, float *Cmob, float alpha[], double beta[], float *dt , int *id) {
+  int i;
+  for (i=0;i<N_MIMT;i++) {
+    Cimm[i]= Cimm[i] * exp ( - alpha[i]) + \
+      *Cmob_last * (1.0 - exp ( - alpha[i] )) +
+      (( *Cmob - *Cmob_last ) / *dt ) * ( 1. - (1./ alpha[i] )*( 1. - exp(- alpha[i] ) ) ); // kg / m3
+  }
+  return;
+}
+
+static float _get_MIMT_alpha( float *GW_mobil_alpha, int *i ) {
+  // Yes - I'm changing the name of our baseflow "BETA" to the
+  //  more favorable alpha (as it is more common to call alpha = 1/tau
+
+  // We assume a very standard distribution of alphas for representing the
+  //  immobile zone ... 50 zones in logspace from 1e-3 to 100 times the Mobile_exchange_rate
+
+  return pow(10.0,log10( *GW_mobil_alpha ) - 2.0 + ( ( (float)*i + 0.5 ) / 25.0 )  );
+  
+}
+
+static double _b_at_alpha( float *power_law_slope, double *total_beta, float *GW_mobil_alpha, float *alpha_mimt_i ) {
+  // Going to force the power-law slope to be above 2.0
+  if ( *power_law_slope <= 2.0 ) { return CMfailed; }
+  return ( *total_beta * ( *power_law_slope - 2.0 ) * pow(*alpha_mimt_i,*power_law_slope - 3.) ) / \
+    ( pow(*GW_mobil_alpha * 100., *power_law_slope - 2.0 ) - pow( *GW_mobil_alpha / 1000., *power_law_slope - 2.0 ) ) ;
+}
+
+static void _MDChlorideMass (int itemID) {
+    // Newest version -2017-Feb-22 
+    // Reads in total deicer from grid
+    //  Going to implement long-tail storage
+
+    float precipVol                  = 0.0; // m3/s
+    float stormflowVol               = 0.0; // m3/s
+    float percolation                = 0.0; // mm/d
+    float recharge                   = 0.0; // mm/d
+    float groundWater                = 0.0; // mm
+    float baseflow                   = 0.0; // mm/d
+    float soilMoist                  = 0.0; // mm
+    float infiltration               = 0.0; // mm/d
+    float surfRunoff                 = 0.0; // mm/d
+    float runoffpoolrelease          = 0.0; // mm/d
+    float surfaceRunoffPool          = 0.0; // mm
+    float snowPack                   = 0.0; // mm
+    float snowPackChange             = 0.0; // mm/d
+    float discharge                  = 0.0; // m3/s
+    float waterStorage               = 0.0; //m3/d
+    float waterStorageChg	     = 0.0; //m3/d
+    float riverbedVelocity	     = 0.0; // m/s
+    float sinuosity		     = 0.0; // m/m
+    
+    // Cl WBM Variables // 
+    float PassiveSoilStore		= 10.0; // mm
+    float ConcClPrecipitation    = 0.0; // Cl mg /L
+    float postConc_SC             = 0.0; // uS/cm
+//DEL    float ConcClTreat            = 0.0; // Cl mg/L
+    float deicerInputFlux        = 0.0; // kg Cl / d // New V4 2017-2-22
+    float FluxImp2Runoff          = 0.0; // kg/d
+    float snowFallFromImp2SPack   = 0.0; // mm/d
+    float snowFallFromSky2SPack  = 0.0; // mm/d
+    float FluxImp2SnowPack        = 0.0; // kg/d
+    float FluxSky2SnowPack      = 0.0; // kg/d
+    float MassClSnowPackPre    = 0.0; // kg Cl
+    float MassClSnowPack       = 0.0; // kg Cl
+    float ConcClSnowPack       = 0.0; // mg/L Cl
+    float FluxMelt              = 0.0; // kg/d Cl
+    float FluxPrecip            = 0.0; // kg/d Cl
+    float MassClRootZonePre    = 0.0; // kg Cl
+    float MassClRootZone       = 0.0; // kg Cl
+    float ConcClRootZone       = 0.0; // mg/L Cl
+    float FluxPercolation       = 0.0; // kg/d
+    float FluxRecharge          = 0.0; // kg /d
+    float FluxSurfFlow           = 0.0; // kg/d
+    float FluxWeathering        = 0.0; // kg/d
+    float FluxDevel              = 0.0; // kg/d
+    float FluxAg                = 0.0; // kg/d
+    float MassClGroundWaterPre =  0.0; // kg Cl
+    float MassClGroundWater     = 0.0; // kg Cl
+    float ConcClGroundWater     = 0.0; // mg/L
+    float FluxBaseFlow          = 0.0; // kg/d
+    float MassClSurfROPoolPre  = 0.0; // kg Cl
+    float MassClSurfROPool     = 0.0; // kg Cl
+    float ConcClSurfROPool     = 0.0; // mg/L
+    float FluxSurfROPoolRelease = 0.0; // kg/d
+    float FluxH2O               = 0.0; // kg/d
+    // Cl WTM Variables //
+    float ClTotalIn            = 0.0; // kg/d
+    float local_load            = 0.0; // kg/d
+    float preFlux_Cl           = 0.0; // kg/d
+    float storeWater_Cl        = 0.0; // kg/d
+    float postConc_Cl          = 0.0; // mg/L
+    float postFlux_Cl          = 0.0; // kg/d
+    float postStoreWater_Cl    = 0.0; // kg/d
+    float massBalance_Cl       = 0.0; // kg/d
+    float C0		       = 0.0; // Linear Routing parameter
+
+    // Misc
+    float airTemperature         = 0.0; // degC
+    float imp                    = 0.0; // fraction of grid cell impervious cover
+    float dev                    = 0.0; // fraction of grid cell developed cover
+    float h2o                   = 0.0; // fraction of grid cell open water
+    float pop                   = 0.0; // Population density (person/km2)
+    float ag                    = 0.0; // fraction of grid cell agriculture cover
+    float hcia                   = 0.0; // fraction of impervious - directly hydrologically connected
+    float whcia                  = 0.0; /// fraction of impervious - directly hydrologically connected for snowfall
+    float dt                     = 1.0; // Timestep is one 1.0 day
+//Del    float cleanYear              = 0.0; // Year to switch deicer loading concentration
+//Del    float cleanDeicer            = 0.0; // Deicer concentration to switch to
+    int month                    = MFDateGetCurrentMonth(); 
+    int year                     = MFDateGetCurrentYear(); 
+
+    // MIMT parameters
+    float immGWExchange_rate            = _MDparGreaterGroundWaterExchange *dt ; // Immobile zone exchange rate (d^-1)
+    double immGWbeta                     = 0.00; // Relative size of immobile zone (L^3 / L^3)
+    float immFlux                       = 0.0; // kg / day (net exchange with immobile zone)
+    float betaTerm                  =   1.0; // Excess dilution resulting from immobile zone exchange
+    float Conc_GW_last              = 0.0; // Concentration Cl (kg/m3) last timestep
+    float Conc_imm_last             = -1.0; // Concentration Cl (kg/m3) last timestep in immobile zone)
+
+    float A_immGWExchange_rate[50];
+    double A_immGWbeta[50];
+    float A_Conc_imm[50];
+    float A_Conc_imm_last[50];
+
+    /********************* WBM:  Calculate Cell Chloride Balance  *********************/
+    precipVol                  = MFVarGetFloat(_MDInPrecipitationID,    itemID, 0.0) * MFModelGetArea(itemID) / ( 1000.0); // m3/s
+    stormflowVol               = MFVarGetFloat(_MDInStormRunoffTotalID, itemID, 0.0) * MFModelGetArea(itemID) / ( 1000.0); // m3/s
+    snowPack                   = MFVarGetFloat(_MDInSnowPackID,     itemID, 0.0); // mm
+    snowPackChange             = MFVarGetFloat(_MDInSPackChgID,itemID,0.0); // mm/d
+    soilMoist                  = MFVarGetFloat(_MDInSoilMoistID,    itemID, 0.0); // mm
+    PassiveSoilStore           = MFVarGetFloat(_MDInAvailableWaterCapacityID, itemID, 0.0) * _MDparPassiveSoilStoreFactor; // mm
+//    wiltMoist                  = wiltMoist > 10 ? wiltMoist : 10; // set minimum of 10 mm for wilting capacity
+    recharge                   = MFVarGetFloat(_MDInGrdWatRechargeID,     itemID, 0.0); // mm/d
+    groundWater                = MFVarGetFloat(_MDInGrdWatID,       itemID, 0.0); //mm
+    immGWbeta                  = _MDparGreaterGroundWaterMixing * 0.001 * MFModelGetArea(itemID);
+    baseflow                   = MFVarGetFloat(_MDInBaseFlowID,     itemID, 0.0); // mm/d
+    surfRunoff                 = MFVarGetFloat(_MDInSurfaceRunoffID,itemID,0.0); // mm/d
+    runoffpoolrelease          = MFVarGetFloat(_MDInRunoffPoolReleaseID,itemID,0.0); // mm/d
+    surfaceRunoffPool          = MFVarGetFloat(_MDInSurfaceRunoffPoolID,itemID,0.0); // mm
+    deicerInputFlux            = MFVarGetFloat(_MDInDeicerChlorideFluxID,itemID,0.0); // kg Cl / d
+    ConcClPrecipitation        = MFVarGetFloat(_MDInAtmChlorideID,itemID,0.0); // mg/L
+    MassClSnowPack            = MFVarGetFloat(_MDOutClSnowPackID, itemID,0.0); // kg Cl
+    MassClRootZone            = MFVarGetFloat(_MDOutClRootZoneID, itemID,0.0); // kg Cl
+    MassClGroundWater         = MFVarGetFloat(_MDOutClGrdWatID,   itemID,0.0); // kg Cl
+    MassClSurfROPool          = MFVarGetFloat(_MDOutClSurfaceRunoffPoolID,itemID,0.0); // kg Cl
+    
+    Conc_GW_last               = MFVarGetFloat(_MDOutConcClgwPreID,  itemID,     0.0) * 0.001; // kg  Cl / m3
+    //    Conc_imm_last              = MFVarGetFloat(_MDOutConcClimmPreID, itemID,     0.0) * 0.001; // kg Cl/ m3
+    
+    airTemperature             = MFVarGetFloat (_MDInAirTemperatureID,     itemID, 0.0); // degrees C
+    imp                        = MFVarGetFloat (_MDInImpFracSpatialID,        itemID, 0.0);  // proportion Impervious Cover
+    dev                        = MFVarGetFloat (_MDInSubFractionID,       itemID, 0.0); // proportion developed cover
+    h2o                        = MFVarGetFloat (_MDInH2OFracSpatialID,     itemID,0.0); // proportion open water
+    pop                        = MFVarGetFloat (_MDInPopulationDensityID,   itemID, 0.0); // Population density
+    ag                         = MFVarGetFloat (_MDInAgFractionID,       itemID, 0.0); // proportion developed cover
+    hcia                       = MFVarGetFloat (_MDInHCIAID,               itemID, 0.0); // hydrologically connected impervious
+    whcia                      = MFVarGetFloat (_MDInWinterHCIAID,          itemID, 0.0); /// hydrologically connected impervious in winter
+    if (_MDInSoilPercolationID != MFUnset){
+        percolation = MFVarGetFloat(_MDInSoilPercolationID,  itemID, 0.0); // mmd/
+    } else {
+        percolation = 0.0;
+    }
+    //
+    
+    // Load immobile zone parameters
+    double cummulative_beta=0.0;
+    int i;
+    for (i=0;i<50;i++){
+      A_Conc_imm[i]           = MFVarGetFloat(_MDImmobilConc_ID[i], itemID, 0.0); /// kg Cl / m3
+      A_Conc_imm_last[i]=A_Conc_imm[i];
+      // Calculate the exchange rates and sizes
+      A_immGWExchange_rate[i]  = _get_MIMT_alpha ( &_MDGroundWatBETA, &i);    
+      A_immGWbeta[i]        = _b_at_alpha ( &_MDparMIMTexp_powerlaw,  &immGWbeta, &_MDGroundWatBETA, &A_immGWExchange_rate[i] ) ;
+      cummulative_beta += A_immGWbeta[i];
+    }
+    for (i=0;i<50;i++){
+      A_immGWbeta[i] = immGWbeta > 0.0 ? immGWbeta * A_immGWbeta[i] / cummulative_beta : 0.0;
+    }
+
+    // Calculate direct impervious snowfall runoff  - On SnowFall days: only runoff is HCIA SnowFall.  On Non-snowffall days: ConcClTreat = 0.
+    FluxImp2Runoff = deicerInputFlux * whcia + (0.001)*ConcClPrecipitation*(stormflowVol); // kg/day 
+    /*Calculate accumulation of Cl in "snowpack" (really just a snow-packish pool) */
+    FluxImp2SnowPack = deicerInputFlux * (1.0 - whcia ); // kg /d
+    FluxSky2SnowPack = snowPackChange > 0.0 ? (0.001)*ConcClPrecipitation * (snowPackChange) : 0.0; // kg /day
+    
+    MassClSnowPackPre = MassClSnowPack;
+    MassClSnowPack = MassClSnowPack + FluxImp2SnowPack * dt + FluxSky2SnowPack * dt; // kg Cl 
+    // Note: Do not need to calculate concentration using sum of snowPack+Melt, because Melt only occurs on non-snowfall days
+    // melt day - evaluate snowpack volume before melt and calculate concentration 
+    ConcClSnowPack = snowPack > 0.0 ? (MassClSnowPack ) / ((snowPack - snowPackChange) * MFModelGetArea(itemID) / 1000.) * (1000.) : 0.0; // mg/L Cl
+    
+    // Only pathway out of snow pack is melt to RootZone
+    FluxMelt = snowPackChange < 0.0 ? ConcClSnowPack*(0.001)*fabs(snowPackChange)*MFModelGetArea(itemID) / ( 1000.0 ) : 0.0; // kg/day
+    // Flush all mass to FluxMelt if SnowPack == 0.0
+    FluxMelt = snowPack == 0.0 ? MassClSnowPack : FluxMelt;
+    // Update SnowPack Mass with melt.
+    MassClSnowPack = MDMaximum(MassClSnowPack - FluxMelt * dt,0.0);
+        
+    // Clean precipitation flux
+    infiltration = snowPackChange == 0 ? precipVol - stormflowVol : 0.0;
+    FluxPrecip = (0.001) * ConcClPrecipitation * infiltration; // kg/day
+
+    float k1,k2,k3,k4;
+    
+    /* Calculate accumulation in Root Zone */
+    MassClRootZonePre = MassClRootZone; // kg Cl
+    //    if (itemID ==1) { printf("ClRZ: %f \n",MassClRootZone);}
+    if ( (recharge + percolation + surfRunoff) == 0.0) {
+      MassClRootZone = MassClRootZonePre + ( FluxMelt + FluxPrecip)*dt; // accumulate mass
+      //  if (itemID ==1) {printf("  one of deez: %0.04f\n",MassClRootZone); }
+    } else {
+      // solution in form of M(t) = FluxIn(t) * Vol(t) / Q(t) + [ M(t-1) - FluxIn(t)*Vol(t)/Q(t) ] * exp(-Q(t)/Vol(t))
+      // which assumes constant volume through the time-step (split operation)
+      MassClRootZone =  ( ( FluxMelt + FluxPrecip)* (0.001*(soilMoist+PassiveSoilStore)*MFModelGetArea(itemID))) / ( 0.001*(recharge + percolation + surfRunoff)*MFModelGetArea(itemID) ) \
+        + ( MassClRootZonePre  -  ( ( FluxMelt + FluxPrecip)* (0.001*(soilMoist+PassiveSoilStore)*MFModelGetArea(itemID))) / ( 0.001*(recharge + percolation + surfRunoff)*MFModelGetArea(itemID) )  ) \
+        * exp( - ( 0.001*(recharge + percolation + surfRunoff)*MFModelGetArea(itemID) ) / (0.001*(soilMoist+PassiveSoilStore)*MFModelGetArea(itemID)) ) ;
+      /*if (itemID == 1) { printf("  C_RootZone: %0.04f FirstTerm %0.04f DiffTerm %0.04f ExpTerm %0.04f \n", MassClRootZone, \
+                                ( ( FluxMelt + FluxPrecip)* (0.001*(soilMoist+PassiveSoilStore)*MFModelGetArea(itemID))) / ( 0.001*(recharge + percolation + surfRunoff)*MFModelGetArea(itemID) ),\
+                                ( MassClRootZonePre  -  ( ( FluxMelt + FluxPrecip)* (0.001*(soilMoist+PassiveSoilStore)*MFModelGetArea(itemID))) / ( 0.001*(recharge + percolation + surfRunoff)*MFModelGetArea(itemID) )  ),\
+                                exp( - ( 0.001*(recharge + percolation + surfRunoff)*MFModelGetArea(itemID) ) / (0.001*(soilMoist+PassiveSoilStore)*MFModelGetArea(itemID)) ) ); }
+      */
+    }
+    ConcClRootZone = (soilMoist + PassiveSoilStore) > 0.0 ? (MassClRootZone ) / (0.001*(soilMoist + PassiveSoilStore) * MFModelGetArea(itemID)) : 0.0; // kg Cl /m3 Cl
+    
+    FluxRecharge = ConcClRootZone*(0.001)*recharge*MFModelGetArea(itemID)  ; // kg/day Cl
+    FluxPercolation = ConcClRootZone*(0.001)*percolation*MFModelGetArea(itemID) ; // kg/day Cl
+    FluxSurfFlow = ConcClRootZone*(0.001)*surfRunoff*MFModelGetArea(itemID) ; // kg/day Cl
+    //    MassClRootZone = MDMaximum(MassClRootZonePre - FluxRecharge * dt - FluxSurfFlow * dt - FluxPercolation * dt, 0.0); // kg Cl    
+    
+    MassClGroundWaterPre = MassClGroundWater; // kg  Cl
+    FluxWeathering = _MDparGeoChem_ClWx_Rate * (0.001)*groundWater*MFModelGetArea(itemID); // kg/day
+    FluxDevel = _MDparDevelop_ClWx_Rate*pop*MFModelGetArea(itemID)*1.0e-6; // kg / day  (population density given in persons/km2 )
+    FluxAg    = _MDparAg_ClWx_Rate*ag/100.*MFModelGetArea(itemID); // kg /day
+
+    // Try forcing a constant groundwater volume
+    //    groundWater = 100.0;
+    betaTerm = _day_immGWbeta( &A_immGWExchange_rate, &A_immGWbeta );
+    groundWater = ((groundWater+10.0)*0.001*MFModelGetArea(itemID)); // Add a bit of damping volume for concentration calculation
+
+    //Conc_GW_last = groundWater > 0.0 ? MassClGroundWater / (betaTerm+groundWater) : 0.0;
+    
+    immFlux = _imm_exchange( &A_Conc_imm, &Conc_GW_last, &A_immGWExchange_rate, &A_immGWbeta );
+    
+    if (baseflow == 0.0) {
+      MassClGroundWater=MassClGroundWaterPre + FluxRecharge+FluxWeathering+FluxDevel+immFlux ;
+        } else {
+      MassClGroundWater = (FluxRecharge+FluxWeathering+FluxDevel+immFlux)*(groundWater+betaTerm)/(betaTerm+0.001*baseflow*MFModelGetArea(itemID)) + \
+        (MassClGroundWaterPre - (FluxRecharge+FluxWeathering+FluxDevel+immFlux)*(groundWater+betaTerm)/(betaTerm+0.001*baseflow*MFModelGetArea(itemID)) )* \
+        exp(-(0.001*baseflow*MFModelGetArea(itemID))/(groundWater+betaTerm));
+    }
+    
+    ConcClGroundWater = groundWater > 0.0 ?  MassClGroundWater / groundWater : 0.0;
+    //    _update_imm_Conc ( &A_Conc_imm, &Conc_GW_last, &ConcClGroundWater,  &A_immGWExchange_rate , &A_immGWbeta , &dt,&itemID); 
+    FluxBaseFlow = MDMinimum(ConcClGroundWater*(0.001)*baseflow*MFModelGetArea(itemID),MassClGroundWaterPre+FluxRecharge+FluxAg+FluxWeathering+FluxDevel+immFlux);
+    MassClGroundWater = MassClGroundWaterPre + FluxRecharge + FluxAg + FluxWeathering + FluxDevel +immFlux - FluxBaseFlow;
+    _update_imm_Conc ( &A_Conc_imm, &Conc_GW_last, &ConcClGroundWater,  &A_immGWExchange_rate , &A_immGWbeta , &dt, &itemID); 
+        
+    /*
+    FluxBaseFlow = Conc_GW_last*(0.001)*baseflow*MFModelGetArea(itemID);
+    k1=FluxRecharge+FluxWeathering+FluxAg+
+    FluxDevel+immFlux-FluxBaseFlow;
+    MassClGroundWater=MassClGroundWaterPre+k1;
+    ConcClGroundWater = groundWater > 0.0 ? MassClGroundWater / groundWater : 0.0;
+    //    _update_imm_Conc ( &A_Conc_imm, &Conc_GW_last, &ConcClGroundWater,  &A_immGWExchange_rate , &A_immGWbeta , &dt, &itemID); 
+    immFlux = _imm_exchange( &A_Conc_imm, &ConcClGroundWater, A_immGWExchange_rate, &A_immGWbeta );
+    FluxBaseFlow = ConcClGroundWater*(0.001)*baseflow*MFModelGetArea(itemID);
+    k2=FluxRecharge+FluxWeathering+FluxAg+FluxDevel+immFlux-FluxBaseFlow;
+    MassClGroundWater=MassClGroundWaterPre+k2;
+    ConcClGroundWater = groundWater > 0.0 ?  MassClGroundWater / groundWater : 0.0;
+    //    _update_imm_Conc ( &A_Conc_imm, &Conc_GW_last, &ConcClGroundWater,  &A_immGWExchange_rate , &A_immGWbeta , &dt,&itemID); 
+    immFlux = _imm_exchange( &A_Conc_imm, &ConcClGroundWater, A_immGWExchange_rate, &A_immGWbeta );
+    FluxBaseFlow = ConcClGroundWater*(0.001)*baseflow*MFModelGetArea(itemID);
+    k3=FluxRecharge+FluxWeathering+FluxAg+FluxDevel+immFlux-FluxBaseFlow;
+    MassClGroundWater=MassClGroundWaterPre+k2;
+    ConcClGroundWater = groundWater > 0.0 ?  MassClGroundWater / groundWater : 0.0;
+    //    _update_imm_Conc ( &A_Conc_imm, &Conc_GW_last, &ConcClGroundWater,  &A_immGWExchange_rate , &A_immGWbeta , &dt,&itemID); 
+    //    immFlux = _imm_exchange( &A_Conc_imm, &ConcClGroundWater, A_immGWExchange_rate, &A_immGWbeta );
+
+    FluxBaseFlow = ConcClGroundWater*(0.001)*baseflow*MFModelGetArea(itemID);
+    k4=FluxRecharge+FluxAg+FluxWeathering+FluxDevel+immFlux-FluxBaseFlow;
+    MassClGroundWater=MassClGroundWaterPre+(k1+2.*k2+2.*k3+k4) / 6.0;
+    // Do a single fixed point iteration to ensure mass balance
+    ConcClGroundWater = groundWater > 0.0 ?  MassClGroundWater / groundWater : 0.0;
+    _update_imm_Conc ( &A_Conc_imm, &Conc_GW_last, &ConcClGroundWater,  &A_immGWExchange_rate , &A_immGWbeta , &dt, &itemID);     
+    immFlux = _imm_exchange( &A_Conc_imm, &ConcClGroundWater, A_immGWExchange_rate, &A_immGWbeta );
+    FluxBaseFlow= ConcClGroundWater*(0.001)*baseflow*MFModelGetArea(itemID);
+    MassClGroundWater=MDMaximum(MassClGroundWaterPre + FluxAg + FluxRecharge+FluxWeathering+FluxDevel+immFlux-FluxBaseFlow,0.0); 
+    */
+    //    if (itemID == 1) { printf(" Conc RZ: %0.04f FluxMelt: %0.04f FluxPrp %0.04f Soil %0.04f PassSoil %0.04f ConcCllast: %0.04f ConcGW %0.04f beta %0.04f betastar %0.04f gwstore %0.04f \n" \
+    //                          ,ConcClRootZone,FluxMelt,FluxPrecip,soilMoist,PassiveSoilStore,Conc_GW_last,ConcClGroundWater, betaTerm,_day_immGWbeta( &A_immGWExchange_rate, &A_immGWbeta ),groundWater); }
+
+    // Final mass balance set
+    
+    
+    // Only pathway out of groundwater is baseflow
+    //    FluxBaseFlow = ConcClGroundWater*(0.001)*baseflow*MFModelGetArea(itemID) ; // kg/day Cl
+    //MassClGroundWater = MDMaximum((ConcClGroundWater*0.001*(groundWater-_MDparGreaterGroundWaterMixing)+Conc_imm_last*0.001*_MDparGreaterGroundWaterMixing)*MFModelGetArea(itemID),0.0); // kg Cl
+ 
+    // Calculate accumulation in Surface Runoff Pool
+    //  Routing impervious runoff through this pool as well - to represent
+    //  routing through SW and zero order surface hydrologic features
+
+    // TOTRY: TRY ALSO ADDING THE BASEFLOW FLUX THROUGH THE SROPOOL?  
+
+    MassClSurfROPoolPre = MassClSurfROPool; // kg Cl
+    ConcClSurfROPool = surfaceRunoffPool > 0.0 ? MassClSurfROPool/ (0.001 * surfaceRunoffPool * MFModelGetArea(itemID) ) : 0.0 ; // kg/m3 Cl
+    FluxSurfROPoolRelease = surfaceRunoffPool > 0.0 ? ConcClSurfROPool * runoffpoolrelease * 0.001 * MFModelGetArea(itemID) : MassClSurfROPool; // kg Cl /d
+    k1=FluxSurfFlow * dt  - FluxSurfROPoolRelease * dt;
+    MassClSurfROPool = MassClSurfROPoolPre + k1;
+    ConcClSurfROPool = surfaceRunoffPool > 0.0 ? MassClSurfROPool/ (0.001 * surfaceRunoffPool * MFModelGetArea(itemID) ) : 0.0 ; // kg/m3 Cl
+    FluxSurfROPoolRelease = surfaceRunoffPool > 0.0 ? ConcClSurfROPool * runoffpoolrelease * 0.001 * MFModelGetArea(itemID) : MassClSurfROPool; // kg Cl /d
+    k2=FluxSurfFlow * dt  - FluxSurfROPoolRelease * dt;
+    MassClSurfROPool = MassClSurfROPoolPre + k2;
+    ConcClSurfROPool = surfaceRunoffPool > 0.0 ? MassClSurfROPool/ (0.001 * surfaceRunoffPool * MFModelGetArea(itemID) ) : 0.0 ; // kg/m3 Cl
+    FluxSurfROPoolRelease = surfaceRunoffPool > 0.0 ? ConcClSurfROPool * runoffpoolrelease * 0.001 * MFModelGetArea(itemID) : MassClSurfROPool; // kg Cl /d
+    k3=FluxSurfFlow * dt  - FluxSurfROPoolRelease * dt;
+    MassClSurfROPool = MassClSurfROPoolPre + k3;
+    ConcClSurfROPool = surfaceRunoffPool > 0.0 ? MassClSurfROPool/ (0.001 * surfaceRunoffPool * MFModelGetArea(itemID) ) : 0.0 ; // kg/m3 Cl
+    FluxSurfROPoolRelease = surfaceRunoffPool > 0.0 ? ConcClSurfROPool * runoffpoolrelease * 0.001 * MFModelGetArea(itemID) : MassClSurfROPool; // kg Cl /d
+    k4=FluxSurfFlow * dt  - FluxSurfROPoolRelease * dt;
+    MassClSurfROPool = MassClSurfROPoolPre + (k1+2.*k2 + 2.*k3 +k4)/6.0;
+    ConcClSurfROPool = surfaceRunoffPool > 0.0 ? MassClSurfROPool/ (0.001 * surfaceRunoffPool * MFModelGetArea(itemID) ) : 0.0 ; // kg/m3 Cl
+    FluxSurfROPoolRelease = surfaceRunoffPool > 0.0 ? ConcClSurfROPool * runoffpoolrelease * 0.001 * MFModelGetArea(itemID) : MassClSurfROPool; // kg Cl /d
+    MassClSurfROPool=MassClSurfROPoolPre + FluxSurfFlow * dt - FluxSurfROPoolRelease *dt;
+   
+    MFVarSetFloat( _MDOutClSnowPackID , itemID, MassClSnowPack); 
+    MFVarSetFloat( _MDOutClRootZoneID , itemID, MassClRootZone);
+    MFVarSetFloat( _MDOutClGrdWatID , itemID, MassClGroundWater);
+    MFVarSetFloat( _MDOutClSurfaceRunoffPoolID, itemID, MassClSurfROPool ); 
+    MFVarSetFloat( _MDOutConcClgwPreID, itemID, 1000.0*ConcClGroundWater ); // Convert to mg/L for saving
+    //    MFVarSetFloat( _MDOutConcClimmPreID, itemID, Conc_imm_last );
+    for (i=0;i<50;i++){
+      MFVarSetFloat(_MDImmobilConc_ID[i], itemID, A_Conc_imm[i]); /// kg Cl / m3
+    }
+    // Mass Balance sets
+    MFVarSetFloat( _MDOutCldeicerInputID,itemID, FluxImp2Runoff+FluxImp2SnowPack);
+    MFVarSetFloat( _MDOutCltotalInputID,itemID,FluxImp2Runoff+FluxImp2SnowPack+FluxSky2SnowPack+FluxPrecip+FluxWeathering+FluxDevel+FluxAg);
+
+    // Mass Balance checks:
+    float cummulative_dMimm = 0.0;
+    for (i=0;i<50;i++) { cummulative_dMimm += (A_Conc_imm[i]-A_Conc_imm_last[i])*A_immGWbeta[i];}
+    float MB_GW=0.0;
+    MB_GW = MassClGroundWaterPre - MassClGroundWater +FluxRecharge+FluxPercolation+FluxDevel+FluxAg+FluxWeathering+immFlux-FluxBaseFlow; //-cummulative_dMimm;
+    if ( (MB_GW != MB_GW) || ( (fabs( MB_GW)  / MassClGroundWater) >= 0.00001 ) ) {
+      printf("ID: %d (%d-%d-%d) ",itemID, MFDateGetCurrentYear(),MFDateGetCurrentMonth(),MFDateGetCurrentDay());
+
+            printf(" GWt %0.04f GWt0 %0.04f dGW %f baseflow %0.04f In %f imm %f Out %f MB %f relMB %f \n",
+             MassClGroundWater,MassClGroundWaterPre,
+             MassClGroundWaterPre - MassClGroundWater,baseflow,
+      FluxRecharge+FluxPercolation+FluxDevel+FluxAg+FluxWeathering,
+      immFlux,FluxBaseFlow,MB_GW,fabs(MB_GW)/MassClGroundWater); //-cummulative_dMimm);
+      
+      printf("   ConcGW %0.05f  ConcImm00 %0.05f  ConcImm04 %0.05f  ConcImm45 %0.05f ConcImm49 %0.05f GWstore %0.05f betaTerm %0.05f \n",
+             ConcClGroundWater,A_Conc_imm[0],A_Conc_imm[4],A_Conc_imm[45],A_Conc_imm[49],groundWater,betaTerm);
+      /*
+      printf("SWt %0.05f SWt0 %0.05f dSW %0.05f \n  In %0.05f Out %0.05f \n Fluxes %0.05f MB %0.05f\n",
+             MassClSurfROPool,MassClSurfROPoolPre,\
+             MassClSurfROPool - MassClSurfROPoolPre,\
+             oFluxSurfFlow + FluxImp2Runoff, FluxSurfROPoolRelease,\
+             FluxSurfFlow + FluxImp2Runoff - FluxSurfROPoolRelease,\
+             MassClSurfROPoolPre - MassClSurfROPool + FluxSurfFlow + FluxImp2Runoff - FluxSurfROPoolRelease);
+      */
+      }
+      
+    if (itemID == 99999) {
+      printf("%d-%d-%d: MassCl SnowPack %0.04f Rootzone %0.04f GrW %0.04f Imm1 %0.04f Imm5 %0.04f "\
+             " FluxRech %0.04f FluxWx %0.04f FluxDev %0.04f FluxImm %.04f FluxBaseflow %0.04f \n",\
+             MFDateGetCurrentYear(),MFDateGetCurrentMonth(),MFDateGetCurrentDay(),\
+             MassClSnowPack, MassClRootZone,MassClGroundWater,A_Conc_imm[0]*A_immGWbeta[0],A_Conc_imm[4]*A_immGWbeta[4],\
+             FluxRecharge,FluxWeathering,FluxDevel, immFlux,FluxBaseFlow);
+    }
+
+    /********************* WTM:  Calculate Network Ion Balance  *********************/
+    discharge                  = MFVarGetFloat(_MDInDischargeID,    itemID,0.0); // m3/s
+    waterStorage               = MFVarGetFloat(_MDInRiverStorageID, itemID,0.0); // m3/s
+    waterStorageChg	      = MFVarGetFloat(_MDInRiverStorageChgID, itemID,0.0); //m3/s
+    preFlux_Cl                = MFVarGetFloat(_MDOutClFluxID,     itemID,0.0); // kg/d
+    storeWater_Cl             = MFVarGetFloat(_MDOutClStoreID,    itemID,0.0); // kg/d
+        
+    local_load = (FluxBaseFlow + FluxSurfROPoolRelease + FluxImp2Runoff); // Routing Imp runoff through SurfROPool (FluxImp2Runoff + FluxBaseFlow + FluxSurfROPoolRelease);  // kg/day Cl
+        
+    ClTotalIn = local_load + preFlux_Cl  + storeWater_Cl;    // kg/day Cl
+    // Updated 2016-12-10 to calculate cascade routing
+
+    sinuosity = MFVarGetFloat(_MDInSinuosityID,itemID,0.0); // 
+    float dL = MFModelGetLength(itemID); //
+    riverbedVelocity = MFVarGetFloat(_MDInRiverbedVelocityID,itemID,0.22); //
+
+    C0 = riverbedVelocity != riverbedVelocity ? 1.0 : 1.0 / (1.0 + (sinuosity*dL/riverbedVelocity/86400.0)); //
+
+    postFlux_Cl = discharge > 0.0 ? C0 * ClTotalIn : 0.0;
+    postFlux_Cl = postFlux_Cl < 0.0 ? local_load + preFlux_Cl : postFlux_Cl;
+    float storageCl_Chg  = 0.0; //
+    postStoreWater_Cl = ClTotalIn * (1.0 - C0); 
+    if (postStoreWater_Cl < 0.0) {
+	storageCl_Chg = -storeWater_Cl;
+	postStoreWater_Cl = 0.0; }
+    else {
+	    storageCl_Chg = postStoreWater_Cl - storeWater_Cl;
+    }
+
+   // ClTotalIn = discharge <= 0.0000001 ? 0.0 : ClTotalIn;   // kg/day Cl // eliminate ionic mass flux on negiglible flow days
+    postConc_Cl = discharge <= 0.0000001 ? 0.0 : (1000.) * postFlux_Cl / (discharge * 86400.); // mg/L Cl 
+    //Calculates the fluxes/storage for the mixing (appropriate for speccond) case
+    //postFlux_Cl  = (discharge * MDConst_m3PerSecTOm3PerDay) * (0.001) * postConc_Cl ;         // kg/day Cl
+    //postStoreWater_Cl  = (waterStorage * MDConst_m3PerSecTOm3PerDay ) * (0.001) * postConc_Cl ;      // kg/day Cl
+    
+    // Calculates the mass balances
+    massBalance_Cl  = (ClTotalIn - (postFlux_Cl + postStoreWater_Cl ))/MDMaximum(ClTotalIn,0.0000001);
+  
+
+    if ( ClTotalIn == 999.999e3 ) {
+	printf("#### itemID = %d (%d-%d-%d) LocalLoad: %f preFlux_Cl: %f storeWaterCl: %f \n \
+			MassClSnowPack: %f MassClRootZone: %f MassClGroundWater: %f MassClSurROPool: %f ConcCLGroundWater: %f ConcImmLast: %f \n \
+			SnowPack: %f SnowPackChg: %f RiverbedVelocity: %f dL: %f C0: %f \n", itemID,MFDateGetCurrentYear(),MFDateGetCurrentMonth(),MFDateGetCurrentDay(),local_load,preFlux_Cl,storeWater_Cl, \
+			MassClSnowPack,MassClRootZone,MassClGroundWater,MassClSurfROPool,ConcClGroundWater,Conc_imm_last,snowPack,snowPackChange,riverbedVelocity,dL,C0);
+    }
+
+
+    // Print mass balance errors
+    if (MFDateGetCurrentYear() > 0) {
+    if ( (massBalance_Cl > 0.001) || (itemID==99999) )  {
+	   printf("itemID = %d, %d-%d-%d, MB_SC = %f\n",itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_Cl);
+           printf("\tTotalIn: %f, Local: %f , UpFlux: %f, InStore: %f CO: %f v: %f dL: %f \n",ClTotalIn,local_load,preFlux_Cl,storeWater_Cl,C0,riverbedVelocity,dL);
+           printf("\tDownFlux: %f, discharge; %f, OutStore: %f , storage: %f\n",postFlux_Cl,discharge, postStoreWater_Cl,waterStorage);
+        } 
+     }
+    
+    // Set Output
+    MFVarSetFloat (_MDOutClFluxID,        itemID, postFlux_Cl);
+    MFVarSetFloat (_MDOutClStoreID,       itemID, postStoreWater_Cl);
+    MFVarSetFloat (_MDOutLocalLoadClID,   itemID, local_load);
+    MFVarSetFloat (_MDOutPostConc_ClID,   itemID, postConc_Cl);
+    
+    float b = 31.2; // EPSCoR statewide  Trowbridge: -22.0 ... Novotny: -37.25 (inverse)
+    float m = 3.96; // EPSCoR statewide   Trowbridge: 0.307      Novotny: 0.25 (inverse)
+    postConc_SC = MDMaximum(m * postConc_Cl + b,0.0);
+    
+    MFVarSetFloat (_MDOutPostConc_SCID,       itemID, postConc_SC); // uS/cm
+}
 
 static void _MDSpecCond (int itemID) {
 
@@ -449,11 +919,12 @@ static void _MDTotalDissIons(int itemID){
 
     sinuosity = MFVarGetFloat(_MDInSinuosityID,itemID,0.0); // 
     float dL = MFModelGetLength(itemID); //
-    riverbedVelocity = MFVarGetFloat(_MDInRiverbedVelocityMeanID,itemID,0.22); //
+    riverbedVelocity = MFVarGetFloat(_MDInRiverbedVelocityID,itemID,0.22); //
 
     C0 = riverbedVelocity != riverbedVelocity ? 1.0 : 1.0 / (1.0 + (sinuosity*dL/riverbedVelocity/86400.0)); //
 
-    postFlux_Cl = discharge > 0.00 ? C0 * ClTotalIn : 0.0;
+    // TODO: The post flux is not correct .... doesn't maintain balance for low discharge cases.
+    postFlux_Cl = discharge > 0.0 ? C0 * ClTotalIn : 0.0;
     postFlux_Cl = postFlux_Cl < 0.0 ? local_load + preFlux_Cl : postFlux_Cl;
     float storageCl_Chg  = 0.0; //
     postStoreWater_Cl = ClTotalIn * (1.0 - C0); 
@@ -465,13 +936,13 @@ static void _MDTotalDissIons(int itemID){
     }
 
    // ClTotalIn = discharge <= 0.0000001 ? 0.0 : ClTotalIn;   // kg/day Cl // eliminate ionic mass flux on negiglible flow days
-    postConc_Cl = discharge > 0.0 ? (1000.) * postFlux_Cl / (discharge * 86400.) : 0.0; // mg/L Cl 
+    postConc_Cl = discharge <= 0.0000001 ? 0.0 : (1000.) * postFlux_Cl / (discharge * 86400.); // mg/L Cl 
     //Calculates the fluxes/storage for the mixing (appropriate for speccond) case
     //postFlux_Cl  = (discharge * MDConst_m3PerSecTOm3PerDay) * (0.001) * postConc_Cl ;         // kg/day Cl
     //postStoreWater_Cl  = (waterStorage * MDConst_m3PerSecTOm3PerDay ) * (0.001) * postConc_Cl ;      // kg/day Cl
     
     // Calculates the mass balances
-    massBalance_Cl  = (ClTotalIn - (postFlux_Cl + postStoreWater_Cl ));
+    massBalance_Cl  = (ClTotalIn - (postFlux_Cl + postStoreWater_Cl ))/MDMaximum(ClTotalIn,0.0000001);
   
 
     if ( ClTotalIn == 999.999e3 ) {
@@ -484,10 +955,10 @@ static void _MDTotalDissIons(int itemID){
 
     // Print mass balance errors
     if (MFDateGetCurrentYear() > 0) {
-        if  ( (fabs(massBalance_Cl) > 0.001) && ((fabs(massBalance_Cl)/ClTotalIn) > 0.001) ) {
+        if  (massBalance_Cl > 0.001)  {
 	   printf("itemID = %d, %d-%d-%d, MB_SC = %f\n",itemID, MFDateGetCurrentYear(), MFDateGetCurrentMonth(), MFDateGetCurrentDay(), massBalance_Cl);
-           printf("\tTotalIn: %g, Local: %g , UpFlux: %g, InStore: %g CO: %f v: %f dL: %f \n",ClTotalIn,local_load,preFlux_Cl,storeWater_Cl,C0,riverbedVelocity,dL);
-           printf("\tDownFlux: %g, discharge; %g, OutStore: %g , storage: %g\n",postFlux_Cl,discharge, postStoreWater_Cl,waterStorage);
+           printf("\tTotalIn: %f, Local: %f , UpFlux: %f, InStore: %f CO: %f v: %f dL: %f \n",ClTotalIn,local_load,preFlux_Cl,storeWater_Cl,C0,riverbedVelocity,dL);
+           printf("\tDownFlux: %f, discharge; %f, OutStore: %f , storage: %f\n",postFlux_Cl,discharge, postStoreWater_Cl,waterStorage);
         } 
    }
     
@@ -679,6 +1150,7 @@ static void _MDChloride_PnET(int itemID){
     // Update RootZone Mass with fluxes out
     MassClRootZone = MDMaximum(MassClRootZone - FluxRecharge * dt - FluxSurfFlow * dt, 0.0); // kg Cl
     // Calculate accumulation in Surface Runoff Pool
+
     MassClSurfROPoolPre = MassClSurfROPool; // kg Cl
     MassClSurfROPool = MassClSurfROPool + FluxSurfFlow * dt + FluxPrecip2SW * dt;
     ConcClSurfROPool = surfaceRunoffPool > 0.0 ? (MassClSurfROPool)/ ((surfaceRunoffPool + runoffpoolrelease) * MFModelGetArea(itemID) / 1000.) * (1000.0) : 0.0 ; // mg/L Cl
@@ -737,7 +1209,7 @@ static void _MDChloride_PnET(int itemID){
     MFVarSetFloat (_MDOutPostConc_SCID,       itemID, postConc_SC); // uS/cm
 }
 
-enum {MDcalculate, MDcalculate2, MDcalculate3, MDnone};
+enum {MDcalculate, MDcalculate2, MDcalculate3, MDinput2, MDnone};
 
 int MDSpecCondDef () {
 
@@ -771,25 +1243,26 @@ int MDSpecCondDef () {
         }
     int  optID = MFUnset;											//SZ 08212014
     const char *optStr, *optName = MDOptSpecConductance;								//SZ 08212014
-    const char *options [] = { MDCalculateStr, MDCalculate2Str, MDCalculate3Str, MDNoneStr, (char *) NULL };		//SZ 08212014
+    const char *options [] = { MDCalculateStr, MDCalculate2Str, MDCalculate3Str, MDInput2Str, MDNoneStr, (char *) NULL };		//SZ 08212014 // SZ 20170223
 
 	MFDefEntering ("Specific Conductance Routing");
 	
     if ((optStr = MFOptionGet (optName)) != (char *) NULL) optID = CMoptLookup (options, optStr, true);  //SZ 08212014
 
     if (
-  //         ((_MDInDischargeID                  = MDDischargeDef()) == CMfailed ) ||
-           ((_MDInDINFluxID                    = MDDINDef ()) == CMfailed) ||     // Needed for merging with upstream
- //           ((_MDInWTempRiverID               =   MDWTempRiverRouteDef ()) == CMfailed)  ||
-          ((_MDInWTempRiverID                 = MFVarGetID (MDVarWTemp_QxT,              "degC",      MFInput, MFState, MFBoundary)) == CMfailed)   ||
- //         ((_MDInRiverWidthID                 = MDRiverWidthDef ())     == CMfailed) ||
+        //((_MDInDischargeID                  = MDDischargeDef()) == CMfailed ) ||
+            ((_MDInDINFluxID                    = MDDINDef ()) == CMfailed) ||     // Needed for merging with upstream
+            //            ((_MDInWTempRiverID               =   MDWTempRiverRouteDef ()) == CMfailed)  ||
+            ((_MDInWTempRiverID                 = MFVarGetID (MDVarWTemp_QxT,              "degC",      MFInput, MFState, MFBoundary)) == CMfailed)   ||
+            //((_MDInRiverWidthID                 = MDRiverWidthDef ())     == CMfailed) ||
 //          ((_MDInLitterFall_POCID             = MDLitterFallDef ()) == CMfailed) ||
 //          ((_MDInLocalLoad_DOCID              = MFVarGetID (MDVarLocalLoadDOC,                             "kg/d",    MFInput,  MFFlux,  MFBoundary))   == CMfailed) ||
-	    ((_MDInDischargeID                  = MFVarGetID (MDVarDischarge,                                "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
+            ((_MDInFlux_BacteriaID              = MDBACDef ())     == CMfailed) ||
+            ((_MDInDischargeID                  = MFVarGetID (MDVarDischarge,                                "m3/s",    MFInput,  MFState, MFBoundary))   == CMfailed) ||
             ((_MDInRiverStorageID               = MFVarGetID (MDVarRiverStorage,                           "m3/s",    MFInput,  MFState, MFInitial))    == CMfailed) ||	
 	    ((_MDInRiverStorageChgID		= MFVarGetID (MDVarRiverStorageChg,			   "m3/s",    MFInput,  MFState, MFInitial))    == CMfailed) ||		
 	    ((_MDInSinuosityID                   = MFVarGetID (MDVarSinuosity,                                  "m/m",    MFInput,  MFState,MFBoundary))    == CMfailed) ||
-	    ((_MDInRiverbedVelocityMeanID       = MFVarGetID (MDVarRiverbedVelocityMean,                       "m/s",    MFInput,  MFState,MFBoundary))    == CMfailed) ||
+	    ((_MDInRiverbedVelocityID           = MFVarGetID (MDVarRiverVelocity,                       "m/s",    MFInput,  MFState,MFBoundary))    == CMfailed) ||
 	    ((_MDInBaseFlowID                   = MFVarGetID (MDVarBaseFlow,                                  "mm",    MFInput,  MFFlux,MFBoundary))    == CMfailed) ||
             ((_MDInStormRunoffTotalID           = MFVarGetID (MDVarStormRunoffTotal,                          "mm",   MFInput, MFFlux, MFBoundary))  == CMfailed) ||
             ((_MDInRunoffPoolReleaseID          = MFVarGetID (MDVarRunoffPoolRelease,                        "mm",  MFInput, MFFlux, MFBoundary))  == CMfailed) ||
@@ -867,6 +1340,42 @@ int MDSpecCondDef () {
                 ((_MDOutCldeicerInputID                 = MFVarGetID(MDVarFluxClimpInput,         "kg/d",MFOutput,MFFlux, MFBoundary)) == CMfailed)  ||
                 ((_MDOutCltotalInputID                 = MFVarGetID(MDVarFluxCltotalInput,         "kg/d",MFOutput,MFFlux, MFBoundary)) == CMfailed)  ||
                 ((MFModelAddFunction (_MDChloride_PnET) == CMfailed))
+                    ) return (CMfailed) ;
+            break;
+     case MDinput2: // "input2" <- Calculates deicer loading and reads as input ... otherwise very similar to TotalDissIons
+            // Need to get Groundwater Beta for spatially varying runs ...
+            if (((optStr = MFOptionGet (MDParGroundWatBETA))  != (char *) NULL) && (sscanf (optStr,"%f",&par) == 1)) _MDGroundWatBETA = par;
+            if (((optStr = MFOptionGet (MDParMIMTpowerLawSlope)) != (char *) NULL) && (sscanf (optStr,"%f",&par) == 1)) _MDparMIMTexp_powerlaw = par;
+            int i;
+            for (i=0;i<N_MIMT;i++){
+              if ((_MDImmobilConc_ID[i] =  MFVarGetID(MDVarConcMIMT[i],         "mg/L",MFOutput,MFState,MFInitial)) == CMfailed ) return (CMfailed);
+            }
+            if(
+               ((_MDInDeicerChlorideFluxID           = MFVarGetID (MDVarDeicerChlorideFlux, "kg/d", MFInput, MFState, MFBoundary )) == CMfailed) || 
+               ((_MDInPrecipitationID                = MFVarGetID (MDVarPrecipitation,      "mm", MFInput, MFFlux,  MFBoundary)) == CMfailed) ||
+                ((_MDInWinterHCIAID                   = MFVarGetID (MDVarWinterHCIA,        "MFNoUnit", MFInput, MFState, MFBoundary))      == CMfailed) ||
+                ((_MDInImpFracSpatialID                = MFVarGetID (MDVarImpFracSpatial,          "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||    
+                ((_MDInH2OFracSpatialID                = MFVarGetID (MDVarH2OFracSpatial,          "-",    MFInput,  MFState, MFBoundary))   == CMfailed) ||    
+                ((_MDInAtmChlorideID                    = MFVarGetID (MDVarAtmChloride,          "mg/L",    MFInput,  MFState, MFBoundary))   == CMfailed) ||    
+                ((_MDInSnowPackID                      = MFVarGetID (MDVarSnowPack,                "mm",   MFInput, MFState, MFInitial))  == CMfailed) ||
+                ((_MDInSPackChgID                      = MFVarGetID (MDVarSnowPackChange,           "mm",  MFInput, MFFlux,  MFBoundary)) == CMfailed) ||
+                ((_MDInSoilMoistID                     = MFVarGetID (MDVarRainSoilMoisture,           "mm",MFInput, MFState, MFBoundary)) == CMfailed) ||    
+                ((_MDInAvailableWaterCapacityID        = MFVarGetID (MDVarSoilAvailWaterCapInput,         "mm",     MFInput,  MFState, MFBoundary)) == CMfailed) ||
+                ((_MDInGrdWatRechargeID                = MFVarGetID (MDVarGroundWaterRecharge,      "mm", MFInput, MFFlux,  MFBoundary)) == CMfailed) ||
+                ((_MDInGrdWatID                        = MFVarGetID (MDVarGroundWater,              "mm", MFInput, MFState, MFInitial))  == CMfailed) ||
+                ((_MDOutClSnowPackID                   = MFVarGetID(MDVarSnowPackCl,              "kg", MFOutput, MFState, MFInitial)) == CMfailed) ||
+                ((_MDOutClRootZoneID                   = MFVarGetID(MDVarRootZoneCl,              "kg", MFOutput, MFState, MFInitial)) == CMfailed) ||
+                ((_MDOutClGrdWatID                     = MFVarGetID(MDVarGrdWatCl,              "kg", MFOutput, MFState, MFInitial)) == CMfailed) ||
+                ((_MDOutClSurfaceRunoffPoolID          = MFVarGetID(MDVarSurfROPoolCl,              "kg", MFOutput, MFState, MFInitial)) == CMfailed) ||
+                ((_MDOutClFluxID                       = MFVarGetID(MDVarFluxCl,                  "kg/d", MFRoute, MFFlux, MFBoundary)) == CMfailed) ||
+                ((_MDOutClStoreID                      = MFVarGetID(MDVarStoreWaterCl,              "kg/d", MFOutput, MFState, MFInitial)) == CMfailed) ||
+                ((_MDOutLocalLoadClID                  = MFVarGetID(MDVarLocalLoadCl,              "kg/d", MFOutput, MFFlux, MFBoundary)) == CMfailed) ||
+                ((_MDOutPostConc_ClID                  = MFVarGetID(MDVarPostConcCl,               "mg/L", MFOutput, MFState, MFBoundary)) == CMfailed) || 
+                ((_MDOutConcClgwPreID                  = MFVarGetID(MDVarConcClgwPre,              "mg/L", MFOutput, MFState, MFInitial)) == CMfailed) || 
+                ((_MDOutConcClimmPreID                  = MFVarGetID(MDVarConcClimmPre,            "mg/L", MFOutput, MFState, MFInitial)) == CMfailed) || 
+                ((_MDOutCldeicerInputID                 = MFVarGetID(MDVarFluxClimpInput,         "kg/d",MFOutput,MFFlux, MFBoundary)) == CMfailed)  ||
+                ((_MDOutCltotalInputID                 = MFVarGetID(MDVarFluxCltotalInput,         "kg/d",MFOutput,MFFlux, MFBoundary)) == CMfailed)  ||
+                ((MFModelAddFunction (_MDChlorideMass) == CMfailed))
                     ) return (CMfailed) ;
             break;
         default: 

@@ -41,7 +41,7 @@ static int _MDInTauID               = MFUnset;
 static int _MDInPhiID               = MFUnset;
 static int _MDInOrderSwitchID       = MFUnset;
 static int _MDInRiverOrderID        = MFUnset;
-
+static int _MDInRiparianOverHangID  = MFUnset;
 // Output
 static int _MDOutPARBenthicID          = MFUnset;
 static int _MDOutPAR2ReachID           = MFUnset;
@@ -165,6 +165,8 @@ static void _MDRiverLightInput (int itemID) {
     Q_out                    = MFVarGetFloat (_MDInDischargeID,       itemID, 0.0);  	// cubic meters/second m3/sec - Discharge leaving this grid cell after routing.
     riverOrder               = MFVarGetFloat (_MDInRiverOrderID,   itemID, 0.0);
     orderSwitch              = MFVarGetFloat (_MDInOrderSwitchID,   itemID, 0.0);
+
+    overHang                 = MFVarGetFloat (_MDInRiparianOverHangID,  itemID, 0.0);
     
 //printf("#1 itemID = %d, order = %f, switch = %f\n", itemID, riverOrder, orderSwitch);
 
@@ -192,8 +194,7 @@ static void _MDRiverLightInput (int itemID) {
         }
     
         else if (SCALER_BasinID == 5.0) {     // MER
-            overHang = 1.0;
-            canopy_cover = width > 2.0 * overHang ? (2.0 * overHang) / width : 0.95;
+          canopy_cover = MDMinimum((2.0 * overHang) / width, 1.0);
         }
     
         else if (SCALER_BasinID == 6.0) {     // TLK
@@ -207,7 +208,7 @@ static void _MDRiverLightInput (int itemID) {
 //	canopy_shade_total	= Width2 < 0.2 ? 0.98 : c_canopy_shade + d_canopy_shade + m_canopy_shade;
 //      PAR_surface		= PAR * (1 - canopy_shade_total); // proportion of PAR reaching 1 meter above river surface for Coweeta
 	
-        PAR_surface		= PAR * (1 - canopy_cover); // Using Canopy Cover input grid.
+        PAR_surface		= PAR * (1 - 0.85 * canopy_cover); // Using Canopy Cover input grid.  // Canopy absorbs 85% of PAR: SZ 20170406 Grahm and Casper 2002
 	Ecan			= PAR;
 	PAR_benthic		= (Ecan * (1 - canopy_cover) * refl * exp(-Kd * depth)); //<-- Coweeta Function for Benthic PAR
 //	PAR_benthic		= (Ecan * (1 - canopy_cover) * refl * exp(-Kd * depth)) / 24 / 0.0036; //<-- Coweeta Function for Benthic PAR
@@ -279,6 +280,7 @@ int MDBgcRiverLightDef () {
          ((_MDInPhiID               = MFVarGetID (MDVarPhi,             "-",      MFInput, MFState, MFBoundary)) == CMfailed) ||                             
          ((_MDInRiverOrderID        = MFVarGetID (MDVarRiverOrder,      "-",      MFInput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDInOrderSwitchID       = MFVarGetID (MDVarOrderSwitch,     "-",      MFInput, MFState, MFBoundary)) == CMfailed) ||    
+         ((_MDInRiparianOverHangID  = MFVarGetID (MDVarRiparianOverHang,"-",      MFInput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDOutPARBenthicID       = MFVarGetID (MDVarPARBenthic,   "MJ/m2/d",  MFOutput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDOutPARSurfaceID       = MFVarGetID (MDVarPARSurface,   "MJ/m2/d",  MFOutput, MFState, MFBoundary)) == CMfailed) ||
          ((_MDOutPARID              = MFVarGetID (MDVarPAR,          "MJ/m2/d",  MFOutput, MFState, MFBoundary)) == CMfailed) ||
